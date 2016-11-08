@@ -1,0 +1,20 @@
+{
+  "name": "live_gen",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "copy-webpack-plugin": "^4.0.0",
+    "gulp": "^3.9.1",
+    "ts-loader": "^1.0.0",
+    "typescript": "^2.0.8",
+    "typings": "^1.5.0",
+    "webpack": "^1.13.3",
+    "webpack-dashboard": "^0.2.0"
+  }
+}
