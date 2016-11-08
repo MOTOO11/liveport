@@ -1,4 +1,7 @@
 {
   "name": "live_gen",
-  "dependencies": {}
+  "dependencies": {
+    "vue": "npm:vue/types/index.d.ts"
+  },
+  "globalDependencies": {}
 }

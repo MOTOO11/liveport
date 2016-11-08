@@ -1,12 +1,17 @@
 {
     "compilerOptions": {
         "sourceMap": false,
-        "target": "ES5",
-        "outDir": "./build",
-        "module": "commonjs"
+        "target": "ES6",
+        "module": "commonjs",
+        "experimentalDecorators": true
     },
     "files": [
-        // "typings/tsd.d.ts",
-        "src/ts/Main.ts"
+        "typings/index.d.ts",
+        "src/ts/Main.ts",
+        "src/ts/Browser.ts",
+        "src/ts/Application.ts",
+        "src/ts/WebSpeechApi.ts",
+        "src/ts/SofTalk.ts",
+        "src/ts/Speaker.ts"
     ]
 }

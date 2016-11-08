@@ -3,11 +3,18 @@
 
 <head>
     <meta charset="UTF-8" />
-    <script src="../js/bundle.js"></script>
+    <script src="../js/app.bundle.js"></script>
     <title>title</title>
 </head>
 
 <body>
+
+    <div id="app">
+        <p>{{ message }}</p>
+        <textarea id="m" autocomplete="off" v-model="message"></textarea>
+        <button @click="speak(message)">send</button>
+
+    </div>
 </body>
 
 </html>

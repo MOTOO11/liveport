@@ -2,19 +2,42 @@
   "name": "live_gen",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "build/main.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "watch": "webpack-dashboard -- webpack -d --watch",
+    "start": "webpack-dashboard -- webpack-dev-server -d --hot --inline"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@types/electron": "^1.4.25",
+    "@types/express": "^4.0.33",
+    "@types/node": "^6.0.46",
+    "@types/socket.io": "^1.4.27",
+    "@types/socket.io-client": "^1.4.28",
+    "@types/webspeechapi": "0.0.27",
+    "@types/zepto": "^1.0.27",
     "copy-webpack-plugin": "^4.0.0",
+    "electron": "^1.4.5",
+    "electron-connect": "^0.6.0",
+    "electron-packager": "^8.2.0",
     "gulp": "^3.9.1",
+    "gulp-typescript": "^3.1.2",
+    "gulp-util": "^3.0.7",
+    "gulp-webpack": "^1.5.0",
     "ts-loader": "^1.0.0",
     "typescript": "^2.0.8",
     "typings": "^1.5.0",
+    "vue-typed": "^2.0.1",
     "webpack": "^1.13.3",
-    "webpack-dashboard": "^0.2.0"
+    "webpack-dashboard": "^0.2.0",
+    "webpack-dev-server": "^1.16.2"
+  },
+  "dependencies": {
+    "express": "^4.14.0",
+    "socket.io": "^1.5.1",
+    "socket.io-client": "^1.5.1",
+    "vue": "^2.0.5",
+    "zepto": "^1.2.0"
   }
 }
