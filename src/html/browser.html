@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <title>title</title>
+    <meta name="description" content="">
+    <script type="text/javascript" src="js/browser.bundle.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/5.0.0/normalize.css">
+    <style>
+        #app {
+            /*background-color: #eee;*/
+            width: 600px;
+            height: 600px;
+            font-family: 'メイリオ', Meiryo;
+            white-space: pre;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app" v-bind:style="{ width: width+'px' ,height : height+'px'}">{{message}}</div>
+</body>
+
+</html>
