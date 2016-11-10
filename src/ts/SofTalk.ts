@@ -9,7 +9,7 @@ class SofTalk implements Speaker {
         args += " /V:" + volume;
         args += " /S:" + rate;
         args += " /O:" + pitch;
-        args += " /W:" + text.replace(/\n/g, "。");
+        args += " /W:" + "\"" + text.replace(/\n/g, "　") + "\"";
         this.cp.exec(this.path + args, (e, s) => {
             console.log(s);
         });
@@ -17,7 +17,7 @@ class SofTalk implements Speaker {
     // 0-100 1-300 1-300
     _speak(text: string) {
         var args = "";
-        args += " /W:" + text.replace(/\n/g, "。");
+        args += " /W:" + text.replace(/\n/g, "　");
         this.cp.exec(this.path + args, (e, s) => {
             console.log(s);
         });

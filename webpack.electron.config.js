@@ -4,7 +4,7 @@ const DashboardPlugin = require('webpack-dashboard/plugin');
 
 module.exports = {
     entry: {
-        "js/app": './src/ts/Application.ts',
+        "js/app": './src/entry.js',
     },
     output: {
         path: __dirname + "/build",
@@ -21,7 +21,15 @@ module.exports = {
         loaders: [
             // all files with a `.ts` or `.tsx` extension will be handled by `ts-loader`
             { test: /\.tsx?$/, loader: 'ts-loader' },
-            { test: /\.json$/, loader: "json-loader" }
+            { test: /\.json$/, loader: "json-loader" },
+            {
+                test: /\.css$/,
+                loaders: [
+                    'style-loader',
+                    'css-loader?importLoaders=1',
+                    'postcss-loader'
+                ]
+            }
         ],
         noParse: ['ws'] //
     },

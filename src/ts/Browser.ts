@@ -2,6 +2,7 @@
 import * as Vue from "Vue";
 import { Component } from "vue-typed"
 import * as io from "socket.io-client";
+require("../css/main.css")
 
 @Component()
 export default class Browser extends Vue {
