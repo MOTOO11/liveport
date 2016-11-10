@@ -1,48 +1,16 @@
 const copyWebpackPlugin = require('copy-webpack-plugin');
 const path = require('path');
 const DashboardPlugin = require('webpack-dashboard/plugin');
+const merge = require('webpack-merge');
+const common = require('./webpack.config.js');
 
-module.exports = {
+module.exports = merge(common, {
     entry: {
-        "js/app": './src/entry.js',
-    },
-    output: {
-        path: __dirname + "/build",
-        filename: '[name].bundle.js'
-    },
-    resolve: {
-        // Add `.ts` and `.tsx` as a resolvable extension.
-        extensions: ['', '.webpack.js', '.web.js', '.ts', '.tsx', '.js', '.json'],
-        alias: {
-            vue: 'vue/dist/vue.js'
-        }
+        "js/app": './src/entry.electron.js',
     },
     module: {
-        loaders: [
-            // all files with a `.ts` or `.tsx` extension will be handled by `ts-loader`
-            { test: /\.tsx?$/, loader: 'ts-loader' },
-            { test: /\.json$/, loader: "json-loader" },
-            {
-                test: /\.css$/,
-                loaders: [
-                    'style-loader',
-                    'css-loader?importLoaders=1',
-                    'postcss-loader'
-                ]
-            }
-        ],
         noParse: ['ws'] //
     },
     externals: ['ws'], // https://github.com/socketio/socket.io-client/issues/933
-    plugins: [
-        new copyWebpackPlugin([{ from: './src/html/', to: "html/" }], {
-            ignore: []
-        })
-        // ,        new DashboardPlugin()
-    ],
-    target: "electron",
-    node: {
-        __filename: false,
-        __dirname: false
-    }
-}
+    target: "electron"
+});
