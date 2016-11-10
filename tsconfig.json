@@ -5,6 +5,7 @@
         "module": "commonjs",
         "experimentalDecorators": true
     },
+    "lib": ["dom", "es6"],
     "files": [
         "typings/index.d.ts",
         "src/ts/Main.ts",
@@ -12,6 +13,7 @@
         "src/ts/Application.ts",
         "src/ts/WebSpeechApi.ts",
         "src/ts/SofTalk.ts",
-        "src/ts/Speaker.ts"
+        "src/ts/Speaker.ts",
+        "src/ts/Thread.ts"
     ]
 }

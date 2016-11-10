@@ -6,6 +6,7 @@ import WebspeechApi from "./WebspeechApi"
 import * as io from "socket.io-client";
 import * as rp from "request-promise";
 import * as  iconv from "iconv-lite";
+import { Thread, Res } from "./Thread";
 
 
 @Component()
