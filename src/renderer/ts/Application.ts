@@ -14,18 +14,17 @@ export default class Application extends Vue {
     speaker: Speaker;
     socket = io.connect("http://localhost:3000");
     message: string = 'Hello!';
+    url: string = "";
+    reload: number = 7;
+    dummyText: string = "";
     constructor() {
         super();
         console.log("hello world.");
-        let url = "http://jbbs.shitaraba.net/bbs/rawmode.cgi/radio/15726/1477321418/1";
-        // [レス番号]<>[名前]<>[メール]<>[日付]<>[本文]<>[スレッドタイトル]<>[ID]
-        // http://jbbs.shitaraba.net/bbs/read.cgi/game/41082/1478090192/
-
         this.speaker = new SofTalk();
     }
-    speak() {
-        this.socket.emit('message', this.message);
-        this.speaker.speak(this.message);
+    speak(msg: string) {
+        this.socket.emit('message', msg);
+        this.speaker.speak(msg);
     }
 
     req() {
@@ -46,10 +45,4 @@ export default class Application extends Vue {
 window.addEventListener("load", () => {
     var app = new Application();
     app.$mount("#app");
-    app.req();
-    // a.speak("今回もNPC関連は分かりづらいね");
-    // a.speaker = new WebspeechApi();
-    // a.speak("今回もNPC関連は分かりづらいね");
-    // var path = "E:/tools/softalk/SofTalk.exe";
-
 });

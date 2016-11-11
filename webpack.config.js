@@ -4,10 +4,6 @@ const DashboardPlugin = require('webpack-dashboard/plugin');
 
 module.exports = {
     entry: {},
-    output: {
-        path: __dirname + "/build",
-        filename: '[name].bundle.js'
-    },
     resolve: {
         // Add `.ts` and `.tsx` as a resolvable extension.
         extensions: ['', '.webpack.js', '.web.js', '.ts', '.tsx', '.js', '.json'],
@@ -30,13 +26,6 @@ module.exports = {
             }
         ]
     },
-
-    plugins: [
-        new copyWebpackPlugin([{ from: './src/html/', to: "html/" }], {
-            ignore: []
-        })
-        // ,        new DashboardPlugin()
-    ],
     node: {
         __filename: false,
         __dirname: false

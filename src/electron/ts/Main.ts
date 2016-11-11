@@ -26,7 +26,7 @@ class Main {
         // Create the browser window.
         this.mainWindow = new BrowserWindow({ width: 800, height: 600 });
         this.mainWindow.loadURL(url.format({
-            pathname: path.join(__dirname, "html", 'index.html'),
+            pathname: path.join(__dirname, "renderer","html", 'index.html'),
             protocol: 'file:',
             slashes: true
         }));

@@ -14,27 +14,23 @@ config = {
     dist: "./build/"
 }
 gulp.task('default', ["build", "watch"]);
-gulp.task("watch", () => {
-    gulp.watch("./src/**/*.*", ["wp:b", "wp:b", "ts:compile"]);
-});
-
-gulp.task("build", ["wp:b", "wp:e", "ts:compile"]);
+gulp.task("build", ["wp:b", "wp:r", "ts:compile"]);
 
 gulp.task('wp:b', () => {
-    gulp.src('src/entry.js')
+    gulp.src('./src/browser/entry.ts')
         .pipe(webpack(require('./webpack.browser.config.js')))
         .pipe(gulp.dest(config.dist));
 });
 
-gulp.task('wp:e', () => {
-    gulp.src('src/entry.js')
-        .pipe(webpack(require('./webpack.electron.config.js')))
+gulp.task('wp:r', () => {
+    gulp.src('./src/renderer/entry.ts')
+        .pipe(webpack(require('./webpack.renderer.config.js')))
         .pipe(gulp.dest(config.dist));
 });
 
 // define tasks here
 gulp.task('ts:compile', () => {
-    gulp.src("./src/ts/main.ts")
+    gulp.src("./src/electron/ts/main.ts")
         .pipe(ts({
             target: 'ES5',
             removeComments: true
@@ -44,23 +40,26 @@ gulp.task('ts:compile', () => {
 });
 
 
-gulp.task('serve', function() {
+gulp.task('serve', () => {
     var electron = electronServer.create({
         path: ".",
         stopOnClose: true,
     });
     // Start browser process
     electron.start(callback);
-    // Restart browser process
-    gulp.watch("./build/main.js", () => {
+    // electron main process
+    gulp.watch("./src/electron/ts/Main.ts", ["ts:compile"]);
+    gulp.watch(config.dist + "main.js", () => {
         console.log("restart.");
         electron.restart(callback);
     });
-    // Reload renderer process
-    // Reload renderer process
-    gulp.watch([config.dist + 'index.html', config.dist + '/javascripts/app.js'], electron.reload);
-    gulp.watch("./src/**/!(main.ts)", ["wp:b", "wp:b"]);
-    gulp.watch("./src/**/main.ts", ["ts:compile"]);
+    // electron renderer process
+    gulp.watch("./src/renderer/**/*.*", ["wp:r"]);
+    gulp.watch(config.dist + "renderer/**/*.*", electron.reload);
+
+    // web server resource
+    gulp.watch("./src/browser/**/*.*", ["wp:b"]);
+    // gulp.watch(config.dist + "browser/**/*.*", electron.reload);
 });
 
 gulp.task('e:p', (done) => {

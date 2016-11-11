@@ -1,0 +1,13 @@
+#message {
+    /*background-color: #eee;*/
+    font-family: "メイリオ", Meiryo;
+    white-space: pre-wrap;
+}
+
+#app {
+    /*background-color: #eee;*/
+    width: 600px;
+    height: 600px;
+    font-family: "メイリオ", Meiryo;
+    white-space: pre;
+}

@@ -8,12 +8,12 @@
     "lib": ["dom", "es6"],
     "files": [
         "typings/index.d.ts",
-        "src/ts/Main.ts",
-        "src/ts/Browser.ts",
-        "src/ts/Application.ts",
-        "src/ts/WebSpeechApi.ts",
-        "src/ts/SofTalk.ts",
-        "src/ts/Speaker.ts",
-        "src/ts/Thread.ts"
+        "src/electron/ts/main.ts",
+        "src/browser/ts/Browser.ts",
+        "src/renderer/ts/Application.ts",
+        "src/renderer/ts/WebSpeechApi.ts",
+        "src/renderer/ts/SofTalk.ts",
+        "src/renderer/ts/Speaker.ts",
+        "src/renderer/ts/Thread.ts"
     ]
 }

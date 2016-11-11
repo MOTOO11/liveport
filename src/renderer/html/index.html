@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8" />
+    <script src="../js/app.bundle.js"></script>
+    <script>
+        require('electron-connect').client.create()
+    </script>
+    <title>title</title>
+</head>
+
+<body>
+    <div id="app">
+        <p>{{url}}</p>
+        <input type="text" v-model="url" />
+        <input type="range" max="30" min="7" v-model="reload" />
+        <button v-on:click="start()">開始</button>
+        <div id="message">{{ message }}</div>
+        <textarea id="m" autocomplete="off" v-model="message"></textarea>
+        <button v-on:click="speak('message')">send</button>
+
+    </div>
+</body>
+
+</html>
