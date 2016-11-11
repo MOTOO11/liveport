@@ -2,7 +2,7 @@ const electron = require('electron');
 const path = require('path')
 // const url = require('url')
 import * as url from "url";
-// const client = require('electron-connect').client;
+const client = require('electron-connect').client;
 const BrowserWindow: typeof Electron.BrowserWindow = electron.BrowserWindow;
 const app: Electron.App = electron.app;
 
@@ -26,7 +26,7 @@ class Main {
         // Create the browser window.
         this.mainWindow = new BrowserWindow({ width: 800, height: 600 });
         this.mainWindow.loadURL(url.format({
-            pathname: path.join(__dirname, "renderer","html", 'index.html'),
+            pathname: path.join(__dirname, "renderer", "html", 'index.html'),
             protocol: 'file:',
             slashes: true
         }));
@@ -38,26 +38,28 @@ class Main {
     }
 }
 
-var Express = require("express")();
+var express = require("express");
+var Express = express();
 var http = require('http').Server(Express);
 var socketio = require('socket.io')(http);
 Express.get('/', function (req, res) {
-    res.sendFile(__dirname + '/html/browser.html');
+    res.sendFile(__dirname + '/browser/html/browser.html');
 });
-Express.get('/js/browser.bundle.js', function (req, res) {
-    res.sendFile(__dirname + '/js/browser.bundle.js');
-});
+Express.use("/js", express.static(__dirname + '/browser/js'));
 socketio.on('connection', function (socket) {
     socket.on('message', function (msg) {
         socketio.emit('message', msg);
     });
-    // socket.on('message', function (msg) {
-    //     socketio.emit('message', msg);
-    // });
+    socket.on('resize', function (msg) {
+        socketio.emit('resize', msg);
+    });
+    socket.on('aa', function (msg) {
+        socketio.emit('aa', msg);
+    });
 });
 
 http.listen(3000, function () {
     console.log('listening on *:3000');
 });
 const myapp = new Main(app);
-// client.create(myapp.mainWindow);
+client.create(myapp.mainWindow);

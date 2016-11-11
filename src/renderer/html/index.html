@@ -4,21 +4,25 @@
 <head>
     <meta charset="UTF-8" />
     <script src="../js/app.bundle.js"></script>
+    <!-- build:remove -->
+    <!-- Connect to server process -->
     <script>
         require('electron-connect').client.create()
     </script>
+    <!-- endbuild -->
     <title>title</title>
 </head>
 
 <body>
     <div id="app">
-        <p>{{url}}</p>
-        <input type="text" v-model="url" />
-        <input type="range" max="30" min="7" v-model="reload" />
-        <button v-on:click="start()">開始</button>
-        <div id="message">{{ message }}</div>
+        <input type="text" v-model="url" v-bind:disabled="processing" /><br>
+        <label>リロード：</label><input type="range" max="30" min="7" v-model="reload" v-bind:disabled="processing" /><label>{{reload}}</label><br>
+        <label>読み上げ時間：</label><input type="range" max="30" min="7" v-model="readingLimit" v-bind:disabled="processing" /><label>{{readingLimit}}</label><br>
+        <button v-on:click="start()" v-bind:disabled="!validUrl" v-show="!processing">開始</button><button v-on:click="stop()" v-show="processing">停止</button><br>
+        <hr>
+        <p>読み上げテスト</p>
         <textarea id="m" autocomplete="off" v-model="message"></textarea>
-        <button v-on:click="speak('message')">send</button>
+        <button v-on:click="speak(message)">send</button>
 
     </div>
 </body>

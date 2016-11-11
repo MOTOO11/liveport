@@ -10,15 +10,19 @@ export default class Browser extends Vue {
   message = 'Hello Vue!';
   width = 600;
   height = 300;
+  font_size = 10;
   constructor() {
     super();
   }
   onMessage(message: string) {
     this.message = message;
   }
-  onResize(width, height) {
+  onResize(width: number, height: number) {
     this.width = width;
     this.height = height;
+  }
+  onAa(aa: string) {
+    this.message = aa;
   }
 
 }
@@ -31,5 +35,8 @@ window.addEventListener("load", () => {
   });
   socket.on('resize', function (msg) {
     app.onResize(msg.width, msg.height);
+  });
+  socket.on('aa', function (msg) {
+    app.onAa(msg);
   });
 });

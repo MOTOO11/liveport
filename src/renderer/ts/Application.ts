@@ -13,19 +13,63 @@ require("../css/main.css")
 export default class Application extends Vue {
     speaker: Speaker;
     socket = io.connect("http://localhost:3000");
+    // data
     message: string = 'Hello!';
     url: string = "";
     reload: number = 7;
+    readingLimit: number = 8;
     dummyText: string = "";
+    processing: boolean = false;
+    // softalk or bouyomichan
+    path: string = "";
+    // browser frame size
+    width: number; height: number;
     constructor() {
         super();
-        console.log("hello world.");
+        console.log("hello application.");
         this.speaker = new SofTalk();
     }
-    speak(msg: string) {
-        this.socket.emit('message', msg);
-        this.speaker.speak(msg);
+
+    // computed
+    get validUrl() {
+        return Thread.isShitarabaURL(this.url);
     }
+
+
+    speak() {
+        this.socket.emit('message', this.message);
+        this.speaker.speak(this.message);
+    }
+
+    resize() {
+        this.socket.emit('resize', {
+            width: this.width, height: this.height
+        });
+    }
+
+    /*
+    開始ボタンが押せるならURLは正しい
+    リサイズ情報を送信する
+    dat取得タイマーと表示＆読み上げ用タイマーを起動する
+    */
+    start() {
+        this.resize();
+        this.processing = true;
+        // var t = window.setInterval(() => { }, 1000);
+    }
+
+    stop() {
+        this.processing = false;
+        clearInterval(this.datRequestTimer);
+        clearInterval(this.displayTimer);
+    }
+
+    get executeButtonText() {
+        return this.processing ? "停止" : "開始"
+    }
+
+    datRequestTimer: number;
+    displayTimer: number;
 
     req() {
         let url = "http://jbbs.shitaraba.net/bbs/rawmode.cgi/radio/15726/1477321418/1";
