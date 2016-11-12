@@ -29,6 +29,7 @@ module.exports = {
             //     test: /\.(jpe?g|png|gif|svg|eot|woff|ttf|svg|woff2)$/,
             //     loader: 'file?name=css/[name].[ext]'
             // }
+            , { test: /\.(png|woff|woff2|eot|ttf|svg)$/, loader: 'url-loader?limit=100000' }
         ]
     },
     node: {
