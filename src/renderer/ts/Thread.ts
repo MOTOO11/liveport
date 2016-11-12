@@ -2,7 +2,7 @@
 import * as rp from "request-promise";
 import * as  iconv from "iconv-lite";
 const URL = "http://jbbs.shitaraba.net/bbs/read.cgi/netgame/12802/1478775754/";
-const SHITARABA_REGEX = new RegExp(/http:\/\/jbbs.shitaraba.net\/bbs\/read.cgi\/(\w+)\/(\d+)\/(\d+)\//);
+const SHITARABA_REGEX = new RegExp(/http:\/\/jbbs.shitaraba.net\/bbs\/read.cgi\/(\w+)\/(\d+)\/(\d+)\/.*/);
 const RES_SPLITTER = new RegExp(/<>/g);
 const NEWLINE_SPLITTER = new RegExp(/\n/g);
 
@@ -105,8 +105,15 @@ export class Res {
     text: string;
     title: string;
     id: string;
-    constructor() {
+    constructor() { }
+    isAA(regexp?: RegExp): boolean {
+        return this.text.indexOf('　 ') !== -1
+    }
 
+    urltoReadable(): string {
+        var expression = /(h?ttps?:\/\/(www\.)?)?[-a-zA-Z0-9@:%_\+.~#?&//=]{2,256}\.[a-z]{2,4}\b(\/[-a-zA-Z0-9@:%_\+.~#?&//=]*)?/gi;
+        var regex = new RegExp(expression);
+        return this.text.replace(expression, "URL");
     }
     static decodeFromJson(data: any) {
         var data = JSON.parse(data);

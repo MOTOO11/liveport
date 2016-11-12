@@ -15,15 +15,20 @@ module.exports = {
         loaders: [
             // all files with a `.ts` or `.tsx` extension will be handled by `ts-loader`
             { test: /\.tsx?$/, loader: 'ts-loader' },
+            { test: /\.js$/, loader: 'exports-loader' },
             { test: /\.json$/, loader: "json-loader" },
             {
                 test: /\.css$/,
                 loaders: [
                     'style-loader',
-                    'css-loader?importLoaders=1',
+                    'css-loader',
                     'postcss-loader'
                 ]
             }
+            // ,            {
+            //     test: /\.(jpe?g|png|gif|svg|eot|woff|ttf|svg|woff2)$/,
+            //     loader: 'file?name=css/[name].[ext]'
+            // }
         ]
     },
     node: {

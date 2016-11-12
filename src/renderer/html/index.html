@@ -3,6 +3,7 @@
 
 <head>
     <meta charset="UTF-8" />
+    <title>initialize....</title>
     <script src="../js/app.bundle.js"></script>
     <!-- build:remove -->
     <!-- Connect to server process -->
@@ -10,15 +11,17 @@
         require('electron-connect').client.create()
     </script>
     <!-- endbuild -->
-    <title>title</title>
+
 </head>
 
 <body>
     <div id="app">
-        <input type="text" v-model="url" v-bind:disabled="processing" /><br>
-        <label>リロード：</label><input type="range" max="30" min="7" v-model="reload" v-bind:disabled="processing" /><label>{{reload}}</label><br>
-        <label>読み上げ時間：</label><input type="range" max="30" min="7" v-model="readingLimit" v-bind:disabled="processing" /><label>{{readingLimit}}</label><br>
-        <button v-on:click="start()" v-bind:disabled="!validUrl" v-show="!processing">開始</button><button v-on:click="stop()" v-show="processing">停止</button><br>
+        <input type="text" class="mdl-textfield__input" v-model="url" v-bind:disabled="processing" /><br>
+        <p style="width:100px"> <label>リロード：</label><input class="mdl-slider mdl-js-slider" type="range" max="30" min="7" v-model="reload" v-bind:disabled="processing" /><label>{{reload}}</label></p><br>
+
+        <p style="width:100px"><label>読み上げ時間：</label><input class="mdl-slider mdl-js-slider" type="range" max="30" min="7" v-model="readingLimit" v-bind:disabled="processing" /><label>{{readingLimit}}</label><br></p>
+        <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored" v-on:click="start()" v-bind:disabled="!validUrl" v-show="!processing">開始</button><button class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent" v-on:click="stop()"
+            v-show="processing">停止</button><br>
         <hr>
         <p>読み上げテスト</p>
         <textarea id="m" autocomplete="off" v-model="message"></textarea>

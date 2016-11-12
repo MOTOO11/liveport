@@ -1,6 +1,5 @@
 const electron = require('electron');
 const path = require('path')
-// const url = require('url')
 import * as url from "url";
 const client = require('electron-connect').client;
 const BrowserWindow: typeof Electron.BrowserWindow = electron.BrowserWindow;
@@ -25,6 +24,8 @@ class Main {
     onReady() {
         // Create the browser window.
         this.mainWindow = new BrowserWindow({ width: 800, height: 600 });
+        // disable menubar.
+        this.mainWindow.setMenu(null);
         this.mainWindow.loadURL(url.format({
             pathname: path.join(__dirname, "renderer", "html", 'index.html'),
             protocol: 'file:',

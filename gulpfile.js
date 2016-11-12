@@ -66,7 +66,7 @@ gulp.task('serve', () => {
     // gulp.watch(config.dist + "browser/**/*.*", electron.reload);
 });
 
-gulp.task('e:p', (done) => {
+gulp.task('release', (done) => {
     gulp.src(config.dist + "**/*.html")
         .pipe(useref())
         .pipe(gulp.dest(config.dist, { base: config.dist }));

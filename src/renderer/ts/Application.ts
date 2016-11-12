@@ -8,8 +8,10 @@ import * as rp from "request-promise";
 import * as  iconv from "iconv-lite";
 import { Thread, Res } from "./Thread";
 require("../css/main.css")
+import { remote, BrowserWindow } from "electron";
+const ApplicatonName = require("../../../package.json").name
 
-@Component()
+@Component({})
 export default class Application extends Vue {
     speaker: Speaker;
     socket = io.connect("http://localhost:3000");
@@ -20,6 +22,7 @@ export default class Application extends Vue {
     readingLimit: number = 8;
     dummyText: string = "";
     processing: boolean = false;
+    thread: Thread;
     // softalk or bouyomichan
     path: string = "";
     // browser frame size
@@ -28,6 +31,7 @@ export default class Application extends Vue {
         super();
         console.log("hello application.");
         this.speaker = new SofTalk();
+        remote.getCurrentWindow().setTitle(ApplicatonName);
     }
 
     // computed
@@ -55,6 +59,8 @@ export default class Application extends Vue {
     start() {
         this.resize();
         this.processing = true;
+        this.thread = new Thread(this.url);
+        remote.getCurrentWindow().setTitle("start");
         // var t = window.setInterval(() => { }, 1000);
     }
 
@@ -64,27 +70,14 @@ export default class Application extends Vue {
         clearInterval(this.displayTimer);
     }
 
-    get executeButtonText() {
-        return this.processing ? "停止" : "開始"
+    get allNum() {
+        return this.thread.reses.length;
     }
+
+    readingNum: number = 0;
 
     datRequestTimer: number;
     displayTimer: number;
-
-    req() {
-        let url = "http://jbbs.shitaraba.net/bbs/rawmode.cgi/radio/15726/1477321418/1";
-        rp({ url: url, encoding: null })
-            .then((htmlString) => {
-                console.log("ok!");
-                var decoding = iconv.decode(htmlString, "EUC-JP")
-                console.log(decoding);
-                this.message = decoding;
-            })
-            .catch(function (err) {
-                console.log("error...");
-                console.log(err);
-            });
-    }
 }
 window.addEventListener("load", () => {
     var app = new Application();
