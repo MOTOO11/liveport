@@ -7,7 +7,6 @@ import * as io from "socket.io-client";
 import * as rp from "request-promise";
 import * as  iconv from "iconv-lite";
 import { Thread, Res } from "./Thread";
-require("../css/main.css")
 import { remote, BrowserWindow } from "electron";
 const ApplicatonName = require("../../../package.json").name
 
