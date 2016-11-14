@@ -16,20 +16,68 @@
 
 <body>
     <div id="app">
-        <input type="text" class="mdl-textfield__input" v-model="url" v-bind:disabled="processing" /><br>
-        <p style="width:100px"> <label>リロード：</label><input class="mdl-slider mdl-js-slider" type="range" max="30" min="7" v-model="reload" v-bind:disabled="processing" /><label>{{reload}}</label></p><br>
+        <div class="viewer__showThread">
+            <dl v-for="item in thread.reses">
+                <dt :id="'MESSAGE-'+item.num">{{item.num}}:<span v-html="item.name"></span>[{{item.mail}}] {{item.date}} ID:{{item.id}}</dt>
+                <dd v-html="replace(item.text)" class="aa"></dd>
+            </dl>
+        </div>
+        <div class="settings">
+            <input type="text" class="" v-model="url" v-bind:disabled="processing" /><br>
+            <p style="width:100px"><label>リロード：</label><input class="" type="range" max="30" min="7" v-model="reload" v-bind:disabled="processing" /><label>{{reload}}</label></p><br>
 
-        <p style="width:100px"><label>読み上げ時間：</label><input class="mdl-slider mdl-js-slider" type="range" max="30" min="7" v-model="readingLimit" v-bind:disabled="processing" /><label>{{readingLimit}}</label><br></p>
-        <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored" v-on:click="start()" v-bind:disabled="!validUrl" v-show="!processing">開始</button><button class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent" v-on:click="stop()"
-            v-show="processing">停止</button><br>
-        <hr>
-        <p>読み上げテスト</p>
-        <textarea id="m" autocomplete="off" v-model="message"></textarea>
-        <button v-on:click="speak(message)">send</button>
-        <i class="material-icons md-18">face</i>
-        <i class="material-icons orange600  md-18">face</i>
+            <p style="width:100px"><label>読み上げ時間：</label><input class="" type="range" max="30" min="7" v-model="readingLimit" v-bind:disabled="processing" /><label>{{readingLimit}}</label><br></p>
+            <button class="" v-on:click="start()" v-bind:disabled="!validUrl" v-show="!processing">開始</button><button class="" v-on:click="stop()" v-show="processing">停止</button><br>
+            <hr>
+            <p>読み上げテスト</p>
+            <textarea id="m" autocomplete="off" v-model="message"></textarea>
+            <button v-on:click="speak(message)">send</button>
+            <i class="material-icons md-18">face</i>
+            <i class="material-icons orange600  md-18">face</i>
+            <i class="material-icons">settings</i>
+            <i class="material-icons">play_arrow</i>
+            <i class="material-icons">stop</i>
+            <i class="material-icons">last_page</i>
+            <i class="material-icons">first_page</i>
+            <i class="material-icons">record_voice_over</i>
+            <!--<div class="mdl-spinner mdl-js-spinner is-active"></div>
+        <div id="p2" class="mdl-progress mdl-js-progress mdl-progress__indeterminate">aaaa</div>-->
+            <i class="fa fa-address-book fa-2x fa-fw" aria-hidden="true"></i>
+
+            <i class="fa fa-cog fa-spin fa-2x fa-fw"></i>
+            <span class="sr-only">Loading...</span>
+
+            <i class="fa fa-spinner fa-pulse fa-2x fa-fw"></i>
+            <span class="sr-only">Loading...</span>
+        </div>
 
     </div>
+    <!--<button id="show-dialog" type="button" class="mdl-button">Show Dialog</button>
+    <dialog class="mdl-dialog">
+        <h4 class="mdl-dialog__title">Allow data collection?</h4>
+        <div class="mdl-dialog__content">
+            <p>
+                Allowing us to collect data will let us get you the information you want faster.
+            </p>
+        </div>
+        <div class="mdl-dialog__actions">
+            <button type="button" class="mdl-button">Agree</button>
+            <button type="button" class="mdl-button close">Disagree</button>
+        </div>
+    </dialog>
+    <script>
+        var dialog = document.querySelector('dialog');
+        var showDialogButton = document.querySelector('#show-dialog');
+        if (!dialog.showModal) {
+            dialogPolyfill.registerDialog(dialog);
+        }
+        showDialogButton.addEventListener('click', function() {
+            dialog.showModal();
+        });
+        dialog.querySelector('.close').addEventListener('click', function() {
+            dialog.close();
+        });
+    </script>-->
 </body>
 
 </html>

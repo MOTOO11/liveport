@@ -1,6 +1,7 @@
 const copyWebpackPlugin = require('copy-webpack-plugin');
 const path = require('path');
 const DashboardPlugin = require('webpack-dashboard/plugin');
+const webpack = require('webpack');
 
 module.exports = {
     entry: {},
@@ -16,32 +17,41 @@ module.exports = {
             // all files with a `.ts` or `.tsx` extension will be handled by `ts-loader`
             {
                 test: /\.tsx?$/,
-                loader: 'ts-loader'
+                loader: 'ts'
             }, {
                 test: /\.js$/,
-                loader: 'exports-loader'
+                loader: 'exports'
             }, {
                 test: /\.json$/,
-                loader: "json-loader"
+                loader: "json"
             }, {
                 test: /\.css$/,
                 loaders: [
-                    'style-loader',
-                    'css-loader?importLoaders=1',
-                    'postcss-loader'
+                    'style',
+                    'css?importLoaders=1',
+                    'postcss',
+                    "resolve-url"
+
                 ]
             }, {
                 test: /\.less$/,
                 loaders: [
-                    'style-loader',
-                    'css-loader?importLoaders=1',
-                    'less-loader',
-                    'postcss-loader'
-                ]
-            }, {
-                test: /\.(png|woff|woff2|eot|ttf|svg)$/,
-                loader: 'url-loader?limit=100000&name=./fonts/[hash].[ext]'
-            }
+                        'style',
+                        'css?importLoaders=1',
+                        'less',
+                        'postcss'
+                        // "resolve-url"
+
+                    ]
+                    // }, {
+                    //     test: /\.(png|woff|woff2|eot|ttf|svg)$/,
+                    //     loader: 'url-loader?limit=100000&name=./fonts/[hash].[ext]'
+                    // }
+            },
+            { test: /\.svg(\?v=\d+\.\d+\.\d+)?$/, loader: 'url-loader?mimetype=image/svg+xml&name=./fonts/[hash].[ext]' },
+            { test: /\.woff(\d+)?(\?v=\d+\.\d+\.\d+)?$/, loader: 'url-loader?mimetype=application/font-woff&name=./fonts/[hash].[ext]' },
+            { test: /\.eot(\?v=\d+\.\d+\.\d+)?$/, loader: 'url-loader?mimetype=application/font-woff&name=./fonts/[hash].[ext]' },
+            { test: /\.ttf(\?v=\d+\.\d+\.\d+)?$/, loader: 'url-loader?mimetype=application/font-woff&name=./fonts/[hash].[ext]' }
         ]
     },
     cache: true,
@@ -49,5 +59,13 @@ module.exports = {
     node: {
         __filename: false,
         __dirname: false
-    }
+    },
+
+    plugins: [
+        new webpack.ProvidePlugin({
+            $: 'jquery',
+            jQuery: 'jquery',
+            'window.jQuery': 'jquery',
+        })
+    ]
 }
