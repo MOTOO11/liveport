@@ -1,4 +1,5 @@
 const electron = require('electron');
+import { shell } from 'electron';
 const path = require('path')
 import * as url from "url";
 const client = require('electron-connect').client;
@@ -33,6 +34,10 @@ class Main {
         }));
         this.mainWindow.on('closed', () => {
             this.mainWindow = null;
+        });
+        this.mainWindow.webContents.on('new-window', (e, url) => {
+            e.preventDefault();
+            shell.openExternal(url);
         });
         //   Open the DevTools.
         this.mainWindow.webContents.openDevTools();

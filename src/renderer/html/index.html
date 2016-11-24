@@ -11,73 +11,96 @@
         require('electron-connect').client.create()
     </script>
     <!-- endbuild -->
-
 </head>
 
 <body>
     <div id="app">
-        <div class="viewer__showThread">
-            <dl v-for="item in thread.reses">
-                <dt :id="'MESSAGE-'+item.num">{{item.num}}:<span v-html="item.name"></span>[{{item.mail}}] {{item.date}} ID:{{item.id}}</dt>
-                <dd v-html="replace(item.text)" class="aa"></dd>
-            </dl>
+        <div class="mdl-layout mdl-js-layout mdl-layout--fixed-drawer
+            mdl-layout--fixed-header">
+            <header class="mdl-layout__header">
+                <div class="mdl-layout__header-row">
+                    <span class="mdl-layout-title">
+                        <div class="mdl-textfield mdl-js-textfield">
+                            <input type="text" class="mdl-textfield__input" v-model="url" v-bind:disabled="processing" id="url" />
+                            <label class="mdl-textfield__label" for="url">URL.....</label>
+                        </div>
+                    </span>
+                    <div class="mdl-layout-spacer"></div>
+                    <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent mdl-js-ripple-effect">
+                        <i class="material-icons">first_page</i>
+                    </button>
+                    <button v-on:click="start()" v-bind:disabled="!validUrl" v-show="!processing" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent mdl-js-ripple-effect">
+                        <i class="material-icons">play_arrow</i>
+                    </button>
+                    <button v-on:click="stop()" v-show="processing" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent mdl-js-ripple-effect">
+                        <i class="material-icons">stop</i>
+                    </button>
+                    <button v-on:click="test()" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent mdl-js-ripple-effect">
+                        <i class="material-icons">last_page</i>
+                    </button>
+                </div>
+            </header>
+            <div class="mdl-layout__drawer">
+                <!--<span class="mdl-layout-title"><i class="material-icons">settings</i></span>-->
+                <nav class="mdl-navigation">
+                    <span class="mdl-navigation__link">
+                        <label><i class="material-icons">refresh</i> リロード：{{reload}}</label>
+                        <input class="" type="range" max="30" min="7" v-model="reload" v-bind:disabled="processing" />
+                    </span>
+                    <span class="mdl-navigation__link">
+                        <label><i class="material-icons">timer</i> 読み上げ時間制限：{{readingLimit}}</label>
+                        <input class="" type="range" max="30" min="7" v-model="readingLimit" v-bind:disabled="processing" />
+                    </span>
+                    <span class="mdl-navigation__link">
+                        <label><i class="material-icons">mic</i> 読み上げ</label><br>
+                        <label class="mdl-radio mdl-js-radio mdl-js-ripple-effect" for="option-1">
+                            <input type="radio" id="option-1" class="mdl-radio__button"  v-model="voice"  v-bind:value="1" >
+                            <span class="mdl-radio__label">WSA</span>
+                    </label>
+                    <label class="mdl-radio mdl-js-radio mdl-js-ripple-effect" for="option-2">
+                            <input type="radio" id="option-2" class="mdl-radio__button"  v-model="voice"  v-bind:value="2">
+                            <span class="mdl-radio__label">SofTalk</span>
+                        </label>
+                    </span>
+                    <span class="mdl-navigation__link">
+                        <label><i class="material-icons">record_voice_over</i> 読み上げテスト</label>                        
+                        <div class="mdl-textfield mdl-js-textfield">
+                        <textarea class="mdl-textfield__input" id="m" autocomplete="off" v-model="message"></textarea>
+                        <button v-on:click="_speak(message)">send</button>
+                        </div>
+                    </span>
+                </nav>
+            </div>
+            <main class="mdl-layout__content">
+                <div class="viewer__showThread">
+                    <transition-group name="fade" tag="dl" v-for="item in thread.reses">
+                        <dt :id="'MESSAGE-'+item.num" :key="item.num">{{item.num}}:<span v-html="item.name"></span>[{{item.mail}}] {{item.date}} ID:{{item.id}}</dt>
+                        <dd v-html="replace(item.text)" class="aa" :key="item.num"></dd>
+                    </transition-group>
+                </div>
+            </main>
         </div>
+        <div id="demo-snackbar-example" class="mdl-js-snackbar mdl-snackbar">
+            <div class="mdl-snackbar__text"></div>
+            <button class="mdl-snackbar__action" type="button"></button>
+        </div>
+    </div>
+    <!--<div id="app">
+
         <div class="settings">
-            <input type="text" class="" v-model="url" v-bind:disabled="processing" /><br>
-            <p style="width:100px"><label>リロード：</label><input class="" type="range" max="30" min="7" v-model="reload" v-bind:disabled="processing" /><label>{{reload}}</label></p><br>
-
-            <p style="width:100px"><label>読み上げ時間：</label><input class="" type="range" max="30" min="7" v-model="readingLimit" v-bind:disabled="processing" /><label>{{readingLimit}}</label><br></p>
-            <button class="" v-on:click="start()" v-bind:disabled="!validUrl" v-show="!processing">開始</button><button class="" v-on:click="stop()" v-show="processing">停止</button><br>
-            <hr>
+            <br>
             <p>読み上げテスト</p>
-            <textarea id="m" autocomplete="off" v-model="message"></textarea>
-            <button v-on:click="speak(message)">send</button>
             <i class="material-icons md-18">face</i>
-            <i class="material-icons orange600  md-18">face</i>
-            <i class="material-icons">settings</i>
-            <i class="material-icons">play_arrow</i>
-            <i class="material-icons">stop</i>
-            <i class="material-icons">last_page</i>
-            <i class="material-icons">first_page</i>
-            <i class="material-icons">record_voice_over</i>
+            <i class="material-icons orange600 md-18">face</i>
             <!--<div class="mdl-spinner mdl-js-spinner is-active"></div>
-        <div id="p2" class="mdl-progress mdl-js-progress mdl-progress__indeterminate">aaaa</div>-->
+        <div id="p2" class="mdl-progress mdl-js-progress mdl-progress__indeterminate">aaaa</div>
             <i class="fa fa-address-book fa-2x fa-fw" aria-hidden="true"></i>
-
             <i class="fa fa-cog fa-spin fa-2x fa-fw"></i>
             <span class="sr-only">Loading...</span>
-
             <i class="fa fa-spinner fa-pulse fa-2x fa-fw"></i>
             <span class="sr-only">Loading...</span>
         </div>
-
-    </div>
-    <!--<button id="show-dialog" type="button" class="mdl-button">Show Dialog</button>
-    <dialog class="mdl-dialog">
-        <h4 class="mdl-dialog__title">Allow data collection?</h4>
-        <div class="mdl-dialog__content">
-            <p>
-                Allowing us to collect data will let us get you the information you want faster.
-            </p>
-        </div>
-        <div class="mdl-dialog__actions">
-            <button type="button" class="mdl-button">Agree</button>
-            <button type="button" class="mdl-button close">Disagree</button>
-        </div>
-    </dialog>
-    <script>
-        var dialog = document.querySelector('dialog');
-        var showDialogButton = document.querySelector('#show-dialog');
-        if (!dialog.showModal) {
-            dialogPolyfill.registerDialog(dialog);
-        }
-        showDialogButton.addEventListener('click', function() {
-            dialog.showModal();
-        });
-        dialog.querySelector('.close').addEventListener('click', function() {
-            dialog.close();
-        });
-    </script>-->
+    </div>-->
 </body>
 
 </html>

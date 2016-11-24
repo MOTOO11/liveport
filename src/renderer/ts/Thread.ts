@@ -10,11 +10,12 @@ export class Thread {
     reses: Res[] = [];
     bookmark: number = 0;
     url: string = "";
+    title: string = "";
     constructor(url?: string) {
         if (url) this.url = url;
     }
 
-    request(success: (boolean) => void, error: (err: any) => void) {
+    request(success: (boolean) => void, failed: (err: any) => void) {
         var url = URL;
         if (Thread.isShitarabaURL(this.url)) {
             url = this.url;
@@ -22,7 +23,7 @@ export class Thread {
         var matches = url.match(SHITARABA_REGEX);
         var datUrl = `http://jbbs.shitaraba.net/bbs/rawmode.cgi/${matches[1]}/${matches[2]}/${matches[3]}/` + (this.reses.length + 1) + "-";
         console.log("request dat url : " + datUrl);
-        rp({ url: datUrl, encoding: null, timeout: 1500 })
+        rp({ url: datUrl, encoding: null, timeout: 3000 })
             .then((htmlString) => {
                 console.log("request result : ok!");
                 var decoding = iconv.decode(htmlString, "EUC-JP")
@@ -32,11 +33,11 @@ export class Thread {
             .catch((err) => {
                 console.log("error...");
                 console.log(err);
-                error(err);
+                failed(err);
             });
     }
-    // 新着レスが有る場合はtrue
-    dat2json(dat: string): boolean {
+    // 新着レスが有る場合はその数を返す
+    dat2json(dat: string): number {
         var line = dat.split(NEWLINE_SPLITTER);
         /* 
             末尾に改行コードがついているので、
@@ -53,14 +54,15 @@ export class Thread {
             res.date = r[3];
             res.text = r[4];
             res.title = r[5];
+            if (res.title) { this.title = res.title; console.log("new thread title : " + res.title) }
             res.id = r[6];
             resArray.push(res);
             resArray.sort(this.sortRes);
         }
-        if (resArray.length == 0) return false;
         this.reses = this.reses.concat(resArray);
         this.reses.sort(this.sortRes);
-        return true;
+        this.saveThread();
+        return resArray.length;
     }
 
     sortRes = (n1, n2) => {
@@ -85,6 +87,7 @@ export class Thread {
         let thread = new Thread();
         thread.bookmark = data.bookmark;
         thread.url = data.url;
+        thread.title = data.title;
         var resdata = [];
         for (var i in data.res) {
             var decode = Res.decodeFromJson(JSON.stringify(data.res[i]));
@@ -92,6 +95,27 @@ export class Thread {
         }
         thread.reses = resdata;
         return thread;
+    }
+
+    saveThread() {
+        localStorage.setItem(this.url, this.stringify());
+    }
+
+    static threadFactory(url: string): Thread {
+        var thread = Thread.loadThread(url);
+        if (thread == null)
+            return new Thread(url);
+        return Thread.decodeFromJson(thread);
+    }
+
+    static loadThread(url: string) {
+        return localStorage.getItem(url);
+    }
+    static clearThread(url: string) {
+        localStorage.removeItem(url);
+    }
+    static clearAllThread(url: string) {
+        localStorage.clear();
     }
 }
 
@@ -110,11 +134,6 @@ export class Res {
         return this.text.indexOf('　 ') !== -1
     }
 
-    urltoReadable(): string {
-        var expression = /(h?ttps?:\/\/(www\.)?)?[-a-zA-Z0-9@:%_\+.~#?&//=]{2,256}\.[a-z]{2,4}\b(\/[-a-zA-Z0-9@:%_\+.~#?&//=]*)?/gi;
-        var regex = new RegExp(expression);
-        return this.text.replace(expression, "URL");
-    }
     static decodeFromJson(data: any) {
         var data = JSON.parse(data);
         let res = new Res();

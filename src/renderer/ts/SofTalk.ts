@@ -1,6 +1,8 @@
+import * as cp from "child_process";
+import * as os from "os";
 class SofTalk implements Speaker {
-    cp = require("child_process");
-    path = "E:/tools/softalk/SofTalk.exe";
+    path = "E:/tools/softalk/SofTalk.exe";;
+    // path = "E:/tools/Output-CommandLine/Output-CommandLine.exe";
     constructor() {
     }
     // 0-100 1-300 1-300
@@ -9,23 +11,23 @@ class SofTalk implements Speaker {
         args += " /V:" + volume;
         args += " /S:" + rate;
         args += " /O:" + pitch;
-        args += " /W:" + "\"" + text.replace(/\n/g, "　") + "\"";
-        this.cp.exec(this.path + args, (e, s) => {
+        args += " /W:" + text.replace(/\n/gi, "\t");
+        cp.exec(this.path + args, (e, s) => {
             console.log(s);
         });
     }
     // 0-100 1-300 1-300
     _speak(text: string) {
         var args = "";
-        args += " /W:" + text.replace(/\n/g, "　");
-        this.cp.exec(this.path + args, (e, s) => {
+        args += " /W:" + text.replace(/\n/g, "\t");
+        cp.exec(this.path + args, (e, s) => {
             console.log(s);
         });
     }
 
     cancel() {
         var args = " /stop_now";
-        this.cp.exec(this.path + args, (e, s) => {
+        cp.exec(this.path + args, (e, s) => {
             console.log(s);
         });
     }
