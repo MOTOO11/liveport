@@ -1,9 +1,9 @@
 import * as cp from "child_process";
 import * as os from "os";
 class SofTalk implements Speaker {
-    path = "E:/tools/softalk/SofTalk.exe";;
-    // path = "E:/tools/Output-CommandLine/Output-CommandLine.exe";
-    constructor() {
+    path: string = "";
+    constructor(path: string) {
+        this.path = path;
     }
     // 0-100 1-300 1-300
     speak(text: string, volume: number = 50, rate: number = 100, pitch: number = 100) {
@@ -13,7 +13,7 @@ class SofTalk implements Speaker {
         args += " /O:" + pitch;
         args += " /W:" + text.replace(/\n/gi, "\t");
         cp.exec(this.path + args, (e, s) => {
-            console.log(s);
+            console.log("return :" + s);
         });
     }
     // 0-100 1-300 1-300
@@ -21,7 +21,7 @@ class SofTalk implements Speaker {
         var args = "";
         args += " /W:" + text.replace(/\n/g, "\t");
         cp.exec(this.path + args, (e, s) => {
-            console.log(s);
+            console.log("return :" + s);
         });
     }
 

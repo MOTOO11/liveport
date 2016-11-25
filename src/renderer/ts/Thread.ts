@@ -130,9 +130,6 @@ export class Res {
     title: string;
     id: string;
     constructor() { }
-    isAA(regexp?: RegExp): boolean {
-        return this.text.indexOf('　 ') !== -1
-    }
 
     static decodeFromJson(data: any) {
         var data = JSON.parse(data);

@@ -2,7 +2,12 @@
 #app {
     background-color: #eee;
 }
-
+/*
+body {
+    width: 100%;
+    overflow-x: hidden;
+}
+*/
 .viewer__showThread .aa {
     font-family: "ＭＳ Ｐゴシック", "MS PGothic", "Mona", "mona-gothic-jisx0208.1990-0", sans-serif;
     font-size: 16px;
@@ -12,20 +17,38 @@
     margin-right: auto;
 }
 
-.settings__url--error {
-    color: red;
+.mdl-textfield {
+    width: 300px;
 }
 
-.fade-enter-active,
-.fade-leave-active {
-    transition: all .5s ease;
-    overflow: hidden;
-    margin: 0;
-    /*height: 20px;*/
+.mdl-dialog {
+    width: 580px;
 }
 
-.fade-enter,
-.fade-leave-active {
-    opacity: 0;
-    height: 0;
+.mdl-textfield--dummyText {
+    width: 580px;
+}
+
+.mdl-mini-footer{
+    height: 0px;
+}
+
+.mdl-textfield--url{
+    width: 500px;
+}
+
+
+.fixed-menubar__right {
+  position: fixed;
+  display: block;
+  right: 0;
+  top: 35%;
+  width: 6em;
+  margin-right: 20px;
+  z-index: 900;
+  
+}
+
+.mdl-button--default{
+    cursor: default;
 }

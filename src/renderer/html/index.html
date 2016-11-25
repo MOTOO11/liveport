@@ -3,8 +3,7 @@
 
 <head>
     <meta charset="UTF-8" />
-    <title>initialize....</title>
-    <script src="../js/app.bundle.js"></script>
+    <title>Loading....</title>
     <!-- build:remove -->
     <!-- Connect to server process -->
     <script>
@@ -20,36 +19,24 @@
             <header class="mdl-layout__header">
                 <div class="mdl-layout__header-row">
                     <span class="mdl-layout-title">
-                        <div class="mdl-textfield mdl-js-textfield">
+                        <div class="mdl-textfield mdl-js-textfield mdl-textfield--url">
                             <input type="text" class="mdl-textfield__input" v-model="url" v-bind:disabled="processing" id="url" />
                             <label class="mdl-textfield__label" for="url">URL.....</label>
                         </div>
                     </span>
-                    <div class="mdl-layout-spacer"></div>
-                    <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent mdl-js-ripple-effect">
-                        <i class="material-icons">first_page</i>
-                    </button>
-                    <button v-on:click="start()" v-bind:disabled="!validUrl" v-show="!processing" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent mdl-js-ripple-effect">
-                        <i class="material-icons">play_arrow</i>
-                    </button>
-                    <button v-on:click="stop()" v-show="processing" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent mdl-js-ripple-effect">
-                        <i class="material-icons">stop</i>
-                    </button>
-                    <button v-on:click="test()" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent mdl-js-ripple-effect">
-                        <i class="material-icons">last_page</i>
-                    </button>
+                    <!--<div class="mdl-layout-spacer"></div>-->
                 </div>
             </header>
             <div class="mdl-layout__drawer">
-                <!--<span class="mdl-layout-title"><i class="material-icons">settings</i></span>-->
+                <span class="mdl-layout-title">設定</span>
                 <nav class="mdl-navigation">
                     <span class="mdl-navigation__link">
                         <label><i class="material-icons">refresh</i> リロード：{{reload}}</label>
                         <input class="" type="range" max="30" min="7" v-model="reload" v-bind:disabled="processing" />
                     </span>
                     <span class="mdl-navigation__link">
-                        <label><i class="material-icons">timer</i> 読み上げ時間制限：{{readingLimit}}</label>
-                        <input class="" type="range" max="30" min="7" v-model="readingLimit" v-bind:disabled="processing" />
+                        <label><i class="material-icons">timer</i> 文字数間制限：{{readingLimit}}</label>
+                        <input class="" type="range" max="600" min="100" v-model="readingLimit" v-bind:disabled="processing" />
                     </span>
                     <span class="mdl-navigation__link">
                         <label><i class="material-icons">mic</i> 読み上げ</label><br>
@@ -66,30 +53,61 @@
                         <label><i class="material-icons">record_voice_over</i> 読み上げテスト</label>                        
                         <div class="mdl-textfield mdl-js-textfield">
                         <textarea class="mdl-textfield__input" id="m" autocomplete="off" v-model="message"></textarea>
-                        <button v-on:click="_speak(message)">send</button>
+                        <button v-on:click="test('表示テスト：',message)">send</button>
                         </div>
                     </span>
                 </nav>
             </div>
             <main class="mdl-layout__content">
                 <div class="viewer__showThread">
-                    <transition-group name="fade" tag="dl" v-for="item in thread.reses">
+                    <dl v-for="item in thread.reses">
                         <dt :id="'MESSAGE-'+item.num" :key="item.num">{{item.num}}:<span v-html="item.name"></span>[{{item.mail}}] {{item.date}} ID:{{item.id}}</dt>
                         <dd v-html="replace(item.text)" class="aa" :key="item.num"></dd>
-                    </transition-group>
+                    </dl>
                 </div>
             </main>
+        </div>
+        <div class="fixed-menubar__right">
+            <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored mdl-button--default">
+                {{reloadTimerCountDown}}
+            </button>
+            <button v-on:click="start()" v-bind:disabled="!validUrl" v-show="!processing" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent mdl-js-ripple-effect">
+                <i class="material-icons">play_arrow</i>
+            </button>
+            <button v-on:click="stop()" v-show="processing" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent mdl-js-ripple-effect">
+                 <i class="material-icons">stop</i>
+            </button>
+            <button v-on:click="latest()" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent mdl-js-ripple-effect">
+                  <i class="material-icons">vertical_align_bottom</i>
+            </button>
+            <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored mdl-button--default">
+                {{nowNumber}}
+            </button>
+            <button v-on:click="showDummyTextWindow()" id="" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent mdl-js-ripple-effect">
+                 <i class="material-icons">message</i>
+            </button>
         </div>
         <div id="demo-snackbar-example" class="mdl-js-snackbar mdl-snackbar">
             <div class="mdl-snackbar__text"></div>
             <button class="mdl-snackbar__action" type="button"></button>
         </div>
+        <dialog class="mdl-dialog">
+            <div class="mdl-dialog__content">
+                <div class="mdl-textfield mdl-js-textfield mdl-textfield--dummyText">
+                    <textarea v-model="dummyText" class="mdl-textfield__input" type="text" rows="4" id="sample6"></textarea>
+                    <label class="mdl-textfield__label" for="sample6">字幕用テキスト</label>
+                </div>
+                <label class="mdl-textfield__label" for="sample6"></label>
+            </div>
+            <div class="mdl-dialog__actions mdl-dialog__actions--full-width">
+                <button type="button" class="mdl-button close">OK</button>
+            </div>
+        </dialog>
     </div>
     <!--<div id="app">
 
         <div class="settings">
             <br>
-            <p>読み上げテスト</p>
             <i class="material-icons md-18">face</i>
             <i class="material-icons orange600 md-18">face</i>
             <!--<div class="mdl-spinner mdl-js-spinner is-active"></div>
@@ -102,5 +120,6 @@
         </div>
     </div>-->
 </body>
+<script src="../js/app.bundle.js"></script>
 
 </html>
