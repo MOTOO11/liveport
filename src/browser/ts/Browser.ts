@@ -7,7 +7,7 @@ require("../css/main.css")
 @Component()
 export default class Browser extends Vue {
   speaker: Speaker;
-  message = 'Hello Vue!';
+  message = "";
   width = 600;
   height = 300;
   font_size = 10;

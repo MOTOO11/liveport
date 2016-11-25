@@ -51,7 +51,7 @@ export default class Application extends Vue {
             }
         );
     }
-    stopThreadRequest(){
+    stopThreadRequest() {
         clearTimeout(this.reloadTimerID);
     }
 
@@ -71,7 +71,7 @@ export default class Application extends Vue {
     provideTimerID: number;
     // 表示カウントダウン
     // provideTimerCountDown: number;
-    provideTimeLimit: number = 7;
+    provideTimeLimit: number = 9;
 
     // 読み上げ文字数上限
     readingLimit: number = 140;
@@ -80,22 +80,26 @@ export default class Application extends Vue {
     nowNumber: number = 0;
 
     startProvide() {
+        if (!this.processing) return;
         if (this.nowNumber != this.allNum()) {
-            this.nowNumber++;
             let target = this.thread.reses[this.nowNumber];
-            // this.provideManager.provide();
+            this.provideManager.provide("レス" + target.num, target.text);
+            this.nowNumber++;
         } else {
             this.provideManager.dummyText(this.dummyText);
         }
         this.setProvideTimer();
     }
-
+    stopProvide() {
+        clearTimeout(this.provideTimerID);
+        this.provideManager.cancel();
+        this.provideDummyTest();
+    }
     setProvideTimer() {
-        if (this.processing) {
-            this.provideTimerID = window.setTimeout(() => {
-                this.setProvideTimer();
-            }, this.provideTimeLimit * 1000);
-        }
+        if (!this.processing) return;
+        this.provideTimerID = window.setTimeout(() => {
+            this.startProvide();
+        }, this.provideTimeLimit * 1000);
     }
 
     start() {
@@ -103,18 +107,17 @@ export default class Application extends Vue {
         this.processing = true;
         if (this.url != this.thread.url) {
             this.thread = Thread.threadFactory(this.url);
+            this.nowNumber = 0;
             console.log("change thread url.");
         }
         this.startThreadRequest();
-        // this.startProvide();
+        this.startProvide();
     }
 
     stop() {
         this.processing = false;
         this.stopThreadRequest();
-        clearTimeout(this.provideTimerID);
-        this.provideManager.cancel();
-        this.provideDummyTest();
+        this.stopProvide();
     }
 
     allNum() {
@@ -151,6 +154,7 @@ export default class Application extends Vue {
     }
     @Watch('dummyText')
     onDummyTextChange(newValue: number, oldValue: number) {
+        if (this.processing) return;
         this.provideManager.dummyText(this.dummyText);
     }
 
@@ -195,6 +199,6 @@ export default class Application extends Vue {
     }
 
     test(letter: string, body: string) {
-        this.provideManager.provide(letter, body);
+        this.provideManager.test(letter, body);
     }
 }

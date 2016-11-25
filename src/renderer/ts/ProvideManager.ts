@@ -3,25 +3,49 @@ import WebspeechApi from "./WebspeechApi"
 import * as io from "socket.io-client";
 import StringUtil from "./StringUtil";
 
+const AA_TEMPLATE = "このメッセージはアスキーアートです。";
+const LONG_TEXT_TEMPLATE = "長文のため省略";
+
 export default class ProvideManager {
     speaking: boolean = false;
     socket = io.connect("http://localhost:3000");
     speaker: Speaker;
-    AA_TEMPLATE = "アスキーアートです。";
     constructor() {
 
     }
 
     provide(letter: string, body: string) {
         if (this.isAA(body)) {
-            this.socket.emit("aa", letter + "\r\n" + body);
-            this.speaker.speak(letter + "\n" + this.AA_TEMPLATE);
+            var brReplace = StringUtil.replaceBr2NewLine(body);
+            this.speaker.speak(letter + "\n" + AA_TEMPLATE);
+            this.socket.emit("aa", letter + "\r\n" + brReplace);
         } else {
-            this.socket.emit("message", letter + "\r\n" + body);
-            var urlReplace = StringUtil.urlToReadable(body);
-            var anchorReplace = StringUtil.anchorToReadable(urlReplace);
-            this.speaker.speak(letter + "\n" + anchorReplace);
+            if (this.speaker.speaking()) {
+                this.cancel();
+                this.speaker.speak(LONG_TEXT_TEMPLATE);
+                // this.speaker.speak(LONG_TEXT_TEMPLATE);
+            }
+            var anchorReplace = StringUtil.anchorToReadable(body);
+            var brReplace = StringUtil.replaceBr2NewLine(anchorReplace);
+            var urlReplace = StringUtil.urlToReadable(brReplace);
+            var ZENHANReplace = StringUtil.replaceHANKAKUtoZENKAKU(urlReplace);
+            this.socket.emit("message", letter + "\r\n" + brReplace);
+            this.speaker.speak(letter + "\n" + ZENHANReplace);
         }
+    }
+
+
+    test(letter: string, body: string) {
+        var urlReplace = StringUtil.urlToReadable(body);
+        var anchorReplace = StringUtil.anchorToReadable(urlReplace);
+        var brReplace = StringUtil.replaceBr2NewLine(anchorReplace);
+        var ZENHANReplace = StringUtil.replaceHANKAKUtoZENKAKU(brReplace);
+        if (this.speaker.speaking()) {
+            this.cancel();
+            // this.speaker.speak(LONG_TEXT_TEMPLATE);
+        }
+        this.speaker.speak(ZENHANReplace);
+        this.socket.emit("message", letter + "\r\n" + ZENHANReplace);
     }
 
     dummyText(body: string) {

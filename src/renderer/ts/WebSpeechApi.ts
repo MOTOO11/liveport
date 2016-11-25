@@ -16,6 +16,7 @@ class WebSpeechApi implements Speaker {
         speechSynthesis.speak(this.speech);
     }
     cancel() {
+        speechSynthesis.pause();
         speechSynthesis.cancel();
     }
     speaking() {
