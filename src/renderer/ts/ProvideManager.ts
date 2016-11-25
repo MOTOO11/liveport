@@ -24,6 +24,10 @@ export default class ProvideManager {
         }
     }
 
+    dummyText(body: string) {
+        this.socket.emit("message", body);;
+    }
+
     isAA(value: string): boolean {
         return false;
     }
@@ -50,5 +54,4 @@ export default class ProvideManager {
     cancel() {
         this.speaker.cancel();
     }
-
 }

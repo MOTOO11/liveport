@@ -103,8 +103,11 @@ export class Thread {
 
     static threadFactory(url: string): Thread {
         var thread = Thread.loadThread(url);
-        if (thread == null)
+        if (thread == null) {
+            console.log("new thread url.")
             return new Thread(url);
+        }
+        console.log("read localstorage url.")
         return Thread.decodeFromJson(thread);
     }
 

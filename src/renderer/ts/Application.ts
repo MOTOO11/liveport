@@ -15,29 +15,8 @@ export default class Application extends Vue {
     // data
     message: string = 'こんにちは!';
     url: string = "";
-    // dat取得
-    reload: number = 7;
-    // dat取得タイマーId
-    reloadTimerID: number;
-    // dat取得カウントダウン
-    reloadTimerCountDown: number = this.reload;
-
-    // 表示タイマーID
-    displayTimerID: number;
-    // 表示カウントダウン
-    displayTimerCountDown: number;
-
-    // 読み上げ時間上限
-    readingLimit: number = 140;
-
-    // 処理中レス番号
-    // ユーザーが変更可能
-    nowNumber: number = 0;
-
     processing: boolean = false;
     thread: Thread;
-    // softalk or bouyomichan
-    path: string = "";
 
     // browser frame size
     width: number; height: number;
@@ -51,64 +30,100 @@ export default class Application extends Vue {
         this.loadSettings();
     }
 
-
-    datRequestSuccess(newArrival: number) {
-        console.log("request success :" + newArrival);
-        this.setRequestTimer();
-    };
-    datRequestFailed(err: any) {
-        console.log("request failed :" + err);
-        this.setRequestTimer();
-    };
-    setRequestTimer() {
-        // if (this.processing) {
-        //     this.reloadTimerID = window.setTimeout(() => {
-        //         this.startThreadRequest();
-        //     }, this.reload * 1000);
-        // }
-    }
+    // dat取得
+    reload: number = 7;
+    // dat取得タイマーId
+    reloadTimerID: number;
+    // dat取得カウントダウン
+    reloadTimerCountDown: number = this.reload;
 
     startThreadRequest() {
-        this.thread.request(this.datRequestSuccess, this.datRequestFailed);
+        if (!this.processing) return;
+        this.reloadTimerCountDown = this.reload;
+        this.thread.request(
+            (newArrival: number) => {
+                console.log("request success :" + newArrival);
+                this.setRequestTimer();
+            },
+            (err: any) => {
+                console.log("request failed :" + err);
+                this.setRequestTimer();
+            }
+        );
     }
-    startProvide() {
-        // this.present();
+    stopThreadRequest(){
+        clearTimeout(this.reloadTimerID);
     }
 
-    // provide() {
-    //     this.provideManager.provide();
-    //     this.socket.emit('message', this.message);
-    //     if (this.speaking)
-    //         this.speaker.speak(this.message);
-    //     if (this.processing) {
-    //         this.displayTimerID = window.setTimeout(() => {
-    //         }, 8000);
-    //     }
-    // }
+    setRequestTimer() {
+        if (!this.processing) return;
+        if (this.reloadTimerCountDown < 0) {
+            this.startThreadRequest();
+        } else {
+            this.reloadTimerID = window.setTimeout(() => {
+                this.reloadTimerCountDown--;
+                this.setRequestTimer();
+            }, 1000);
+        }
+    }
+
+    // 表示タイマーID
+    provideTimerID: number;
+    // 表示カウントダウン
+    // provideTimerCountDown: number;
+    provideTimeLimit: number = 7;
+
+    // 読み上げ文字数上限
+    readingLimit: number = 140;
+    // 処理中レス番号
+    // ユーザーが変更可能
+    nowNumber: number = 0;
+
+    startProvide() {
+        if (this.nowNumber != this.allNum()) {
+            this.nowNumber++;
+            let target = this.thread.reses[this.nowNumber];
+            // this.provideManager.provide();
+        } else {
+            this.provideManager.dummyText(this.dummyText);
+        }
+        this.setProvideTimer();
+    }
+
+    setProvideTimer() {
+        if (this.processing) {
+            this.provideTimerID = window.setTimeout(() => {
+                this.setProvideTimer();
+            }, this.provideTimeLimit * 1000);
+        }
+    }
 
     start() {
         this.provideManager.resize(this.width, this.height);
         this.processing = true;
         if (this.url != this.thread.url) {
             this.thread = Thread.threadFactory(this.url);
-            console.log("new thread");
+            console.log("change thread url.");
         }
         this.startThreadRequest();
-        this.startProvide();
+        // this.startProvide();
     }
 
     stop() {
         this.processing = false;
-        clearTimeout(this.reloadTimerID);
-        clearTimeout(this.displayTimerID);
+        this.stopThreadRequest();
+        clearTimeout(this.provideTimerID);
         this.provideManager.cancel();
+        this.provideDummyTest();
     }
 
-    get allNum() {
+    allNum() {
         return this.thread.reses.length;
     }
 
     voice: number = 0;
+    // softalk or bouyomichan
+    path: string = "";
     @Watch('voice')
     onVoiceChange(newValue: number, oldValue: number) {
         let path = "E:/tools/softalk/SofTalk.exe";;
@@ -131,6 +146,13 @@ export default class Application extends Vue {
 
     // 表示するものがない時
     dummyText: string = "";
+    provideDummyTest() {
+        this.provideManager.dummyText(this.dummyText);
+    }
+    @Watch('dummyText')
+    onDummyTextChange(newValue: number, oldValue: number) {
+        this.provideManager.dummyText(this.dummyText);
+    }
 
     showDummyTextWindow() {
         var dialog: any = document.querySelector('dialog');
