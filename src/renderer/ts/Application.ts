@@ -4,6 +4,7 @@ import SofTalk from "./SofTalk"
 import WebspeechApi from "./WebspeechApi"
 import { Thread } from "./Thread";
 import StringUtil from "./StringUtil";
+import Logger from "./Logger";
 import ProvideManager from "./ProvideManager";
 import { remote, BrowserWindow } from "electron";
 const ApplicatonName = require("../../../package.json").name
@@ -13,7 +14,7 @@ import * as $ from "jquery"
 export default class Application extends Vue {
     provideManager: ProvideManager;
     // data
-    message: string = 'こんにちは!';
+    message: string = 'このテキストはテストメッセージです';
     url: string = "";
     processing: boolean = false;
     thread: Thread;
@@ -22,7 +23,7 @@ export default class Application extends Vue {
     width: number; height: number;
     constructor() {
         super();
-        console.log("hello application.");
+        Logger.log("start", "hello application.");
         remote.getCurrentWindow().setTitle(ApplicatonName);
         this.provideManager = new ProvideManager();
         this.thread = new Thread();
@@ -42,11 +43,11 @@ export default class Application extends Vue {
         this.reloadTimerCountDown = this.reload;
         this.thread.request(
             (newArrival: number) => {
-                console.log("request success :" + newArrival);
+                Logger.log("request success", newArrival.toString());
                 this.setRequestTimer();
             },
             (err: any) => {
-                console.log("request failed :" + err);
+                Logger.log("request failed", err);
                 this.setRequestTimer();
             }
         );
@@ -108,7 +109,7 @@ export default class Application extends Vue {
         if (this.url != this.thread.url) {
             this.thread = Thread.threadFactory(this.url);
             this.nowNumber = 0;
-            console.log("change thread url.");
+            console.log("change", "modified thread url.");
         }
         this.startThreadRequest();
         this.startProvide();
@@ -176,17 +177,17 @@ export default class Application extends Vue {
         return Thread.isShitarabaURL(this.url);
     }
 
-    snackbar() {
+    snackbar(data: {}) {
         var snackbarContainer: any = document.querySelector('#demo-snackbar-example');
-        var handler = function (event) {
-            console.log("push");
-        };
-        var data = {
-            message: 'Button color changed.',
-            timeout: 0,
-            actionHandler: handler,
-            actionText: 'Undo'
-        };
+        // var handler = function (event) {
+        //     Logger.log("snackbar", "");
+        // };
+        // var data = {
+        //     message: 'Button color changed.',
+        //     timeout: 0,
+        //     actionHandler: handler,
+        //     actionText: 'Undo'
+        // };
         snackbarContainer.MaterialSnackbar.showSnackbar(data);
     }
 

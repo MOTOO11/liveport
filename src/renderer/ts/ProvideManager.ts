@@ -2,6 +2,7 @@ import SofTalk from "./SofTalk"
 import WebspeechApi from "./WebspeechApi"
 import * as io from "socket.io-client";
 import StringUtil from "./StringUtil";
+import Logger from "./Logger";
 
 const AA_TEMPLATE = "このメッセージはアスキーアートです。";
 const LONG_TEXT_TEMPLATE = "長文のため省略";
@@ -20,20 +21,24 @@ export default class ProvideManager {
             this.speaker.speak(letter + "\n" + AA_TEMPLATE);
             this.socket.emit("aa", letter + "\r\n" + brReplace);
         } else {
-            if (this.speaker.speaking()) {
-                this.cancel();
-                this.speaker.speak(LONG_TEXT_TEMPLATE);
-                // this.speaker.speak(LONG_TEXT_TEMPLATE);
-            }
             var anchorReplace = StringUtil.anchorToReadable(body);
             var brReplace = StringUtil.replaceBr2NewLine(anchorReplace);
             var urlReplace = StringUtil.urlToReadable(brReplace);
             var ZENHANReplace = StringUtil.replaceHANKAKUtoZENKAKU(urlReplace);
-            this.socket.emit("message", letter + "\r\n" + brReplace);
-            this.speaker.speak(letter + "\n" + ZENHANReplace);
+            if (this.speaker.speaking()) {
+                this.cancel();
+                setTimeout(() => {
+                    // this.speaker.speak(LONG_TEXT_TEMPLATE);
+                    this.speaker.speak(letter + "\n" + ZENHANReplace);
+                    this.socket.emit("message", letter + "\r\n" + ZENHANReplace);
+                }, 1000);
+                Logger.log("cancel", "too long text.");
+            } else {
+                this.speaker.speak(letter + "\n" + ZENHANReplace);
+                this.socket.emit("message", letter + "\r\n" + brReplace);
+            }
         }
     }
-
 
     test(letter: string, body: string) {
         var urlReplace = StringUtil.urlToReadable(body);
@@ -42,10 +47,16 @@ export default class ProvideManager {
         var ZENHANReplace = StringUtil.replaceHANKAKUtoZENKAKU(brReplace);
         if (this.speaker.speaking()) {
             this.cancel();
-            // this.speaker.speak(LONG_TEXT_TEMPLATE);
+            setTimeout(() => {
+                // this.speaker.speak(LONG_TEXT_TEMPLATE);
+                this.speaker.speak(ZENHANReplace);
+                this.socket.emit("message", letter + "\r\n" + ZENHANReplace);
+            }, 1000);
+            Logger.log("cancel", "too long text.");
+        } else {
+            this.speaker.speak(ZENHANReplace);
+            this.socket.emit("message", letter + "\r\n" + ZENHANReplace);
         }
-        this.speaker.speak(ZENHANReplace);
-        this.socket.emit("message", letter + "\r\n" + ZENHANReplace);
     }
 
     dummyText(body: string) {
@@ -67,7 +78,7 @@ export default class ProvideManager {
     }
 
     selectVoice(value: number, path?: string) {
-        console.log("select speaker : " + value)
+        Logger.log("select speaker", value.toString());
         if (value === 1) {
             this.speaker = new WebspeechApi();
         } else if (value === 2) {

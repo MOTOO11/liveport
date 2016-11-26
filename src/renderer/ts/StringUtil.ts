@@ -7,7 +7,7 @@ class StringUtil {
 
     static urlToReadable(text: string, replaceStr?: string): string {
         var exp = /(\b(h?ttps?):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/gi;
-        return text.replace(exp, replaceStr ? replaceStr : "URL");
+        return text.replace(exp, replaceStr ? replaceStr : "ユーアールエル");
     }
 
     static anchorToReadable(text: string, replaceStr?: string): string {
