@@ -8,7 +8,8 @@
     "lib": ["dom", "es6"],
     "files": [
         "typings/index.d.ts",
-        "src/electron/ts/main.ts",
+        "src/electron/ts/Main.ts",
+        "src/electron/ts/Main.prod.ts",
         "src/browser/ts/Browser.ts",
         "src/renderer/ts/Application.ts",
         "src/renderer/ts/WebSpeechApi.ts",

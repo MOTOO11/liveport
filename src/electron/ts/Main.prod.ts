@@ -2,7 +2,6 @@ const electron = require('electron');
 import { shell } from 'electron';
 const path = require('path')
 import * as url from "url";
-const client = require('electron-connect').client;
 const BrowserWindow: typeof Electron.BrowserWindow = electron.BrowserWindow;
 const app: Electron.App = electron.app;
 const port = require("../package.json").port;
@@ -69,4 +68,3 @@ http.listen(port, function () {
     console.log('listening on *:3000');
 });
 const myapp = new Main(app);
-client.create(myapp.mainWindow);

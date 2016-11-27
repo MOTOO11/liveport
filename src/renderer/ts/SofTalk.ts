@@ -12,16 +12,22 @@ class SofTalk implements Speaker {
         args += " /S:" + rate;
         args += " /O:" + pitch;
         args += " /W:" + text.replace(/\n/gi, "\t");
-        cp.exec(this.path + args, (e, s) => {
-            console.log("return :" + s);
+        cp.spawn(this.path, [args]).on("exit", (code) => {
+            console.log(code);
+        }).on("error", (err) => {
+            console.error(err);
+            process.exit(1);
         });
     }
     // 0-100 1-300 1-300
     _speak(text: string) {
         var args = "";
         args += " /W:" + text.replace(/\n/g, "\t");
-        cp.exec(this.path + args, (e, s) => {
-            console.log("return :" + s);
+        cp.spawn(this.path, [args]).on("exit", (code) => {
+            console.log(code);
+        }).on("error", (err) => {
+            console.error(err);
+            process.exit(1);
         });
     }
 

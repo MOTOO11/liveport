@@ -1,6 +1,7 @@
 var gulp = require('gulp');
 var webpack = require('gulp-webpack');
 var ts = require("gulp-typescript");
+var rename = require("gulp-rename");
 var useref = require("gulp-useref");
 var packager = require("electron-packager");
 var runSequence = require('run-sequence');
@@ -32,17 +33,34 @@ gulp.task('wp:r', () => {
         .pipe(gulp.dest(config.dist));
 });
 
-// define tasks here
+
 gulp.task('ts:compile', () => {
-    return gulp.src("./src/electron/ts/main.ts")
+    return gulp.src("./src/electron/ts/Main.ts")
         .pipe(ts({
             target: 'ES5',
             removeComments: true
         }))
         .js
+        .pipe(rename("main.js"))
         .pipe(gulp.dest(config.dist));
 });
 
+gulp.task('ts:compile:prod', () => {
+    return gulp.src("./src/electron/ts/Main.prod.ts")
+        .pipe(ts({
+            target: 'ES5',
+            removeComments: true
+        }))
+        .js
+        .pipe(rename("main.js"))
+        .pipe(gulp.dest(config.dist));
+});
+
+gulp.task("html:useref", () => {
+    return gulp.src(config.dist + "**/*.html")
+        .pipe(useref())
+        .pipe(gulp.dest(config.dist, { base: config.dist }));
+});
 
 gulp.task('serve', () => {
     var electron = electronServer.create({
@@ -66,26 +84,24 @@ gulp.task('serve', () => {
     // gulp.watch(config.dist + "browser/**/*.*", electron.reload);
 });
 
-gulp.task('release', (done) => {
-    gulp.src(config.dist + "**/*.html")
-        .pipe(useref())
-        .pipe(gulp.dest(config.dist, { base: config.dist }));
+gulp.task("release", ["build"], (done) => {
+    runSequence(["ts:compile:prod", "html:useref"]);
     packager({
         dir: ".", // アプリケーションのパッケージとなるディレクトリ
-        out: `./release`, // .app や .exeの出力先ディレクトリ
-        arch: 'x64', // CPU種別. x64 or ia32
-        platform: 'win32', // OS種別. darwin or win32 or linux
+        out: "./release", // .app や .exeの出力先ディレクトリ
+        arch: "x64", // CPU種別. x64 or ia32
+        platform: "win32", // OS種別. darwin or win32 or linux
         //asar: true, // アーカイブ化
-        prune: true, // exclude devDep
-        version: '1.4.4', // Electronのversion
-        overwrite: true,
+        // prune: true, // exclude devDep
+        version: "1.4.8", // Electronのversion
+        // overwrite: true,
         ignore: [".vscode", "src", "typings",
             ".gitignore", "gulpfiles.js", "postcss.config.js",
             "tsconfig.json", "typings.json",
             "webpack.browser.config.js", "webpack.config.js", "webpack.renderer.config.js"
         ]
     }, function(err, path) {
-        // 追加でパッケージに手を加えたければ, path配下を適宜いじる
+        if (err) console.log(err);
         done();
     });
 });

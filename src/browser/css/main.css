@@ -11,3 +11,12 @@
     font-family: "メイリオ", Meiryo;
     white-space: pre;
 }
+
+.aa {
+    font-family: "ＭＳ Ｐゴシック", "MS PGothic", "Mona", "mona-gothic-jisx0208.1990-0", sans-serif;
+    font-size: 16px;
+    line-height: 18px;
+    text-align: left;
+    margin-left: 0;
+    margin-right: auto;
+}

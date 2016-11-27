@@ -1,3 +1,4 @@
+"use strict"
 import * as Vue from "Vue";
 import { Component, Watch } from "vue-typed"
 import SofTalk from "./SofTalk"
@@ -6,9 +7,12 @@ import { Thread } from "./Thread";
 import StringUtil from "./StringUtil";
 import Logger from "./Logger";
 import ProvideManager from "./ProvideManager";
-import { remote, BrowserWindow } from "electron";
+import { remote } from "electron";
 const ApplicatonName = require("../../../package.json").name
 import * as $ from "jquery"
+let APP_TITLE: string;
+const VOICE_SOFTALK = 2;
+const VOICE_WSA = 1;
 
 @Component({})
 export default class Application extends Vue {
@@ -24,10 +28,11 @@ export default class Application extends Vue {
     constructor() {
         super();
         Logger.log("start", "hello application.");
-        remote.getCurrentWindow().setTitle(ApplicatonName);
+        APP_TITLE = ApplicatonName;
+        remote.getCurrentWindow().setTitle(APP_TITLE);
         this.provideManager = new ProvideManager();
         this.thread = new Thread();
-        this.url = "http://jbbs.shitaraba.net/bbs/read.cgi/game/57693/1479580233/";
+        this.url = "http://jbbs.shitaraba.net/bbs/read.cgi/netgame/12802/1478775754/";
         this.loadSettings();
     }
 
@@ -74,18 +79,21 @@ export default class Application extends Vue {
     // provideTimerCountDown: number;
     provideTimeLimit: number = 9;
 
-    // 読み上げ文字数上限
-    readingLimit: number = 140;
+    // 読み上げ時間数上限
+    readingTimeLimit: number = 10;
     // 処理中レス番号
     // ユーザーが変更可能
     nowNumber: number = 0;
 
     startProvide() {
         if (!this.processing) return;
+        clearTimeout(this.provideTimerID);
         if (this.nowNumber != this.allNum()) {
             let target = this.thread.reses[this.nowNumber];
             this.provideManager.provide("レス" + target.num, target.text);
             this.nowNumber++;
+            if (this.autoScroll)
+                this.scrollTo(this.nowNumber);
         } else {
             this.provideManager.dummyText(this.dummyText);
         }
@@ -100,7 +108,7 @@ export default class Application extends Vue {
         if (!this.processing) return;
         this.provideTimerID = window.setTimeout(() => {
             this.startProvide();
-        }, this.provideTimeLimit * 1000);
+        }, this.readingTimeLimit * 1000);
     }
 
     start() {
@@ -125,24 +133,9 @@ export default class Application extends Vue {
         return this.thread.reses.length;
     }
 
-    voice: number = 0;
-    // softalk or bouyomichan
-    path: string = "";
-    @Watch('voice')
-    onVoiceChange(newValue: number, oldValue: number) {
-        let path = "E:/tools/softalk/SofTalk.exe";;
-        // path = "E:/tools/Output-CommandLine/Output-CommandLine.exe";
-        this.voice === 2 ?
-            this.provideManager.selectVoice(newValue, path) :
-            this.provideManager.selectVoice(newValue);
-    }
-
     latest() {
         this.nowNumber = this.thread.reses.length;
-        $('.mdl-layout__content').animate({
-            scrollTop:
-            $('#MESSAGE-' + this.nowNumber).get(0).offsetTop
-        });
+        this.scrollTo(this.nowNumber);
     }
     setTitle(name: string) {
         remote.getCurrentWindow().setTitle(name);
@@ -192,7 +185,7 @@ export default class Application extends Vue {
     }
 
     loadSettings() {
-        this.voice = 1;
+        this.voice = VOICE_WSA;
         this.provideManager.selectVoice(this.voice);
     }
     saveSettings() {
@@ -201,5 +194,50 @@ export default class Application extends Vue {
 
     test(letter: string, body: string) {
         this.provideManager.test(letter, body);
+    }
+
+    autoScroll: boolean = false;
+    cnangeAutoScroll() {
+        this.autoScroll = !this.autoScroll;
+    }
+    scrollTo(value: number, duration?: number) {
+        $('.mdl-layout__content').animate({
+            scrollTop:
+            $('#MESSAGE-' + value).get(0).offsetTop
+        }, duration ? duration : 1000);
+    }
+
+    @Watch('thread.title')
+    onTitleChange(newValue: number, oldValue: number) {
+        this.setTitle(APP_TITLE + " - " + this.thread.title);
+    }
+
+    voice: number = 0;
+    // softalk or bouyomichan
+    path: string = "";
+    @Watch('voice')
+    onVoiceChange(newValue: number, oldValue: number) {
+        this.voice === VOICE_SOFTALK ?
+            this.provideManager.selectVoice(newValue, this.path) :
+            this.provideManager.selectVoice(newValue);
+    }
+    
+    findSofTalkPathDialog() {
+        remote.dialog.showOpenDialog(remote.getCurrentWindow(), {
+            filters: [
+                { name: 'exe', extensions: ['exe'] }
+            ]
+        }, (paths: string[]) => {
+            if (paths) {
+                this.path = paths[0];
+                if (this.voice === VOICE_SOFTALK)
+                    this.provideManager.selectVoice(VOICE_SOFTALK, this.path);
+            }
+        });
+    }
+
+    existsSofTalkPath() {
+        if (this.path == "")
+            this.findSofTalkPathDialog();
     }
 }

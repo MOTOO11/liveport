@@ -20,24 +20,25 @@ export default class ProvideManager {
             var brReplace = StringUtil.replaceBr2NewLine(body);
             this.speaker.speak(letter + "\n" + AA_TEMPLATE);
             this.socket.emit("aa", letter + "\r\n" + brReplace);
-        } else {
-            var anchorReplace = StringUtil.anchorToReadable(body);
-            var brReplace = StringUtil.replaceBr2NewLine(anchorReplace);
-            var urlReplace = StringUtil.urlToReadable(brReplace);
-            var ZENHANReplace = StringUtil.replaceHANKAKUtoZENKAKU(urlReplace);
-            if (this.speaker.speaking()) {
-                this.cancel();
-                setTimeout(() => {
-                    // this.speaker.speak(LONG_TEXT_TEMPLATE);
-                    this.speaker.speak(letter + "\n" + ZENHANReplace);
-                    this.socket.emit("message", letter + "\r\n" + ZENHANReplace);
-                }, 1000);
-                Logger.log("cancel", "too long text.");
-            } else {
-                this.speaker.speak(letter + "\n" + ZENHANReplace);
-                this.socket.emit("message", letter + "\r\n" + brReplace);
-            }
+            return;
         }
+        var anchorReplace = StringUtil.anchorToReadable(body);
+        var brReplace = StringUtil.replaceBr2NewLine(anchorReplace);
+        var urlReplace = StringUtil.urlToReadable(brReplace);
+        var ZENHANReplace = StringUtil.replaceHANKAKUtoZENKAKU(urlReplace);
+        if (this.speaker.speaking()) {
+            this.cancel();
+            setTimeout(() => {
+                // this.speaker.speak(LONG_TEXT_TEMPLATE);
+                this.speaker.speak(letter + "\n" + ZENHANReplace);
+                this.socket.emit("message", letter + "\r\n" + ZENHANReplace);
+            }, 1000);
+            Logger.log("cancel", "too long text.");
+        } else {
+            this.speaker.speak(letter + "\n" + ZENHANReplace);
+            this.socket.emit("message", letter + "\r\n" + brReplace);
+        }
+
     }
 
     test(letter: string, body: string) {
@@ -64,7 +65,7 @@ export default class ProvideManager {
     }
 
     isAA(value: string): boolean {
-        return false;
+        return StringUtil.isAA(value);
     }
 
     _speak(message: string) {
