@@ -1,4 +1,5 @@
 const BR = /<br>/gi;
+const AA_REGEX = require("../../../config.json").aa;
 class StringUtil {
 
     static replaceBr2NewLine(str: string, nl?: string) {
@@ -28,8 +29,7 @@ class StringUtil {
             "<a href=\"#MESSAGE-$1\" >&gt;&gt;$1</a>");
     }
     static isAA(text: string, lineLimit?: number, regexp?: RegExp): boolean {
-        let regex = /(＼|∪|∩|⌒|从|;;;|:::|\,\,\,|'''|━━━|[|:;, 　]{2}[|!:;.,])/ig;
-        console.log(text.split(/\r\n|\r|\n/).length);
+        let regex = new RegExp(AA_REGEX,"ig");
         if (text.split(/\r\n|\r|\n/).length < (lineLimit ? lineLimit : 3)) return false;
         return regex.test(text);
         // return text.indexOf('　 ') !== -1

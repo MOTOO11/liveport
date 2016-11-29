@@ -81,7 +81,7 @@ gulp.task('serve', () => {
 
     // web server resource
     gulp.watch("./src/browser/**/*.*", ["wp:b"]);
-    // gulp.watch(config.dist + "browser/**/*.*", electron.reload);
+    gulp.watch(config.dist + "browser/**/*.*", electron.reload);
 });
 
 gulp.task("release", ["build"], (done) => {
@@ -94,9 +94,9 @@ gulp.task("release", ["build"], (done) => {
         //asar: true, // アーカイブ化
         // prune: true, // exclude devDep
         version: "1.4.8", // Electronのversion
-        // overwrite: true,
+        overwrite: true,
         ignore: [".vscode", "src", "typings",
-            ".gitignore", "gulpfiles.js", "postcss.config.js",
+            ".gitignore", "gulpfile.js", "postcss.config.js",
             "tsconfig.json", "typings.json",
             "webpack.browser.config.js", "webpack.config.js", "webpack.renderer.config.js"
         ]

@@ -1,32 +1,24 @@
 import * as cp from "child_process";
 import * as os from "os";
+import Logger from "./Logger";
 class SofTalk implements Speaker {
     path: string = "";
     constructor(path: string) {
         this.path = path;
     }
     // 0-100 1-300 1-300
-    speak(text: string, volume: number = 50, rate: number = 100, pitch: number = 100) {
+    // speak(text: string, volume: number = 50, rate: number = 100, pitch: number = 100) {
+    speak(text: string, volume?: number, rate?: number, pitch?: number) {
         var args = "";
-        args += " /V:" + volume;
-        args += " /S:" + rate;
-        args += " /O:" + pitch;
+        if (volume) args += " /V:" + volume;
+        if (rate) args += " /S:" + rate;
+        if (pitch) args += " /O:" + pitch;
         args += " /W:" + text.replace(/\n/gi, "\t");
+        console.log(args);
         cp.spawn(this.path, [args]).on("exit", (code) => {
-            console.log(code);
+            Logger.log("result", code);
         }).on("error", (err) => {
-            console.error(err);
-            process.exit(1);
-        });
-    }
-    // 0-100 1-300 1-300
-    _speak(text: string) {
-        var args = "";
-        args += " /W:" + text.replace(/\n/g, "\t");
-        cp.spawn(this.path, [args]).on("exit", (code) => {
-            console.log(code);
-        }).on("error", (err) => {
-            console.error(err);
+            Logger.log("result", err.name);
             process.exit(1);
         });
     }

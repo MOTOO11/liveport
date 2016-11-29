@@ -16,7 +16,7 @@ module.exports = merge(common, {
         noParse: ['ws'] //
     },
     externals: ['ws'], // https://github.com/socketio/socket.io-client/issues/933
-    target: "electron",
+    target: "electron-renderer",
     plugins: [
         new copyWebpackPlugin([{
             from: './src/renderer/html/index.html',

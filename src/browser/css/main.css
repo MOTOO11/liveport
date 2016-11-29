@@ -1,22 +1,26 @@
-#message {
-    /*background-color: #eee;*/
-    font-family: "メイリオ", Meiryo;
-    white-space: pre-wrap;
-}
-
+/*
 #app {
-    /*background-color: #eee;*/
-    width: 600px;
-    height: 600px;
-    font-family: "メイリオ", Meiryo;
+    background-color: #eee;
     white-space: pre;
+    word-wrap: break-word;
+}
+*/
+
+.message {
+    /*background-color: #eee;*/
+    font-family: "メイリオ", Meiryo;
+    overflow: auto;
+    /*font-size: 6vmin;*/
 }
 
 .aa {
     font-family: "ＭＳ Ｐゴシック", "MS PGothic", "Mona", "mona-gothic-jisx0208.1990-0", sans-serif;
-    font-size: 16px;
-    line-height: 18px;
+    overflow: auto;
+    line-height: 1.125em;
     text-align: left;
     margin-left: 0;
     margin-right: auto;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    /*font-size: 1vw;*/
 }

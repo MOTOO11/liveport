@@ -4,6 +4,7 @@ import { Component, Watch } from "vue-typed"
 import SofTalk from "./SofTalk"
 import WebspeechApi from "./WebspeechApi"
 import { Thread } from "./Thread";
+import { VOICE } from "./Voices"
 import StringUtil from "./StringUtil";
 import Logger from "./Logger";
 import ProvideManager from "./ProvideManager";
@@ -11,8 +12,6 @@ import { remote } from "electron";
 const ApplicatonName = require("../../../package.json").name
 import * as $ from "jquery"
 let APP_TITLE: string;
-const VOICE_SOFTALK = 2;
-const VOICE_WSA = 1;
 
 @Component({})
 export default class Application extends Vue {
@@ -22,9 +21,6 @@ export default class Application extends Vue {
     url: string = "";
     processing: boolean = false;
     thread: Thread;
-
-    // browser frame size
-    width: number; height: number;
     constructor() {
         super();
         Logger.log("start", "hello application.");
@@ -84,13 +80,14 @@ export default class Application extends Vue {
     // 処理中レス番号
     // ユーザーが変更可能
     nowNumber: number = 0;
+    reading: boolean = true;
 
     startProvide() {
         if (!this.processing) return;
         clearTimeout(this.provideTimerID);
         if (this.nowNumber != this.allNum()) {
             let target = this.thread.reses[this.nowNumber];
-            this.provideManager.provide("レス" + target.num, target.text);
+            this.provideManager.provide("レス" + target.num, target.text, this.reading);
             this.nowNumber++;
             if (this.autoScroll)
                 this.scrollTo(this.nowNumber);
@@ -112,12 +109,11 @@ export default class Application extends Vue {
     }
 
     start() {
-        this.provideManager.resize(this.width, this.height);
         this.processing = true;
         if (this.url != this.thread.url) {
             this.thread = Thread.threadFactory(this.url);
             this.nowNumber = 0;
-            console.log("change", "modified thread url.");
+            Logger.log("change", "modified thread url.");
         }
         this.startThreadRequest();
         this.startProvide();
@@ -185,7 +181,7 @@ export default class Application extends Vue {
     }
 
     loadSettings() {
-        this.voice = VOICE_WSA;
+        this.voice = VOICE.WSA;
         this.provideManager.selectVoice(this.voice);
     }
     saveSettings() {
@@ -193,7 +189,7 @@ export default class Application extends Vue {
     }
 
     test(letter: string, body: string) {
-        this.provideManager.test(letter, body);
+        this.provideManager.test(letter, body, this.reading);
     }
 
     autoScroll: boolean = false;
@@ -212,16 +208,26 @@ export default class Application extends Vue {
         this.setTitle(APP_TITLE + " - " + this.thread.title);
     }
 
+    @Watch('reading')
+    onrChange(newValue: number, oldValue: number) {
+        Logger.log("reading",this.reading)
+    }
+
     voice: number = 0;
     // softalk or bouyomichan
     path: string = "";
     @Watch('voice')
     onVoiceChange(newValue: number, oldValue: number) {
-        this.voice === VOICE_SOFTALK ?
-            this.provideManager.selectVoice(newValue, this.path) :
-            this.provideManager.selectVoice(newValue);
+        switch (this.voice) {
+            case VOICE.WSA:
+                this.provideManager.selectVoice(newValue);
+                break;
+            case VOICE.SOFTALK:
+                this.provideManager.selectVoice(newValue, this.path);
+                break;
+        }
     }
-    
+
     findSofTalkPathDialog() {
         remote.dialog.showOpenDialog(remote.getCurrentWindow(), {
             filters: [
@@ -230,8 +236,8 @@ export default class Application extends Vue {
         }, (paths: string[]) => {
             if (paths) {
                 this.path = paths[0];
-                if (this.voice === VOICE_SOFTALK)
-                    this.provideManager.selectVoice(VOICE_SOFTALK, this.path);
+                if (this.voice === VOICE.SOFTALK)
+                    this.provideManager.selectVoice(VOICE.SOFTALK, this.path);
             }
         });
     }

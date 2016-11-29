@@ -10,7 +10,11 @@
 </head>
 
 <body>
-    <div id="app" v-bind:style="{ width: width+'px' ,height : height+'px'}">{{message}}</div>
+    <div id="app">
+        <div v-bind:class="mode" v-bind:style="{fontSize : fontSize}">
+            <div>{{ body }}</div>
+        </div>
+    </div>
 </body>
 
 </html>

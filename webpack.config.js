@@ -9,7 +9,7 @@ module.exports = {
         // Add `.ts` and `.tsx` as a resolvable extension.
         extensions: ['', '.webpack.js', '.web.js', '.ts', '.tsx', '.js', '.json'],
         alias: {
-            vue: 'vue/dist/vue.js'
+            vue: 'vue/dist/vue.min.js'
         }
     },
     module: {

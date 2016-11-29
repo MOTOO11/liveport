@@ -4,7 +4,8 @@ const path = require('path')
 import * as url from "url";
 const BrowserWindow: typeof Electron.BrowserWindow = electron.BrowserWindow;
 const app: Electron.App = electron.app;
-const port = require("../package.json").port;
+const port = require("../config.json").port;
+process.env.NODE_ENV = "production";
 
 class Main {
     mainWindow: Electron.BrowserWindow = null;
@@ -39,8 +40,6 @@ class Main {
             e.preventDefault();
             shell.openExternal(url);
         });
-        //   Open the DevTools.
-        this.mainWindow.webContents.openDevTools();
     }
 }
 
@@ -56,15 +55,12 @@ socketio.on('connection', function (socket) {
     socket.on('message', function (msg) {
         socketio.emit('message', msg);
     });
-    socket.on('resize', function (msg) {
-        socketio.emit('resize', msg);
-    });
     socket.on('aa', function (msg) {
         socketio.emit('aa', msg);
     });
 });
 
 http.listen(port, function () {
-    console.log('listening on *:3000');
+    console.log('listening on *:'+port);
 });
 const myapp = new Main(app);
