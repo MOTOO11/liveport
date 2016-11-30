@@ -75,15 +75,15 @@
                     </span>
                     <span class="mdl-navigation__link">
                         <label><i class="material-icons">volume_down</i> 音量：{{provideManager.vParam.volume}}</label>
-                        <input class="mdl-slider mdl-js-slider" type="range" max="100" min="0" v-model="provideManager.vParam.volume" v-bind:disabled="processing" />
+                        <input class="mdl-slider mdl-js-slider" type="range" max="100" min="0" v-model="provideManager.vParam.volume" v-bind:disabled="processing||!provideManager.vParam.use" />
                     </span>
                     <span class="mdl-navigation__link">
                         <label><i class="material-icons">directions_run</i> 速度：{{provideManager.vParam.rate}}</label>
-                        <input class="mdl-slider mdl-js-slider" type="range" max="100" min="0" v-model="provideManager.vParam.rate" v-bind:disabled="processing" />
+                        <input class="mdl-slider mdl-js-slider" type="range" max="100" min="0" v-model="provideManager.vParam.rate" v-bind:disabled="processing||!provideManager.vParam.use" />
                     </span>
                     <span class="mdl-navigation__link">
                         <label><i class="material-icons">slow_motion_video</i> 音程：{{provideManager.vParam.pitch}}</label>
-                        <input class="mdl-slider mdl-js-slider" type="range" max="100" min="0" v-model="provideManager.vParam.pitch" v-bind:disabled="processing" />
+                        <input class="mdl-slider mdl-js-slider" type="range" max="100" min="0" v-model="provideManager.vParam.pitch" v-bind:disabled="processing||!provideManager.vParam.use" />
                     </span>
                     <span class="mdl-navigation__link">
                         <label><i class="material-icons">record_voice_over</i> 読み上げテスト</label>                        

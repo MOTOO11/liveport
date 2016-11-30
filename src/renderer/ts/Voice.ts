@@ -8,23 +8,12 @@ export class VoiceParameter {
     // default value : WebSpeechApi value
     // percentage
     volume: number = 100;
-    rate: number = 100;
+    rate: number = 10;
     pitch: number = 50;
-    use:boolean=true;
+    use: boolean = true;
     // 後に使えているコメント数
     busy: number = 0;
     constructor() { }
-    setParameters(volume: number, rate?: number, pitch?: number) {
-        this.volume = volume;
-        if (rate) this.rate = rate;
-        if (pitch) this.pitch = pitch;
-    }
-
-    init() {
-        this.volume = 100;
-        this.rate = 100;
-        this.pitch = 50;
-    }
 
     adjustmentVolume(min: number, max: number) {
         return Math.floor(((max - min) * this.volume) / 100);

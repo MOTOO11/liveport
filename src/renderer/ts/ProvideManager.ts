@@ -16,16 +16,28 @@ export default class ProvideManager {
     vParam: VoiceParameter = new VoiceParameter();
     constructor() {
     }
-
+    // TODO : 冗長・cancel()でsetTimeoutすべき
     provide(letter: string, body: string, reading: boolean = true) {
         let anchorReplace = StringUtil.anchorToReadable(body);
         let brReplace = StringUtil.replaceBr2NewLine(anchorReplace);
-        if (this.isAA(body, 2)) {
+        const aa = () => {
             if (reading)
                 this.speaker.speak(letter + "\n" + AA_TEMPLATE, this.vParam);
             this.socket.emit("aa", letter + "\r\n" + brReplace);
+        }
+        if (this.isAA(body, 2)) {
+            if (this.speaker.speaking()) {
+                this.cancel();
+                setTimeout(() => {
+                    aa();
+                }, 1000);
+                Logger.log("cancel", "too long text.");
+            } else {
+                aa();
+            }
             return;
         }
+
         let urlReplace = StringUtil.urlToReadable(brReplace);
         let ZENHANReplace = StringUtil.replaceHANKAKUtoZENKAKU(urlReplace);
 
