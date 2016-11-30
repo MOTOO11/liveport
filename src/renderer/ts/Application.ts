@@ -4,7 +4,7 @@ import { Component, Watch } from "vue-typed"
 import SofTalk from "./SofTalk"
 import WebspeechApi from "./WebspeechApi"
 import { Thread } from "./Thread";
-import { VOICE } from "./Voices"
+import { VOICE,VoiceParameter } from "./Voice"
 import StringUtil from "./StringUtil";
 import Logger from "./Logger";
 import ProvideManager from "./ProvideManager";

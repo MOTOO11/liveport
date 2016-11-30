@@ -25,7 +25,10 @@ class Main {
 
     onReady() {
         // Create the browser window.
-        this.mainWindow = new BrowserWindow({ width: 800, height: 600 });
+        this.mainWindow = new BrowserWindow({
+            width: 800, height: 600,
+            icon: __dirname + '/assets/icon/favicon.png',
+        });
         // disable menubar.
         this.mainWindow.setMenu(null);
         this.mainWindow.loadURL(url.format({
@@ -61,6 +64,6 @@ socketio.on('connection', function (socket) {
 });
 
 http.listen(port, function () {
-    console.log('listening on *:'+port);
+    console.log('listening on *:' + port);
 });
 const myapp = new Main(app);

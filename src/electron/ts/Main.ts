@@ -24,7 +24,10 @@ class Main {
 
     onReady() {
         // Create the browser window.
-        this.mainWindow = new BrowserWindow({ width: 800, height: 600 });
+        this.mainWindow = new BrowserWindow({
+            width: 800, height: 600,
+            icon: __dirname + '/assets/icon/favicon.png',
+        });
         // disable menubar.
         this.mainWindow.setMenu(null);
         this.mainWindow.loadURL(url.format({
@@ -40,7 +43,7 @@ class Main {
             shell.openExternal(url);
         });
         //   Open the DevTools.
-            this.mainWindow.webContents.openDevTools();
+        this.mainWindow.webContents.openDevTools();
     }
 }
 
@@ -62,7 +65,7 @@ socketio.on('connection', function (socket) {
 });
 
 http.listen(port, function () {
-    console.log('listening on *:%s',port);
+    console.log('listening on *:%s', port);
 });
 const myapp = new Main(app);
 

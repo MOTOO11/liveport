@@ -1,5 +1,5 @@
 {
-    "name": "live_gen",
+    "name": "live-port",
     "version": "1.0.0",
     "description": "",
     "main": "build/main.js",

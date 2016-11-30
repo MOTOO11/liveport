@@ -14,12 +14,13 @@ var callback = function(electronProcState) {
 };
 
 config = {
-    dist: "./build/"
+    dist: "./build/",
+    src: "./src/"
 }
 gulp.task('default', (cb) => {
     runSequence("build", "serve", cb)
 });
-gulp.task("build", ["wp:b", "wp:r", "ts:compile"]);
+gulp.task("build", ["wp:b", "wp:r", "ts:compile", "assets:copy"]);
 
 gulp.task('wp:b', () => {
     return gulp.src('./src/browser/entry.ts')
@@ -61,6 +62,10 @@ gulp.task("html:useref", () => {
         .pipe(useref())
         .pipe(gulp.dest(config.dist, { base: config.dist }));
 });
+gulp.task("assets:copy", () => {
+    return gulp.src(config.src + "assets/**/*.*")
+        .pipe(gulp.dest(config.dist + "assets", { base: config.dist }));
+});
 
 gulp.task('serve', () => {
     var electron = electronServer.create({
@@ -91,6 +96,7 @@ gulp.task("release", ["build"], (done) => {
         out: "./release", // .app や .exeの出力先ディレクトリ
         arch: "x64", // CPU種別. x64 or ia32
         platform: "win32", // OS種別. darwin or win32 or linux
+        icon: "./src/assets/icon/favicon.ico",
         //asar: true, // アーカイブ化
         // prune: true, // exclude devDep
         version: "1.4.8", // Electronのversion

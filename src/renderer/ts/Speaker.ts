@@ -1,7 +1,7 @@
 "use strict";
-interface Speaker {
-    speak(text: string, volume?: number, rate?: number, pitch?: number): void;
+import { VoiceParameter } from "./Voice"
+export interface Speaker {
+    speak(text: string, vParam?:VoiceParameter): void;
     cancel(): void;
     speaking(): boolean;
-    // clear():void;
 }
