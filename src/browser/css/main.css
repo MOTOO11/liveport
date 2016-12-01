@@ -10,6 +10,8 @@
     /*background-color: #eee;*/
     font-family: "メイリオ", Meiryo;
     overflow: auto;
+    white-space: pre-wrap;
+    word-wrap: break-word;
     /*font-size: 6vmin;*/
 }
 

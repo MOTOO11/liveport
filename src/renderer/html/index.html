@@ -22,7 +22,7 @@
                 <div class="mdl-layout__header-row">
                     <span class="mdl-layout-title">
                         <div class="mdl-textfield mdl-js-textfield mdl-textfield--url">
-                            <input type="text" class="mdl-textfield__input" v-model="url" v-bind:disabled="processing" id="url" />
+                            <input type="text" v-on:keyup.enter="requestOnce" class="mdl-textfield__input" v-model="url" v-bind:disabled="processing" id="url" />
                             <label class="mdl-textfield__label" for="url">URL.....</label>
                         </div>
                     </span>
@@ -47,7 +47,7 @@
                     </span>
                     <span class="mdl-navigation__link">
                         <label><i class="material-icons">timer</i> 読み上げ時間制限：{{readingTimeLimit}}</label>
-                        <input class="mdl-slider mdl-js-slider" type="range" max="60" min="10" v-model="readingTimeLimit" v-bind:disabled="processing" />
+                        <input class="mdl-slider mdl-js-slider" type="range" max="60" min="3" v-model="readingTimeLimit" v-bind:disabled="processing" />
                     </span>
                     <span class="mdl-navigation__link">
                         <label><i class="material-icons">mic</i> 読み上げボイス</label><br>
@@ -75,21 +75,21 @@
                     </span>
                     <span class="mdl-navigation__link">
                         <label><i class="material-icons">volume_down</i> 音量：{{provideManager.vParam.volume}}</label>
-                        <input class="mdl-slider mdl-js-slider" type="range" max="100" min="0" v-model="provideManager.vParam.volume" v-bind:disabled="processing||!provideManager.vParam.use" />
+                        <input class="mdl-slider mdl-js-slider" type="range" max="100" min="0" v-model="provideManager.vParam.volume" v-bind:disabled="!provideManager.vParam.use" />
                     </span>
                     <span class="mdl-navigation__link">
                         <label><i class="material-icons">directions_run</i> 速度：{{provideManager.vParam.rate}}</label>
-                        <input class="mdl-slider mdl-js-slider" type="range" max="100" min="0" v-model="provideManager.vParam.rate" v-bind:disabled="processing||!provideManager.vParam.use" />
+                        <input class="mdl-slider mdl-js-slider" type="range" max="100" min="0" v-model="provideManager.vParam.rate" v-bind:disabled="!provideManager.vParam.use" />
                     </span>
                     <span class="mdl-navigation__link">
                         <label><i class="material-icons">slow_motion_video</i> 音程：{{provideManager.vParam.pitch}}</label>
-                        <input class="mdl-slider mdl-js-slider" type="range" max="100" min="0" v-model="provideManager.vParam.pitch" v-bind:disabled="processing||!provideManager.vParam.use" />
+                        <input class="mdl-slider mdl-js-slider" type="range" max="100" min="0" v-model="provideManager.vParam.pitch" v-bind:disabled="!provideManager.vParam.use" />
                     </span>
                     <span class="mdl-navigation__link">
                         <label><i class="material-icons">record_voice_over</i> 読み上げテスト</label>                        
                         <div class="mdl-textfield mdl-js-textfield">
-                        <textarea class="mdl-textfield__input" id="m" autocomplete="off" v-model="message"></textarea>
-                        <button v-on:click="test('表示テスト：',message)" v-bind:disabled="processing">send</button>
+                        <textarea class="mdl-textfield__input" id="m" autocomplete="off" v-model="testMessage"></textarea>
+                        <button v-on:click="test('テスト：',testMessage)" v-bind:disabled="processing">send</button>
                         </div>
                     </span>
                 </nav>
@@ -147,10 +147,10 @@
             <div class="mdl-tooltip mdl-tooltip--left mdl-tooltip--larg" data-mdl-for="autoScrollOff">
                 オートスクロールOFF
             </div>
-            <button v-on:click="showDummyTextWindow()" id="dummyText" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent mdl-js-ripple-effect">
+            <button v-on:click="showDummyTextWindow()" id="dummyTextButton" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent mdl-js-ripple-effect">
                  <i class="material-icons">message</i>
             </button>
-            <div class="mdl-tooltip mdl-tooltip--left mdl-tooltip--larg" data-mdl-for="dummyText">
+            <div class="mdl-tooltip mdl-tooltip--left mdl-tooltip--larg" data-mdl-for="dummyTextButton">
                 字幕用テキストを設定
             </div>
         </div>
@@ -165,10 +165,10 @@
         <dialog class="mdl-dialog">
             <div class="mdl-dialog__content">
                 <div class="mdl-textfield mdl-js-textfield mdl-textfield--dummyText">
-                    <textarea v-model="dummyText" class="mdl-textfield__input" type="text" rows="4" id="sample6"></textarea>
-                    <label class="mdl-textfield__label" for="sample6">字幕用テキスト</label>
+                    <textarea v-model="dummyText" class="mdl-textfield__input" type="text" rows="10" id="dummyText"></textarea>
+                    <label class="mdl-textfield__label" for="dummyText">字幕用テキスト</label>
                 </div>
-                <label class="mdl-textfield__label" for="sample6"></label>
+                <label class="mdl-textfield__label" for="dummyText"></label>
             </div>
             <div class="mdl-dialog__actions mdl-dialog__actions--full-width">
                 <button type="button" class="mdl-button close">OK</button>

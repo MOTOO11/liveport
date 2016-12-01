@@ -1,14 +1,14 @@
 {
-    "name": "live-port",
+    "name": "liveport",
     "version": "1.0.0",
-    "description": "",
+    "description": "livestream support tool",
     "main": "build/main.js",
     "scripts": {
         "watch": "webpack-dashboard -- webpack -d --watch",
         "start": "webpack-dashboard -- webpack-dev-server -d --hot --inline",
         "build": "electron-packager . live_gen --platform=win32 --arch=x64 --version=1.4.6 --out ./release"
     },
-    "author": "",
+    "author": "https://github.com/odangosan",
     "license": "ISC",
     "devDependencies": {
         "@types/electron": "^1.4.25",

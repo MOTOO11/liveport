@@ -8,7 +8,10 @@ import { Speaker } from "./Speaker"
 const port = require("../../../config.json").port
 const AA_TEMPLATE = "このメッセージはアスキーアートです。";
 const LONG_TEXT_TEMPLATE = "長文のため省略";
-
+const MODE = {
+    AA: "aa",
+    MESSAGE: "message"
+}
 export default class ProvideManager {
     speaking: boolean = false;
     socket = io.connect("http://localhost:" + port);
@@ -16,42 +19,35 @@ export default class ProvideManager {
     vParam: VoiceParameter = new VoiceParameter();
     constructor() {
     }
-    // TODO : 冗長・cancel()でsetTimeoutすべき
+
     provide(letter: string, body: string, reading: boolean = true) {
         let anchorReplace = StringUtil.anchorToReadable(body);
         let brReplace = StringUtil.replaceBr2NewLine(anchorReplace);
         const aa = () => {
             if (reading)
                 this.speaker.speak(letter + "\n" + AA_TEMPLATE, this.vParam);
-            this.socket.emit("aa", letter + "\r\n" + brReplace);
+            this.socket.emit(MODE.AA, letter + "\r\n" + brReplace);
         }
-        if (this.isAA(body, 2)) {
+        
+        if (this.isAA(brReplace, 2)) {
             if (this.speaker.speaking()) {
-                this.cancel();
-                setTimeout(() => {
-                    aa();
-                }, 1000);
+                this.cancel(aa);
                 Logger.log("cancel", "too long text.");
             } else {
                 aa();
             }
             return;
         }
-
         let urlReplace = StringUtil.urlToReadable(brReplace);
         let ZENHANReplace = StringUtil.replaceHANKAKUtoZENKAKU(urlReplace);
 
         const messenger = () => {
             if (reading)
                 this.speaker.speak(letter + "\n" + ZENHANReplace, this.vParam);
-            this.socket.emit("message", letter + "\r\n" + urlReplace);
+            this.socket.emit(MODE.MESSAGE, letter + "\r\n" + brReplace);
         }
         if (this.speaker.speaking()) {
-            this.cancel();
-            setTimeout(() => {
-                // this.speaker.speak(LONG_TEXT_TEMPLATE);
-                messenger();
-            }, 1000);
+            this.cancel(messenger);
             Logger.log("cancel", "too long text.");
         } else {
             messenger();
@@ -64,17 +60,11 @@ export default class ProvideManager {
     }
 
     dummyText(body: string) {
-        this.socket.emit("message", body);;
+        this.socket.emit(  MODE.AA , body);;
     }
 
     isAA(value: string, count?: number): boolean {
         return StringUtil.isAA(value, count);
-    }
-
-    resize(width: number, height: number) {
-        this.socket.emit("resize", {
-            width: width, height: height
-        });
     }
 
     selectVoice(value: number, path?: string) {
@@ -86,13 +76,10 @@ export default class ProvideManager {
         }
     }
 
-    cancel() {
-        this.speaker.cancel();
-    }
-
-    setParameters(volume: number, rate?: number, pitch?: number) {
-        this.vParam.volume = volume;
-        if (rate) this.vParam.rate = rate;
-        if (pitch) this.vParam.pitch = pitch;
+    cancel(callback?: () => void) {
+            this.speaker.cancel();
+            setTimeout(() => {
+                if (callback) callback();
+            },1000);
     }
 }

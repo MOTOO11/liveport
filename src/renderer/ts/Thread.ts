@@ -23,7 +23,7 @@ export class Thread {
         var matches = url.match(SHITARABA_REGEX);
         var datUrl = `http://jbbs.shitaraba.net/bbs/rawmode.cgi/${matches[1]}/${matches[2]}/${matches[3]}/` + (this.reses.length + 1) + "-";
         console.log("request dat url : " + datUrl);
-        rp({ url: datUrl, encoding: null, timeout: 3000 })
+        rp({ url: datUrl, encoding: null, timeout: 8000 })
             .then((htmlString) => {
                 console.log("request result : ok!");
                 var decoding = iconv.decode(htmlString, "EUC-JP")
@@ -54,7 +54,10 @@ export class Thread {
             res.date = r[3];
             res.text = r[4];
             res.title = r[5];
-            if (res.title) { this.title = res.title; console.log("new thread title : " + res.title) }
+            if (res.title) {
+                this.title = res.title;
+                console.log("new thread title : " + res.title);
+            }
             res.id = r[6];
             resArray.push(res);
             resArray.sort(this.sortRes);
@@ -89,8 +92,8 @@ export class Thread {
         thread.url = data.url;
         thread.title = data.title;
         var resdata = [];
-        for (var i in data.res) {
-            var decode = Res.decodeFromJson(JSON.stringify(data.res[i]));
+        for (var i in data.reses) {
+            var decode = Res.decodeFromJson(JSON.stringify(data.reses[i]));
             resdata.push(decode);
         }
         thread.reses = resdata;

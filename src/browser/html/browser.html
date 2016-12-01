@@ -12,7 +12,7 @@
 <body>
     <div id="app">
         <div v-bind:class="mode" v-bind:style="{fontSize : fontSize}">
-            <div>{{ body }}</div>
+            <div v-html="body"></div>
         </div>
     </div>
 </body>

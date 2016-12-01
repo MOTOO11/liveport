@@ -13,7 +13,11 @@ export class VoiceParameter {
     use: boolean = true;
     // 後に使えているコメント数
     busy: number = 0;
-    constructor() { }
+    constructor(volume: number = 100, rate: number = 10, pitch: number = 50) {
+        this.volume = volume;
+        this.rate = rate;
+        this.pitch = pitch
+    }
 
     adjustmentVolume(min: number, max: number) {
         return Math.floor(((max - min) * this.volume) / 100);

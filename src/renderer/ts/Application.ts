@@ -1,34 +1,30 @@
 "use strict"
 import * as Vue from "Vue";
 import { Component, Watch } from "vue-typed"
-import SofTalk from "./SofTalk"
-import WebspeechApi from "./WebspeechApi"
 import { Thread } from "./Thread";
-import { VOICE,VoiceParameter } from "./Voice"
+import { VOICE, VoiceParameter } from "./Voice"
 import StringUtil from "./StringUtil";
 import Logger from "./Logger";
 import ProvideManager from "./ProvideManager";
 import { remote } from "electron";
 const ApplicatonName = require("../../../package.json").name
 import * as $ from "jquery"
-let APP_TITLE: string;
+const SETTINGS = "settings";
 
 @Component({})
 export default class Application extends Vue {
     provideManager: ProvideManager;
     // data
-    message: string = 'このテキストはテストメッセージです';
+    testMessage: string = 'このテキストはテストメッセージです';
     url: string = "";
     processing: boolean = false;
     thread: Thread;
     constructor() {
         super();
         Logger.log("start", "hello application.");
-        APP_TITLE = ApplicatonName;
-        remote.getCurrentWindow().setTitle(APP_TITLE);
         this.provideManager = new ProvideManager();
+        this.setTitle("");
         this.thread = new Thread();
-        this.url = "http://jbbs.shitaraba.net/bbs/read.cgi/netgame/12802/1478775754/";
         this.loadSettings();
     }
 
@@ -53,6 +49,7 @@ export default class Application extends Vue {
             }
         );
     }
+
     stopThreadRequest() {
         clearTimeout(this.reloadTimerID);
     }
@@ -87,7 +84,7 @@ export default class Application extends Vue {
         clearTimeout(this.provideTimerID);
         if (this.nowNumber != this.allNum()) {
             let target = this.thread.reses[this.nowNumber];
-            this.provideManager.provide("レス" + target.num, target.text, this.reading);
+            this.provideManager.provide("レス" + target.num + ":", target.text, this.reading);
             this.nowNumber++;
             if (this.autoScroll)
                 this.scrollTo(this.nowNumber);
@@ -110,13 +107,41 @@ export default class Application extends Vue {
 
     start() {
         this.processing = true;
-        if (this.url != this.thread.url) {
-            this.thread = Thread.threadFactory(this.url);
-            this.nowNumber = 0;
-            Logger.log("change", "modified thread url.");
-        }
+        this.loadUrl();
         this.startThreadRequest();
         this.startProvide();
+    }
+
+    loadUrl() {
+        if (this.url != this.thread.url) {
+            this.initUrlSource();
+            Logger.log("change", "modified thread url.");
+        }
+    }
+    initUrlSource() {
+        this.thread = Thread.threadFactory(this.url);
+        this.nowNumber = 0;
+    }
+    // refresh
+    requestOnce() {
+        if (!this.url) {
+            Logger.log("invalid url", "no input.");
+            return;
+        }
+        if (!Thread.isShitarabaURL(this.url)) {
+            Logger.log("invalid url", "not shitaraba url.");
+            return;
+        }
+        this.thread = new Thread(this.url);
+        this.nowNumber = 0;
+        this.thread.request(
+            (newArrival: number) => {
+                Logger.log("request success", newArrival.toString());
+            },
+            (err: any) => {
+                Logger.log("request failed", err);
+            }
+        );
     }
 
     stop() {
@@ -134,7 +159,7 @@ export default class Application extends Vue {
         this.scrollTo(this.nowNumber);
     }
     setTitle(name: string) {
-        remote.getCurrentWindow().setTitle(name);
+        remote.getCurrentWindow().setTitle(name + " - " + ApplicatonName);
     }
 
     // 表示するものがない時
@@ -180,14 +205,6 @@ export default class Application extends Vue {
         snackbarContainer.MaterialSnackbar.showSnackbar(data);
     }
 
-    loadSettings() {
-        this.voice = VOICE.WSA;
-        this.provideManager.selectVoice(this.voice);
-    }
-    saveSettings() {
-
-    }
-
     test(letter: string, body: string) {
         this.provideManager.test(letter, body, this.reading);
     }
@@ -205,18 +222,18 @@ export default class Application extends Vue {
 
     @Watch('thread.title')
     onTitleChange(newValue: number, oldValue: number) {
-        this.setTitle(APP_TITLE + " - " + this.thread.title);
+        this.setTitle(this.thread.title);
     }
 
     @Watch('reading')
     onrChange(newValue: number, oldValue: number) {
-        Logger.log("reading",this.reading)
+        Logger.log("reading", this.reading)
     }
 
-    voice: number = 0;
-    // softalk or bouyomichan
+    voice: number = 1;
+    // softalk or webspeechapi
     path: string = "";
-    @Watch('voice')
+    @Watch("voice")
     onVoiceChange(newValue: number, oldValue: number) {
         switch (this.voice) {
             case VOICE.WSA:
@@ -245,5 +262,56 @@ export default class Application extends Vue {
     existsSofTalkPath() {
         if (this.path == "")
             this.findSofTalkPathDialog();
+    }
+
+    get settings() {
+        return this.url
+            + this.provideManager.vParam.volume
+            + this.provideManager.vParam.rate
+            + this.provideManager.vParam.pitch
+            + this.provideManager.vParam.use
+            + this.reload + this.readingTimeLimit + this.reading
+            + this.path + this.voice;;
+    }
+
+    loadSettings() {
+        let items = localStorage.getItem(SETTINGS);
+        var settings = JSON.parse(items);
+        if (!settings) return;
+        this.url = settings.url;
+        if (this.url) {
+            this.initUrlSource();
+            this.setTitle(this.thread.title);
+        };
+        this.provideManager.vParam.volume = Number(settings.volume);
+        this.provideManager.vParam.rate = Number(settings.rate);
+        this.provideManager.vParam.pitch = Number(settings.pitch);
+        this.provideManager.vParam.use = Boolean(settings.use === "true" ? true : false);
+        this.reload = Number(settings.reload);
+        this.readingTimeLimit = Number(settings.readingTimeLimit);
+        this.reading = Boolean(settings.reading === "true" ? true : false);;
+        this.path = settings.path;
+        this.voice = Number(settings.voice);
+        this.provideManager.selectVoice(this.voice);
+        Logger.log("load settings", items);
+    }
+    saveSettings() {
+        localStorage.setItem(SETTINGS, JSON.stringify({
+            url: this.url,
+            volume: this.provideManager.vParam.volume,
+            rate: this.provideManager.vParam.rate,
+            pitch: this.provideManager.vParam.pitch,
+            use: this.provideManager.vParam.use,
+            reload: this.reload,
+            readingTimeLimit: this.readingTimeLimit,
+            reading: this.reading,
+            path: this.path,
+            voice: this.voice
+        }));
+    }
+    @Watch("settings")
+    onSettingsChange(newValue: number, oldValue: number) {
+        this.saveSettings()
+        var settings = JSON.parse(localStorage.getItem(SETTINGS));
     }
 }
