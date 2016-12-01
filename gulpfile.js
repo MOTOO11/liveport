@@ -103,11 +103,14 @@ gulp.task("release", ["build"], (done) => {
         overwrite: true,
         ignore: [".vscode", "src", "typings",
             ".gitignore", "gulpfile.js", "postcss.config.js",
-            "tsconfig.json", "typings.json",
+            "tsconfig.json", "typings.json", "README.md",
             "webpack.browser.config.js", "webpack.config.js", "webpack.renderer.config.js"
         ]
     }, function(err, path) {
         if (err) console.log(err);
+        else {
+            return gulp.src("README.md").pipe(gulp.dest(path[0]));
+        }
         done();
     });
 });
