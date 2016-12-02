@@ -72,13 +72,13 @@ export default class Application extends Vue {
     // provideTimerCountDown: number;
     // 読み上げ時間数上限
     provideTimeLimit: number = 10;
-    reading: boolean = true;
+    reading: boolean = true;;
 
     startProvide() {
         if (!this.processing) return;
         clearTimeout(this.provideTimerID);
         if (this.thread.bookmark != this.thread.allNum()) {
-            let target = this.thread.reses[this.thread.bookmark];
+            let target = this.thread.messages[this.thread.bookmark];
             this.pManager.provide("レス" + target.num + ":", target.text, this.reading);
             this.thread.next();
             if (this.autoScroll)
@@ -224,14 +224,7 @@ export default class Application extends Vue {
     path: string = "";
     @Watch("pManager.voice")
     onVoiceChange(newValue: number, oldValue: number) {
-        switch (this.pManager.voice) {
-            case VOICE.WSA:
-                this.pManager.selectVoice(newValue);
-                break;
-            case VOICE.SOFTALK:
-                this.pManager.selectVoice(newValue, this.path);
-                break;
-        }
+        this.pManager.selectVoice(newValue, this.path);
     }
 
     findSofTalkPathDialog() {

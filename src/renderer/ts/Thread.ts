@@ -1,33 +1,27 @@
 "use strict"
 import * as rp from "request-promise";
 import * as  iconv from "iconv-lite";
+import Message from "./Message";
+import DataSource from "./DataSource";
 const URL = "http://jbbs.shitaraba.net/bbs/read.cgi/netgame/12802/1478775754/";
 const SHITARABA_REGEX = new RegExp(/http:\/\/jbbs.shitaraba.net\/bbs\/read.cgi\/(\w+)\/(\d+)\/(\d+)\/.*/);
 const RES_SPLITTER = new RegExp(/<>/g);
 const NEWLINE_SPLITTER = new RegExp(/\n/g);
 
-export class Thread {
-    reses: Res[] = [];
-    bookmark: number = 0;
-    url: string = "";
-    title: string = "";
-    constructor(url?: string) {
-        if (url) this.url = url;
-    }
-
+export class Thread extends DataSource {
     request(success: (boolean) => void, failed: (err: any) => void) {
         var url = URL;
         if (Thread.isShitarabaURL(this.url)) {
             url = this.url;
         }
         var matches = url.match(SHITARABA_REGEX);
-        var datUrl = `http://jbbs.shitaraba.net/bbs/rawmode.cgi/${matches[1]}/${matches[2]}/${matches[3]}/` + (this.reses.length + 1) + "-";
+        var datUrl = `http://jbbs.shitaraba.net/bbs/rawmode.cgi/${matches[1]}/${matches[2]}/${matches[3]}/` + (this.messages.length + 1) + "-";
         console.log("request dat url : " + datUrl);
         rp({ url: datUrl, encoding: null, timeout: 8000 })
             .then((htmlString) => {
                 console.log("request result : ok!");
                 var decoding = iconv.decode(htmlString, "EUC-JP")
-                let NewArrivals = this.dat2json(decoding);
+                let NewArrivals = this.data2json(decoding);
                 success(NewArrivals);
             })
             .catch((err) => {
@@ -37,17 +31,17 @@ export class Thread {
             });
     }
     // 新着レスが有る場合はその数を返す
-    dat2json(dat: string): number {
-        var line = dat.split(NEWLINE_SPLITTER);
+    data2json(data: string): number {
+        var line = data.split(NEWLINE_SPLITTER);
         /* 
             末尾に改行コードがついているので、
             line.lengthは取得したレス+1となっている。
             そのため-1
         */
-        var resArray: Res[] = [];
+        var resArray: Message[] = [];
         for (var i = 0; i < line.length - 1; i++) {
             var r = line[i].split(RES_SPLITTER);
-            var res = new Res();
+            var res = new Message();
             res.num = +r[0];
             res.name = r[1];
             res.mail = r[2];
@@ -60,15 +54,15 @@ export class Thread {
             }
             res.id = r[6];
             resArray.push(res);
-            resArray.sort(this.sortRes);
+            resArray.sort(this.messageSorter);
         }
-        this.reses = this.reses.concat(resArray);
-        this.reses.sort(this.sortRes);
-        this.saveThread();
+        this.messages = this.messages.concat(resArray);
+        this.messages.sort(this.messageSorter);
+        this.save();
         return resArray.length;
     }
 
-    sortRes = (n1, n2) => {
+    messageSorter = (n1, n2) => {
         if (n1.num < n2.num) {
             return -1;
         }
@@ -78,26 +72,10 @@ export class Thread {
         return 0;
     }
 
-    allNum() {
-        return this.reses.length;
-    }
-
-    next() {
-        this.bookmark++;
-        this.saveThread();
-    }
-    latest() {
-        this.bookmark = this.allNum();
-        this.saveThread();
-    }
-
     static isShitarabaURL(url: string): boolean {
         return SHITARABA_REGEX.test(url);
     }
 
-    stringify(): string {
-        return JSON.stringify(this);
-    }
     static decodeFromJson(data: any) {
         var data = JSON.parse(data);
         let thread = new Thread();
@@ -105,16 +83,12 @@ export class Thread {
         thread.url = data.url;
         thread.title = data.title;
         var resdata = [];
-        for (var i in data.reses) {
-            var decode = Res.decodeFromJson(JSON.stringify(data.reses[i]));
+        for (var i in data.messages) {
+            var decode = Message.decodeFromJson(JSON.stringify(data.messages[i]));
             resdata.push(decode);
         }
-        thread.reses = resdata;
+        thread.messages = resdata;
         return thread;
-    }
-
-    saveThread() {
-        localStorage.setItem(this.url, this.stringify());
     }
 
     static threadFactory(url: string): Thread {
@@ -139,30 +113,3 @@ export class Thread {
 }
 
 export default Thread;
-// [レス番号]<>[名前]<>[メール]<>[日付]<>[本文]<>[スレッドタイトル]<>[ID]
-export class Res {
-    num: number;
-    name: string;
-    mail: string;
-    date: string;
-    text: string;
-    title: string;
-    id: string;
-    constructor() { }
-
-    static decodeFromJson(data: any) {
-        var data = JSON.parse(data);
-        let res = new Res();
-        res.num = data.num;
-        res.name = data.name;
-        res.mail = data.mail;
-        res.date = data.date;
-        res.text = data.text;
-        res.title = data.title;
-        res.id = data.id;
-        return res;
-    }
-    stringify() {
-        return JSON.stringify(this);
-    }
-}

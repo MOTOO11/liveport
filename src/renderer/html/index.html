@@ -98,7 +98,7 @@
             <!-- display -->
             <main class="mdl-layout__content">
                 <div class="viewer__showThread">
-                    <dl v-for="item in thread.reses">
+                    <dl v-for="item in thread.messages">
                         <dt :id="'MESSAGE-'+item.num" :key="item.num">{{item.num}}:<span v-html="item.name"></span>[{{item.mail}}] {{item.date}} ID:{{item.id}}</dt>
                         <dd v-html="replace(item.text)" class="aa" :key="item.num"></dd>
                     </dl>
