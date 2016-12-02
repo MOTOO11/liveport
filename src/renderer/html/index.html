@@ -46,17 +46,17 @@
                     </label>
                     </span>
                     <span class="mdl-navigation__link">
-                        <label><i class="material-icons">timer</i> 読み上げ時間制限：{{readingTimeLimit}}</label>
-                        <input class="mdl-slider mdl-js-slider" type="range" max="60" min="3" v-model="readingTimeLimit" v-bind:disabled="processing" />
+                        <label><i class="material-icons">timer</i> 読み上げ時間制限：{{provideTimeLimit}}</label>
+                        <input class="mdl-slider mdl-js-slider" type="range" max="60" min="3" v-model="provideTimeLimit" v-bind:disabled="processing" />
                     </span>
                     <span class="mdl-navigation__link">
                         <label><i class="material-icons">mic</i> 読み上げボイス</label><br>
                         <label class="mdl-radio mdl-js-radio mdl-js-ripple-effect" for="option-1">
-                            <input type="radio" id="option-1" class="mdl-radio__button"  v-model="voice"  v-bind:value="1" v-bind:disabled="processing">
+                            <input type="radio" id="option-1" class="mdl-radio__button"  v-model="pManager.voice"  v-bind:value="1" v-bind:disabled="processing">
                             <span class="mdl-radio__label">WSA</span>
                     </label>
                     <label class="mdl-radio mdl-js-radio mdl-js-ripple-effect" for="option-2">
-                            <input type="radio" id="option-2" class="mdl-radio__button"  v-model="voice"  v-bind:value="2" v-bind:disabled="processing">
+                            <input type="radio" id="option-2" class="mdl-radio__button"  v-model="pManager.voice"  v-bind:value="2" v-bind:disabled="processing">
                             <span class="mdl-radio__label">SofTalk</span>
                         </label>
                     </span>
@@ -69,21 +69,21 @@
                     <span class="mdl-navigation__link">
                         <label><i class="material-icons">record_voice_over</i> 音量・速度・音程を使用</label>
                         <label class="mdl-switch mdl-js-switch mdl-js-ripple-effect" for="useParam">
-                            <input type="checkbox" id="useParam" class="mdl-switch__input"  v-model="provideManager.vParam.use">
-                            <span class="mdl-switch__label">{{provideManager.vParam.use?"on":"off"}}</span>
+                            <input type="checkbox" id="useParam" class="mdl-switch__input"  v-model="pManager.vParam.use">
+                            <span class="mdl-switch__label">{{pManager.vParam.use?"on":"off"}}</span>
                     </label>
                     </span>
                     <span class="mdl-navigation__link">
-                        <label><i class="material-icons">volume_down</i> 音量：{{provideManager.vParam.volume}}</label>
-                        <input class="mdl-slider mdl-js-slider" type="range" max="100" min="0" v-model="provideManager.vParam.volume" v-bind:disabled="!provideManager.vParam.use" />
+                        <label><i class="material-icons">volume_down</i> 音量：{{pManager.vParam.volume}}</label>
+                        <input class="mdl-slider mdl-js-slider" type="range" max="100" min="0" v-model="pManager.vParam.volume" v-bind:disabled="!pManager.vParam.use" />
                     </span>
                     <span class="mdl-navigation__link">
-                        <label><i class="material-icons">directions_run</i> 速度：{{provideManager.vParam.rate}}</label>
-                        <input class="mdl-slider mdl-js-slider" type="range" max="100" min="0" v-model="provideManager.vParam.rate" v-bind:disabled="!provideManager.vParam.use" />
+                        <label><i class="material-icons">directions_run</i> 速度：{{pManager.vParam.rate}}</label>
+                        <input class="mdl-slider mdl-js-slider" type="range" max="100" min="0" v-model="pManager.vParam.rate" v-bind:disabled="!pManager.vParam.use" />
                     </span>
                     <span class="mdl-navigation__link">
-                        <label><i class="material-icons">slow_motion_video</i> 音程：{{provideManager.vParam.pitch}}</label>
-                        <input class="mdl-slider mdl-js-slider" type="range" max="100" min="0" v-model="provideManager.vParam.pitch" v-bind:disabled="!provideManager.vParam.use" />
+                        <label><i class="material-icons">slow_motion_video</i> 音程：{{pManager.vParam.pitch}}</label>
+                        <input class="mdl-slider mdl-js-slider" type="range" max="100" min="0" v-model="pManager.vParam.pitch" v-bind:disabled="!pManager.vParam.use" />
                     </span>
                     <span class="mdl-navigation__link">
                         <label><i class="material-icons">record_voice_over</i> 読み上げテスト</label>                        
@@ -130,7 +130,7 @@
                 最新まで移動
             </div>
             <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored mdl-button--default">
-                {{nowNumber}}
+                {{thread.bookmark}}
             </button>
             <button class="mdl-button mdl-js-button" disabled>
                          
@@ -176,20 +176,8 @@
         </dialog>
         <!-- dummytext dialog -->
     </div>
-    <!--<div id="app">
-
-        <div class="settings">
-            <br>
-            <i class="material-icons md-18">face</i>
-            <i class="material-icons orange600 md-18">face</i>
-            <!--<div class="mdl-spinner mdl-js-spinner is-active"></div>
-        <div id="p2" class="mdl-progress mdl-js-progress mdl-progress__indeterminate">aaaa</div>
-            <i class="fa fa-address-book fa-2x fa-fw" aria-hidden="true"></i>
-            <i class="fa fa-cog fa-spin fa-2x fa-fw"></i>
-            <span class="sr-only">Loading...</span>
-            <i class="fa fa-spinner fa-pulse fa-2x fa-fw"></i>
-            <span class="sr-only">Loading...</span>
-        </div>
+    <!--<div id="loading" class="aa"><br/> 　　　　　　 ／ﾌﾌ 　　　　　　 　ム｀ヽ<br/> 　　　　　　/ ノ)　 ∧＿∧　　　　）　ヽ<br/> 　　　　　ﾞ/ ｜　　(´・ω・`）ノ⌒（ゝ._,ノ Now loading....<br/> 　　　　　/　ﾉ⌒7⌒ヽーく　 ＼　／<br/> 　　　　　丶＿ ノ ｡　　 ノ､　　｡|/<br/> 　　　　　　　 `ヽ `ー-'_人`ーﾉ　<br/> 　　　　　　　　 丶 ￣ _人'彡ﾉ<br/> 　　　　　　　　　ﾉ　　r'十ヽ/
+        <br/> 　　　　　　　／｀ヽ _/　十∨<br/>
     </div>-->
 </body>
 

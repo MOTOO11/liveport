@@ -13,7 +13,7 @@ const SETTINGS = "settings";
 
 @Component({})
 export default class Application extends Vue {
-    provideManager: ProvideManager;
+    pManager: ProvideManager;
     // data
     testMessage: string = 'このテキストはテストメッセージです';
     url: string = "";
@@ -22,7 +22,7 @@ export default class Application extends Vue {
     constructor() {
         super();
         Logger.log("start", "hello application.");
-        this.provideManager = new ProvideManager();
+        this.pManager = new ProvideManager();
         this.setTitle("");
         this.thread = new Thread();
         this.loadSettings();
@@ -70,39 +70,34 @@ export default class Application extends Vue {
     provideTimerID: number;
     // 表示カウントダウン
     // provideTimerCountDown: number;
-    provideTimeLimit: number = 9;
-
     // 読み上げ時間数上限
-    readingTimeLimit: number = 10;
-    // 処理中レス番号
-    // ユーザーが変更可能
-    nowNumber: number = 0;
+    provideTimeLimit: number = 10;
     reading: boolean = true;
 
     startProvide() {
         if (!this.processing) return;
         clearTimeout(this.provideTimerID);
-        if (this.nowNumber != this.allNum()) {
-            let target = this.thread.reses[this.nowNumber];
-            this.provideManager.provide("レス" + target.num + ":", target.text, this.reading);
-            this.nowNumber++;
+        if (this.thread.bookmark != this.thread.allNum()) {
+            let target = this.thread.reses[this.thread.bookmark];
+            this.pManager.provide("レス" + target.num + ":", target.text, this.reading);
+            this.thread.next();
             if (this.autoScroll)
-                this.scrollTo(this.nowNumber);
+                this.scrollTo(this.thread.bookmark);
         } else {
-            this.provideManager.dummyText(this.dummyText);
+            this.pManager.dummyText(this.dummyText);
         }
         this.setProvideTimer();
     }
     stopProvide() {
         clearTimeout(this.provideTimerID);
-        this.provideManager.cancel();
+        this.pManager.cancel();
         this.provideDummyTest();
     }
     setProvideTimer() {
         if (!this.processing) return;
         this.provideTimerID = window.setTimeout(() => {
             this.startProvide();
-        }, this.readingTimeLimit * 1000);
+        }, this.provideTimeLimit * 1000);
     }
 
     start() {
@@ -120,7 +115,6 @@ export default class Application extends Vue {
     }
     initUrlSource() {
         this.thread = Thread.threadFactory(this.url);
-        this.nowNumber = 0;
     }
     // refresh
     requestOnce() {
@@ -133,7 +127,6 @@ export default class Application extends Vue {
             return;
         }
         this.thread = new Thread(this.url);
-        this.nowNumber = 0;
         this.thread.request(
             (newArrival: number) => {
                 Logger.log("request success", newArrival.toString());
@@ -150,14 +143,11 @@ export default class Application extends Vue {
         this.stopProvide();
     }
 
-    allNum() {
-        return this.thread.reses.length;
+    latest() {
+        this.thread.latest();;
+        this.scrollTo(this.thread.bookmark);
     }
 
-    latest() {
-        this.nowNumber = this.thread.reses.length;
-        this.scrollTo(this.nowNumber);
-    }
     setTitle(name: string) {
         remote.getCurrentWindow().setTitle(name + " - " + ApplicatonName);
     }
@@ -165,12 +155,12 @@ export default class Application extends Vue {
     // 表示するものがない時
     dummyText: string = "";
     provideDummyTest() {
-        this.provideManager.dummyText(this.dummyText);
+        this.pManager.dummyText(this.dummyText);
     }
     @Watch('dummyText')
     onDummyTextChange(newValue: number, oldValue: number) {
         if (this.processing) return;
-        this.provideManager.dummyText(this.dummyText);
+        this.pManager.dummyText(this.dummyText);
     }
 
     showDummyTextWindow() {
@@ -191,7 +181,7 @@ export default class Application extends Vue {
         return Thread.isShitarabaURL(this.url);
     }
 
-    snackbar(data: {}) {
+    snackbar(data: { message: string, timeout: number }) {
         var snackbarContainer: any = document.querySelector('#demo-snackbar-example');
         // var handler = function (event) {
         //     Logger.log("snackbar", "");
@@ -206,7 +196,7 @@ export default class Application extends Vue {
     }
 
     test(letter: string, body: string) {
-        this.provideManager.test(letter, body, this.reading);
+        this.pManager.provide(letter, body, this.reading);
     }
 
     autoScroll: boolean = false;
@@ -230,17 +220,16 @@ export default class Application extends Vue {
         Logger.log("reading", this.reading)
     }
 
-    voice: number = 1;
     // softalk or webspeechapi
     path: string = "";
-    @Watch("voice")
+    @Watch("pManager.voice")
     onVoiceChange(newValue: number, oldValue: number) {
-        switch (this.voice) {
+        switch (this.pManager.voice) {
             case VOICE.WSA:
-                this.provideManager.selectVoice(newValue);
+                this.pManager.selectVoice(newValue);
                 break;
             case VOICE.SOFTALK:
-                this.provideManager.selectVoice(newValue, this.path);
+                this.pManager.selectVoice(newValue, this.path);
                 break;
         }
     }
@@ -253,8 +242,7 @@ export default class Application extends Vue {
         }, (paths: string[]) => {
             if (paths) {
                 this.path = paths[0];
-                if (this.voice === VOICE.SOFTALK)
-                    this.provideManager.selectVoice(VOICE.SOFTALK, this.path);
+                this.pManager.selectVoice(VOICE.SOFTALK, this.path);
             }
         });
     }
@@ -266,49 +254,56 @@ export default class Application extends Vue {
 
     get settings() {
         return this.url
-            + this.provideManager.vParam.volume
-            + this.provideManager.vParam.rate
-            + this.provideManager.vParam.pitch
-            + this.provideManager.vParam.use
-            + this.reload + this.readingTimeLimit + this.reading
-            + this.path + this.voice;;
+            + this.pManager.vParam.volume
+            + this.pManager.vParam.rate
+            + this.pManager.vParam.pitch
+            + this.pManager.vParam.use
+            + this.reload + this.provideTimeLimit + this.reading
+            + this.path + this.pManager.voice;
     }
 
     loadSettings() {
         let items = localStorage.getItem(SETTINGS);
         var settings = JSON.parse(items);
-        if (!settings) return;
+        if (!settings) {
+            this.pManager.selectVoice(this.pManager.voice);
+            return;
+        }
         this.url = settings.url;
         if (this.url) {
             this.initUrlSource();
             this.setTitle(this.thread.title);
         };
-        this.provideManager.vParam.volume = Number(settings.volume);
-        this.provideManager.vParam.rate = Number(settings.rate);
-        this.provideManager.vParam.pitch = Number(settings.pitch);
-        this.provideManager.vParam.use = Boolean(settings.use === "true" ? true : false);
+        this.pManager.vParam.volume = Number(settings.volume);
+        this.pManager.vParam.rate = Number(settings.rate);
+        this.pManager.vParam.pitch = Number(settings.pitch);
+        this.pManager.vParam.use = Boolean(settings.use);
         this.reload = Number(settings.reload);
-        this.readingTimeLimit = Number(settings.readingTimeLimit);
-        this.reading = Boolean(settings.reading === "true" ? true : false);;
+        this.provideTimeLimit = Number(settings.provideTimeLimit);
+        this.reading = Boolean(settings.reading);
         this.path = settings.path;
-        this.voice = Number(settings.voice);
-        this.provideManager.selectVoice(this.voice);
+        this.pManager.voice = Number(settings.voice);
+        this.pManager.selectVoice(this.pManager.voice, this.path);
         Logger.log("load settings", items);
     }
+    mounted() {
+        if (this.thread.bookmark != 0)
+            this.scrollTo(this.thread.bookmark);
+    };
     saveSettings() {
         localStorage.setItem(SETTINGS, JSON.stringify({
             url: this.url,
-            volume: this.provideManager.vParam.volume,
-            rate: this.provideManager.vParam.rate,
-            pitch: this.provideManager.vParam.pitch,
-            use: this.provideManager.vParam.use,
+            volume: this.pManager.vParam.volume,
+            rate: this.pManager.vParam.rate,
+            pitch: this.pManager.vParam.pitch,
+            use: this.pManager.vParam.use,
             reload: this.reload,
-            readingTimeLimit: this.readingTimeLimit,
+            provideTimeLimit: this.provideTimeLimit,
             reading: this.reading,
             path: this.path,
-            voice: this.voice
+            voice: this.pManager.voice
         }));
-    }
+    };
     @Watch("settings")
     onSettingsChange(newValue: number, oldValue: number) {
         this.saveSettings()

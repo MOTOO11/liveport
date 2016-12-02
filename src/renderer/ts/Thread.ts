@@ -78,6 +78,19 @@ export class Thread {
         return 0;
     }
 
+    allNum() {
+        return this.reses.length;
+    }
+
+    next() {
+        this.bookmark++;
+        this.saveThread();
+    }
+    latest() {
+        this.bookmark = this.allNum();
+        this.saveThread();
+    }
+
     static isShitarabaURL(url: string): boolean {
         return SHITARABA_REGEX.test(url);
     }

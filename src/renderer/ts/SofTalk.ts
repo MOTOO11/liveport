@@ -16,13 +16,12 @@ class SofTalk implements Speaker {
     // 0-100 1-300 1-300
     speak(text: string, vParam: VoiceParameter) {
         var args = "";
-        console.log(vParam);
         args += " /V:" + (vParam.use ? vParam.adjustmentVolume(0, 100) : defaultParameter.volume);
         args += " /S:" + (vParam.use ? vParam.adjustmentRate(1, 300) : defaultParameter.rate);
         args += " /O:" + (vParam.use ? vParam.adjustmentPitch(1, 300) : defaultParameter.pitch);
         args += " /W:" + text.replace(/\n/gi, "  ");
         
-        console.log(this.path +" " +args);
+        // console.log(this.path +" " +args);
         cp.spawn(this.path, [args]).on("exit", (code) => {
             Logger.log("result", code);
         }).on("error", (err) => {

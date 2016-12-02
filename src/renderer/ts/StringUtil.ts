@@ -14,7 +14,7 @@ class StringUtil {
     static anchorToReadable(text: string, replaceStr?: string): string {
         var exp = /<a href="\/bbs\/read.cgi\/[a-zA-Z]+\/[0-9]+\/[0-9]+\/([0-9]{1,4})" target="_blank">&gt;&gt;[0-9]{1,4}<\/a>/gi;
         return text.replace(exp,
-            replaceStr ? replaceStr : "レス$1");
+            replaceStr ? replaceStr : ">>$1");
     }
 
     static urlToLink(text: string): string {

@@ -11,8 +11,6 @@ export class VoiceParameter {
     rate: number = 10;
     pitch: number = 50;
     use: boolean = true;
-    // 後に使えているコメント数
-    busy: number = 0;
     constructor(volume: number = 100, rate: number = 10, pitch: number = 50) {
         this.volume = volume;
         this.rate = rate;
@@ -20,12 +18,18 @@ export class VoiceParameter {
     }
 
     adjustmentVolume(min: number, max: number) {
-        return Math.floor(((max - min) * this.volume) / 100);
+        var v = ((max - min) * this.volume) / 100;
+        return v;
+        // return v < 1 ? v : Math.floor(v);
     }
     adjustmentRate(min: number, max: number) {
-        return Math.floor(((max - min) * this.rate) / 100);
+        var r = ((max - min) * this.rate) / 100;
+        return r;
+        // return r < 1 ? r : Math.floor(r);
     }
     adjustmentPitch(min: number, max: number) {
-        return Math.floor(((max - min) * this.pitch) / 100);
+        var p = ((max - min) * this.pitch) / 100;
+        return p;
+        // return p < 1 ? p : Math.floor(p);
     }
 }

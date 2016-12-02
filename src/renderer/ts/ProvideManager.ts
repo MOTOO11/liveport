@@ -17,6 +17,7 @@ export default class ProvideManager {
     socket = io.connect("http://localhost:" + port);
     speaker: Speaker;
     vParam: VoiceParameter = new VoiceParameter();
+    voice: number = VOICE.WSA;
     constructor() {
     }
 
@@ -28,7 +29,7 @@ export default class ProvideManager {
                 this.speaker.speak(letter + "\n" + AA_TEMPLATE, this.vParam);
             this.socket.emit(MODE.AA, letter + "\r\n" + brReplace);
         }
-        
+
         if (this.isAA(brReplace, 2)) {
             if (this.speaker.speaking()) {
                 this.cancel(aa);
@@ -38,12 +39,15 @@ export default class ProvideManager {
             }
             return;
         }
-        let urlReplace = StringUtil.urlToReadable(brReplace);
-        let ZENHANReplace = StringUtil.replaceHANKAKUtoZENKAKU(urlReplace);
 
         const messenger = () => {
-            if (reading)
+            if (reading) {
+                let anchorReplace = StringUtil.anchorToReadable(body,"レス$1");
+                let brReplace = StringUtil.replaceBr2NewLine(anchorReplace);
+                let urlReplace = StringUtil.urlToReadable(brReplace);
+                let ZENHANReplace = StringUtil.replaceHANKAKUtoZENKAKU(urlReplace);
                 this.speaker.speak(letter + "\n" + ZENHANReplace, this.vParam);
+            }
             this.socket.emit(MODE.MESSAGE, letter + "\r\n" + brReplace);
         }
         if (this.speaker.speaking()) {
@@ -55,12 +59,8 @@ export default class ProvideManager {
 
     }
 
-    test(letter: string, body: string, reading: boolean = true) {
-        this.provide(letter, body, reading);
-    }
-
     dummyText(body: string) {
-        this.socket.emit(  MODE.AA , body);;
+        this.socket.emit(MODE.AA, body);;
     }
 
     isAA(value: string, count?: number): boolean {
@@ -77,9 +77,9 @@ export default class ProvideManager {
     }
 
     cancel(callback?: () => void) {
-            this.speaker.cancel();
-            setTimeout(() => {
-                if (callback) callback();
-            },1000);
+        this.speaker.cancel();
+        setTimeout(() => {
+            if (callback) callback();
+        }, 1000);
     }
 }
