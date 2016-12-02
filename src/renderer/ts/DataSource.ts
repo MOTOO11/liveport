@@ -3,7 +3,6 @@ abstract class DataSource {
     messages: Message[] = [];
     url: string = "";
     bookmark: number = 0;
-    // threadFactory(url: string);
     title: string = "";
     constructor(url?: string) {
         if (url) this.url = url;
