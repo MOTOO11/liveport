@@ -14,7 +14,6 @@ const SETTINGS = "settings";
 @Component({})
 export default class Application extends Vue {
     pManager: ProvideManager;
-    // data
     testMessage: string = 'このテキストはテストメッセージです';
     url: string = "";
     processing: boolean = false;
@@ -113,7 +112,7 @@ export default class Application extends Vue {
         }
     }
     initUrlSource() {
-        this.thread = Thread.threadFactory(this.url);
+        this.thread = new Thread(this.url);
     }
     // refresh
     requestOnce() {
@@ -261,22 +260,28 @@ export default class Application extends Vue {
             this.pManager.selectVoice(this.pManager.voice);
             return;
         }
-        this.url = settings.url;
-        if (this.url) {
-            this.initUrlSource();
-            this.setTitle(this.thread.title);
-        };
-        this.pManager.vParam.volume = Number(settings.volume);
-        this.pManager.vParam.rate = Number(settings.rate);
-        this.pManager.vParam.pitch = Number(settings.pitch);
-        this.pManager.vParam.use = Boolean(settings.use);
-        this.reload = Number(settings.reload);
-        this.provideTimeLimit = Number(settings.provideTimeLimit);
-        this.pManager.reading = Boolean(settings.pManager.reading);
-        this.path = settings.path;
-        this.pManager.voice = Number(settings.voice);
-        this.pManager.selectVoice(this.pManager.voice, this.path);
-        Logger.log("load settings", items);
+        try {
+            this.url = settings.url;
+            if (this.url) {
+                this.initUrlSource();
+                this.setTitle(this.thread.title);
+            };
+            this.pManager.vParam.volume = Number(settings.volume);
+            this.pManager.vParam.rate = Number(settings.rate);
+            this.pManager.vParam.pitch = Number(settings.pitch);
+            this.pManager.vParam.use = Boolean(settings.use);
+            this.reload = Number(settings.reload);
+            this.provideTimeLimit = Number(settings.provideTimeLimit);
+            this.pManager.reading = Boolean(settings.reading);
+            this.path = settings.path;
+            this.pManager.voice = Number(settings.voice);
+            this.pManager.selectVoice(this.pManager.voice, this.path);
+            Logger.log("load settings", items);
+        } catch (e) {
+            console.log("invalid settings error.");
+            localStorage.removeItem(SETTINGS);
+            this.loadSettings();
+        }
     }
     mounted() {
         if (this.thread.bookmark != 0)

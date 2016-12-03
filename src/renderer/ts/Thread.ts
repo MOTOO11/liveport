@@ -75,41 +75,6 @@ export class Thread extends DataSource {
     static isShitarabaURL(url: string): boolean {
         return SHITARABA_REGEX.test(url);
     }
-
-    static decodeFromJson(data: any) {
-        var data = JSON.parse(data);
-        let thread = new Thread();
-        thread.bookmark = data.bookmark;
-        thread.url = data.url;
-        thread.title = data.title;
-        var resdata = [];
-        for (var i in data.messages) {
-            var decode = Message.decodeFromJson(JSON.stringify(data.messages[i]));
-            resdata.push(decode);
-        }
-        thread.messages = resdata;
-        return thread;
-    }
-
-    static threadFactory(url: string): Thread {
-        var thread = Thread.loadThread(url);
-        if (thread == null) {
-            console.log("new thread url.")
-            return new Thread(url);
-        }
-        console.log("read localstorage url.")
-        return Thread.decodeFromJson(thread);
-    }
-
-    static loadThread(url: string) {
-        return localStorage.getItem(url);
-    }
-    static clearThread(url: string) {
-        localStorage.removeItem(url);
-    }
-    static clearAllThread(url: string) {
-        localStorage.clear();
-    }
 }
 
 export default Thread;
