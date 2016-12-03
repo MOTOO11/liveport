@@ -18,6 +18,7 @@ export default class ProvideManager {
     speaker: Speaker;
     vParam: VoiceParameter = new VoiceParameter();
     voice: number = VOICE.WSA;
+    reading: boolean = true;
     constructor() {
     }
 

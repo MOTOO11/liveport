@@ -72,14 +72,13 @@ export default class Application extends Vue {
     // provideTimerCountDown: number;
     // 読み上げ時間数上限
     provideTimeLimit: number = 10;
-    reading: boolean = true;;
 
     startProvide() {
         if (!this.processing) return;
         clearTimeout(this.provideTimerID);
         if (this.thread.bookmark != this.thread.allNum()) {
             let target = this.thread.messages[this.thread.bookmark];
-            this.pManager.provide("レス" + target.num + ":", target.text, this.reading);
+            this.pManager.provide("レス" + target.num + ":", target.text, this.pManager.reading);
             this.thread.next();
             if (this.autoScroll)
                 this.scrollTo(this.thread.bookmark);
@@ -196,7 +195,7 @@ export default class Application extends Vue {
     }
 
     test(letter: string, body: string) {
-        this.pManager.provide(letter, body, this.reading);
+        this.pManager.provide(letter, body, this.pManager.reading);
     }
 
     autoScroll: boolean = false;
@@ -215,9 +214,9 @@ export default class Application extends Vue {
         this.setTitle(this.thread.title);
     }
 
-    @Watch('reading')
+    @Watch('pManager.reading')
     onrChange(newValue: number, oldValue: number) {
-        Logger.log("reading", this.reading)
+        Logger.log("pManager.reading", this.pManager.reading)
     }
 
     // softalk or webspeechapi
@@ -251,7 +250,7 @@ export default class Application extends Vue {
             + this.pManager.vParam.rate
             + this.pManager.vParam.pitch
             + this.pManager.vParam.use
-            + this.reload + this.provideTimeLimit + this.reading
+            + this.reload + this.provideTimeLimit + this.pManager.reading
             + this.path + this.pManager.voice;
     }
 
@@ -273,7 +272,7 @@ export default class Application extends Vue {
         this.pManager.vParam.use = Boolean(settings.use);
         this.reload = Number(settings.reload);
         this.provideTimeLimit = Number(settings.provideTimeLimit);
-        this.reading = Boolean(settings.reading);
+        this.pManager.reading = Boolean(settings.pManager.reading);
         this.path = settings.path;
         this.pManager.voice = Number(settings.voice);
         this.pManager.selectVoice(this.pManager.voice, this.path);
@@ -292,7 +291,7 @@ export default class Application extends Vue {
             use: this.pManager.vParam.use,
             reload: this.reload,
             provideTimeLimit: this.provideTimeLimit,
-            reading: this.reading,
+            reading: this.pManager.reading,
             path: this.path,
             voice: this.pManager.voice
         }));
