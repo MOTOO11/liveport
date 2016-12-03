@@ -10,11 +10,11 @@ const NEWLINE_SPLITTER = new RegExp(/\n/g);
 
 export class Thread extends DataSource {
     request(success: (boolean) => void, failed: (err: any) => void) {
-        var url = URL;
-        if (Thread.isShitarabaURL(this.url)) {
-            url = this.url;
+        if (!Thread.isShitarabaURL(this.url)) {
+            failed("not shitaraba url");
+            return;
         }
-        var matches = url.match(SHITARABA_REGEX);
+        var matches = this.url.match(SHITARABA_REGEX);
         var datUrl = `http://jbbs.shitaraba.net/bbs/rawmode.cgi/${matches[1]}/${matches[2]}/${matches[3]}/` + (this.messages.length + 1) + "-";
         console.log("request dat url : " + datUrl);
         rp({ url: datUrl, encoding: null, timeout: 8000 })
@@ -57,20 +57,11 @@ export class Thread extends DataSource {
             resArray.sort(this.messageSorter);
         }
         this.messages = this.messages.concat(resArray);
-        this.messages.sort(this.messageSorter);
+        this.sortMessage();
         this.save();
         return resArray.length;
     }
 
-    messageSorter = (n1, n2) => {
-        if (n1.num < n2.num) {
-            return -1;
-        }
-        if (n1.num > n2.num) {
-            return 1;
-        }
-        return 0;
-    }
 
     static isShitarabaURL(url: string): boolean {
         return SHITARABA_REGEX.test(url);

@@ -6,7 +6,6 @@ export enum VOICE {
 "use strict"
 export class VoiceParameter {
     // default value : WebSpeechApi value
-    // percentage
     volume: number = 100;
     rate: number = 10;
     pitch: number = 50;
@@ -18,18 +17,12 @@ export class VoiceParameter {
     }
 
     adjustmentVolume(min: number, max: number) {
-        var v = ((max - min) * this.volume) / 100;
-        return v;
-        // return v < 1 ? v : Math.floor(v);
+        return ((max - min) * this.volume) / 100;
     }
     adjustmentRate(min: number, max: number) {
-        var r = ((max - min) * this.rate) / 100;
-        return r;
-        // return r < 1 ? r : Math.floor(r);
+        return ((max - min) * this.rate) / 100;
     }
     adjustmentPitch(min: number, max: number) {
-        var p = ((max - min) * this.pitch) / 100;
-        return p;
-        // return p < 1 ? p : Math.floor(p);
+        return ((max - min) * this.pitch) / 100;
     }
 }

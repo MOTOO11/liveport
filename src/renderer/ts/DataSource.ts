@@ -10,8 +10,8 @@ abstract class DataSource {
             this.dataSourceFactory(this.url);
         }
     }
-
     abstract request(success: (boolean) => void, failed: (err: any) => void);
+    abstract data2json(data: string): number;
 
     allNum() {
         return this.messages.length;
@@ -20,7 +20,6 @@ abstract class DataSource {
     save() {
         localStorage.setItem(this.url, this.stringify());
     }
-    abstract data2json(data: string): number;
     next() {
         this.bookmark++;
         this.save();
@@ -45,22 +44,34 @@ abstract class DataSource {
             resdata.push(decode);
         }
         this.messages = resdata;
-        return this;
     }
 
-    dataSourceFactory(url: string): DataSource {
+    dataSourceFactory(url: string) {
         var thread = DataSource.loadDataSource(url);
         if (thread == null) {
-            console.log("new thread url.")
+            console.log("new thread.")
             return;
         }
-        console.log("read thread from localstorage url.")
-        return this.decodeFromJson(thread);
+        console.log("read thread from localstorage.")
+        this.decodeFromJson(thread);
+    }
+
+    sortMessage() {
+        this.messages.sort(this.messageSorter);
+    }
+
+    messageSorter = (n1, n2) => {
+        if (n1.num < n2.num) {
+            return -1;
+        }
+        if (n1.num > n2.num) {
+            return 1;
+        }
+        return 0;
     }
     static loadDataSource(url: string) {
         return localStorage.getItem(url);
     }
-    abstract messageSorter: (value1: number, value2: number) => number;
 
     static clearDataSource(url: string) {
         localStorage.removeItem(url);
