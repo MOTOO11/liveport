@@ -4,4 +4,5 @@ export interface Speaker {
     speak(text: string, vParam: VoiceParameter): void;
     cancel(): void;
     speaking(): boolean;
+    onEnd(callback: () => any);
 }

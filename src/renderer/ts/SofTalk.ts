@@ -20,7 +20,7 @@ class SofTalk implements Speaker {
         args += " /S:" + (vParam.use ? vParam.adjustmentRate(1, 300) : defaultParameter.rate);
         args += " /O:" + (vParam.use ? vParam.adjustmentPitch(1, 300) : defaultParameter.pitch);
         args += " /W:" + text.replace(/\n/gi, "  ");
-        
+
         // console.log(this.path +" " +args);
         cp.spawn(this.path, [args]).on("exit", (code) => {
             Logger.log("result", code);
@@ -39,6 +39,9 @@ class SofTalk implements Speaker {
     speaking() {
         this.cancel();
         return false;
+    }
+    onEnd(callback: () => any) {
+
     }
 }
 

@@ -10,6 +10,7 @@ abstract class DataSource {
             this.dataSourceFactory(this.url);
         }
     }
+    
     abstract request(success: (boolean) => void, failed: (err: any) => void);
     abstract data2json(data: string): number;
 
@@ -17,9 +18,6 @@ abstract class DataSource {
         return this.messages.length;
     }
 
-    save() {
-        localStorage.setItem(this.url, this.stringify());
-    }
     next() {
         this.bookmark++;
         this.save();
@@ -29,10 +27,17 @@ abstract class DataSource {
         this.bookmark = this.allNum();
         this.save();
     }
-    stringify(): string {
-        return JSON.stringify(this);
-    }
 
+    dataSourceFactory(url: string) {
+        var thread = DataSource.loadDataSource(url);
+        if (thread == null) {
+            console.log("new thread.")
+            return;
+        }
+        console.log("read thread from localstorage.")
+        this.decodeFromJson(thread);
+    }
+    
     decodeFromJson(data: any) {
         var data = JSON.parse(data);
         this.bookmark = data.bookmark;
@@ -46,29 +51,26 @@ abstract class DataSource {
         this.messages = resdata;
     }
 
-    dataSourceFactory(url: string) {
-        var thread = DataSource.loadDataSource(url);
-        if (thread == null) {
-            console.log("new thread.")
-            return;
-        }
-        console.log("read thread from localstorage.")
-        this.decodeFromJson(thread);
-    }
-
     sortMessage() {
-        this.messages.sort(this.messageSorter);
+        this.messages.sort((n1, n2) => {
+            if (n1.num < n2.num) {
+                return -1;
+            }
+            if (n1.num > n2.num) {
+                return 1;
+            }
+            return 0;
+        });
     }
 
-    messageSorter = (n1, n2) => {
-        if (n1.num < n2.num) {
-            return -1;
-        }
-        if (n1.num > n2.num) {
-            return 1;
-        }
-        return 0;
+    save() {
+        localStorage.setItem(this.url, this.stringify());
     }
+    stringify(): string {
+        return JSON.stringify(this);
+    }
+
+
     static loadDataSource(url: string) {
         return localStorage.getItem(url);
     }

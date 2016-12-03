@@ -10,6 +10,10 @@ const NEWLINE_SPLITTER = new RegExp(/\n/g);
 
 export class Thread extends DataSource {
     request(success: (boolean) => void, failed: (err: any) => void) {
+        if (!this.url) {
+            failed("url is not set");
+            return;
+        }
         if (!Thread.isShitarabaURL(this.url)) {
             failed("not shitaraba url");
             return;
@@ -54,14 +58,12 @@ export class Thread extends DataSource {
             }
             res.id = r[6];
             resArray.push(res);
-            resArray.sort(this.messageSorter);
         }
         this.messages = this.messages.concat(resArray);
         this.sortMessage();
         this.save();
         return resArray.length;
     }
-
 
     static isShitarabaURL(url: string): boolean {
         return SHITARABA_REGEX.test(url);
