@@ -22,22 +22,32 @@ export default class Browser extends Vue {
         }
         this.mode = MODE.MESSAGE;
         this.body = message;
-        // this.fontSize = "3vw";
-        this.fontSize = config.textFontSize;
+        let size = this.calcRate(message);
+        this.fontSize = size + "vmin";
+        console.log(size);
+        if (window.innerHeight < window.innerWidth) {
+            if (size > config.textFontSize) {
+                this.fontSize = config.textFontSize + "vw";
+            }
+        }
     }
     onAa(aa: string) {
         this.mode = MODE.AA;
         this.body = aa;
+        this.fontSize = this.calcRate(aa) + "vmin";
+    }
+
+    calcRate(value: string) {
         let ratio = window.innerHeight / window.innerWidth;
-        var maxWidth = this.strLength(aa.split("\n").sort((a, b) => {
+        var maxWidth = this.strLength(value.split("\n").sort((a, b) => {
             return b.length - a.length;
         })[0], "UTF-8") * ratio;
-        var height = aa.split("\n").length * 1.2;
+        var height = value.split("\n").length * 1.2;
         var size = 100 / (Math.max(maxWidth, height));
         // console.log("width:%s", maxWidth);
         // console.log("height:%s", height);
         // console.log("size:%s", size);
-        this.fontSize = size + "vmin";
+        return size;
     }
     setFontSize(size: number) {
         this.fontSize = size + "vmin";
@@ -77,8 +87,8 @@ export default class Browser extends Vue {
         }
         return count / 2;
     };
-
 }
+
 window.addEventListener("load", () => {
     var app = new Browser();
     app.$mount("#app");

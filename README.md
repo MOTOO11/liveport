@@ -5,4 +5,12 @@
   * URL : http://localhost:3000
   * CSS : body { background-color: rgba(0, 0, 0, 0);  overflow: hidden; color:white;}
   * CSSはカスタマイズ可能
+  * background-color: rgba(0, 0, 0, 0);背景透過（必須）
+  * overflow: hidden;長い文章を途中で省略する（必須）
+  * color:white;文字の色（変更可能）
 * URLを入力後、**[▶]読み込み開始**ボタンを押す。
+
+
+
+* ver 0.0.1 (161203)
+  * 初版

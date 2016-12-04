@@ -8,9 +8,9 @@ import Logger from "./Logger";
 import ProvideManager from "./ProvideManager";
 import { remote } from "electron";
 const ApplicatonName = require("../../../package.json").name
+const VERSION = require("../../../package.json").version
 import * as $ from "jquery"
 const SETTINGS = "settings";
-
 @Component({})
 export default class Application extends Vue {
     pManager: ProvideManager;
@@ -33,6 +33,10 @@ export default class Application extends Vue {
     reloadTimerID: number;
     // dat取得カウントダウン
     reloadTimerCountDown: number = this.reload;
+    @Watch("reload")
+    onChangeRTimeLimit() {
+        this.reloadTimerCountDown = this.reload;
+    }
 
     startThreadRequest() {
         if (!this.processing) return;
@@ -65,16 +69,20 @@ export default class Application extends Vue {
         }
     }
 
+    // 読み上げ時間数上限
+    provideTimeLimit: number = 10;
     // 表示タイマーID
     provideTimerID: number;
     // 表示カウントダウン
-    // provideTimerCountDown: number;
-    // 読み上げ時間数上限
-    provideTimeLimit: number = 10;
+    provideTimerLimitCountDown: number = this.provideTimeLimit;
 
+    @Watch("provideTimeLimit")
+    onChangePTimeLimit() {
+        this.provideTimerLimitCountDown = this.provideTimeLimit;
+    }
     startProvide() {
         if (!this.processing) return;
-        clearTimeout(this.provideTimerID);
+        this.provideTimerLimitCountDown = this.provideTimeLimit;
         if (this.thread.bookmark != this.thread.allNum()) {
             let target = this.thread.messages[this.thread.bookmark];
             this.pManager.provide("レス" + target.num + ":", target.text, this.pManager.reading);
@@ -82,20 +90,28 @@ export default class Application extends Vue {
             if (this.autoScroll)
                 this.scrollTo(this.thread.bookmark);
         } else {
-            this.pManager.dummyText(this.dummyText);
+            this.haltProvide();
         }
         this.setProvideTimer();
     }
     stopProvide() {
         clearTimeout(this.provideTimerID);
+        this.haltProvide();
+    }
+    haltProvide() {
         this.pManager.cancel();
         this.provideDummyTest();
     }
     setProvideTimer() {
         if (!this.processing) return;
-        this.provideTimerID = window.setTimeout(() => {
+        if (this.provideTimerLimitCountDown < 0) {
             this.startProvide();
-        }, this.provideTimeLimit * 1000);
+        } else {
+            this.provideTimerID = window.setTimeout(() => {
+                this.provideTimerLimitCountDown--;
+                this.setProvideTimer();;
+            }, 1000);
+        }
     }
 
     start() {
@@ -155,10 +171,11 @@ export default class Application extends Vue {
     provideDummyTest() {
         this.pManager.dummyText(this.dummyText);
     }
-    @Watch('dummyText')
-    onDummyTextChange(newValue: number, oldValue: number) {
-        if (this.processing) return;
-        this.pManager.dummyText(this.dummyText);
+    dummyTextTemp: string = "";
+    insertDummyText() {
+        this.dummyText = this.dummyTextTemp;
+        if (!this.processing)
+            this.pManager.dummyText(this.dummyText);
     }
 
     showDummyTextWindow() {
@@ -244,7 +261,7 @@ export default class Application extends Vue {
     }
 
     get settings() {
-        return this.url
+        return this.url + this.dummyText
             + this.pManager.vParam.volume
             + this.pManager.vParam.rate
             + this.pManager.vParam.pitch
@@ -271,9 +288,12 @@ export default class Application extends Vue {
             this.pManager.vParam.pitch = Number(settings.pitch);
             this.pManager.vParam.use = Boolean(settings.use);
             this.reload = Number(settings.reload);
+            this.reloadTimerCountDown = this.reload;
             this.provideTimeLimit = Number(settings.provideTimeLimit);
+            this.provideTimerLimitCountDown = this.provideTimeLimit;
             this.pManager.reading = Boolean(settings.reading);
             this.path = settings.path;
+            this.dummyText = settings.dummyText;
             this.pManager.voice = Number(settings.voice);
             this.pManager.selectVoice(this.pManager.voice, this.path);
             Logger.log("load settings", items);
@@ -298,7 +318,8 @@ export default class Application extends Vue {
             provideTimeLimit: this.provideTimeLimit,
             reading: this.pManager.reading,
             path: this.path,
-            voice: this.pManager.voice
+            voice: this.pManager.voice,
+            dummyText: this.dummyText
         }));
     };
     @Watch("settings")
@@ -306,4 +327,5 @@ export default class Application extends Vue {
         this.saveSettings()
         var settings = JSON.parse(localStorage.getItem(SETTINGS));
     }
+    version = VERSION;
 }

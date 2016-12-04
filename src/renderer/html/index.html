@@ -92,6 +92,10 @@
                         <button v-on:click="test('テスト：',testMessage)" v-bind:disabled="processing">send</button>
                         </div>
                     </span>
+
+                    <span class="mdl-navigation__link">
+                        <label><i class="material-icons">info</i> version:{{version}}</label>                  
+                    </span>
                 </nav>
             </div>
             <!-- setting -->
@@ -108,9 +112,12 @@
         </div>
         <!-- fixed right menu -->
         <div class="fixed-menubar__right">
-            <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--default" v-bind:class="{ 'mdl-button--colored ':processing }" v-bind:disabled="!processing">
+            <button id="reloadTimerCountDown" class="mdl-button mdl-js-button mdl-button--raised mdl-button--default" v-bind:class="{ 'mdl-button--colored ':processing }" v-bind:disabled="!processing">
                 {{reloadTimerCountDown}}
             </button>
+            <div class="mdl-tooltip mdl-tooltip--left mdl-tooltip--larg" data-mdl-for="reloadTimerCountDown">
+                データ取得タイマー
+            </div>
             <button v-on:click="start()" id="start" v-bind:disabled="!validUrl" v-show="!processing" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent mdl-js-ripple-effect">
                 <i class="material-icons">play_arrow</i>
             </button>
@@ -129,12 +136,21 @@
             <div class="mdl-tooltip mdl-tooltip--left mdl-tooltip--larg" data-mdl-for="latest">
                 最新まで移動
             </div>
-            <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored mdl-button--default">
+            <button id="bookmark" class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored mdl-button--default">
                 {{thread.bookmark}}
-            </button>
+                </button>
+            <div class="mdl-tooltip mdl-tooltip--left mdl-tooltip--larg" data-mdl-for="bookmark">
+                表示中の番号
+            </div>
             <button class="mdl-button mdl-js-button" disabled>
                          
             </button>
+            <button id="provideTimerLimitCountDown" class="mdl-button mdl-js-button mdl-button--raised mdl-button--default" v-bind:class="{ 'mdl-button--colored ':processing }" v-bind:disabled="!processing">
+                {{provideTimerLimitCountDown}}
+            </button>
+            <div class="mdl-tooltip mdl-tooltip--left mdl-tooltip--larg" data-mdl-for="provideTimerLimitCountDown">
+                読み上げタイマー
+            </div>
             <button v-on:click="cnangeAutoScroll()" id="autoScrollOn" v-show="!autoScroll" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent mdl-js-ripple-effect">
                   <i class="material-icons">arrow_drop_down</i>
             </button>
@@ -165,13 +181,14 @@
         <dialog class="mdl-dialog">
             <div class="mdl-dialog__content">
                 <div class="mdl-textfield mdl-js-textfield mdl-textfield--dummyText">
-                    <textarea v-model="dummyText" class="mdl-textfield__input" type="text" rows="10" id="dummyText"></textarea>
+                    <textarea v-model="dummyTextTemp" class="mdl-textfield__input" type="text" rows="10" id="dummyText"></textarea>
                     <label class="mdl-textfield__label" for="dummyText">字幕用テキスト</label>
                 </div>
                 <label class="mdl-textfield__label" for="dummyText"></label>
             </div>
             <div class="mdl-dialog__actions mdl-dialog__actions--full-width">
-                <button type="button" class="mdl-button close">OK</button>
+                <button type="button" v-on:click="insertDummyText" class="mdl-button">表示する</button>
+                <button type="button" class="mdl-button close">閉じる</button>
             </div>
         </dialog>
         <!-- dummytext dialog -->

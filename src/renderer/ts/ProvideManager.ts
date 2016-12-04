@@ -57,11 +57,10 @@ export default class ProvideManager {
         } else {
             messenger();
         }
-
     }
 
     dummyText(body: string) {
-        this.socket.emit(MODE.AA, body);;
+        this.socket.emit(MODE.AA, body);
     }
 
     isAA(value: string, count?: number): boolean {
