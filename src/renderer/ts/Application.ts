@@ -293,7 +293,7 @@ export default class Application extends Vue {
             this.provideTimerLimitCountDown = this.provideTimeLimit;
             this.pManager.reading = Boolean(settings.reading);
             this.path = settings.path;
-            this.dummyText = settings.dummyText;
+            this.dummyTextTemp = this.dummyText = settings.dummyText;
             this.pManager.voice = Number(settings.voice);
             this.pManager.selectVoice(this.pManager.voice, this.path);
             Logger.log("load settings", items);
