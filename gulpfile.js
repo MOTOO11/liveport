@@ -89,6 +89,7 @@ gulp.task('serve', () => {
     gulp.watch(config.dist + "browser/**/*.*", electron.reload);
 });
 
+const zip = require('gulp-zip');
 gulp.task("release", ["build"], (done) => {
     runSequence(["ts:compile:prod", "html:useref"]);
     packager({
@@ -103,14 +104,61 @@ gulp.task("release", ["build"], (done) => {
         overwrite: true,
         ignore: [".vscode", "src", "typings",
             ".gitignore", "gulpfile.js", "postcss.config.js",
-            "tsconfig.json", "typings.json", "README.md",
+            "tsconfig.json", "typings.json", "README.md", "env.json",
             "webpack.browser.config.js", "webpack.config.js", "webpack.renderer.config.js"
         ]
-    }, function(err, path) {
+    }, (err, path) => {
         if (err) console.log(err);
         else {
-            return gulp.src("README.md").pipe(gulp.dest(path[0]));
+            gulp.src("README.md").pipe(gulp.dest(path[0]))
+                .on("end", () => {
+                    gulp.src("./" + path[0] + "/*", { base: path[0] })
+                        .pipe(zip(path[0].split("\\")[1] + ".zip"))
+                        .pipe(gulp.dest("./" + path[0].split("\\")[0]));
+                });
         }
         done();
     });
+});
+
+var gutil = require('gulp-util');
+var GitHubApi = require('github');
+var pify = require('pify');
+var fs = require('fs');
+
+var pkg = JSON.parse(fs.readFileSync('package.json', 'utf8'));
+var github = new GitHubApi();
+
+const auth = require("./env.json").authenticate;
+const release = {
+    owner: "odangosan",
+    repo: "liveport",
+    dir: "release/",
+    name: "liveport-win32-x64"
+}
+github.authenticate(auth);
+
+gulp.task('gh:release', () => {
+    return pify(github.repos.createRelease)({
+            owner: release.owner,
+            repo: release.repo,
+            tag_name: "v" + pkg.version,
+            body: "Release v" + pkg.version
+        })
+        .then((res) => {
+            gutil.log('Release "' + res.tag_name + '" created');
+            return res.id;
+        })
+        .then((id) => {
+            return pify(github.repos.uploadAsset)({
+                owner: release.owner,
+                repo: release.repo,
+                id: id,
+                name: release.name + "-" + pkg.version + '.zip',
+                filePath: release.dir + release.name + ".zip"
+            })
+        })
+        .then((res) => {
+            gutil.log('Asset "' + res.name + '" uploaded');
+        });
 });
