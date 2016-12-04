@@ -1,38 +1,44 @@
 const BR = /<br>/gi;
-const AA_REGEX = require("../../../config.json").aa;
+const CONFIG = require("../../../config.json");
+const SystemDictionary = CONFIG.SystemDictionary;
 class StringUtil {
 
     static replaceBr2NewLine(str: string, nl?: string) {
         return str.replace(BR, nl ? nl : "\r\n");
     }
 
-    static urlToReadable(text: string, replaceStr?: string): string {
-        var exp = /(\b(h?ttps?):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/gi;
-        return text.replace(exp, replaceStr ? replaceStr : "ユーアールエル");
-    }
-
-    static anchorToReadable(text: string, replaceStr?: string): string {
-        var exp = /<a href="\/bbs\/read.cgi\/[a-zA-Z]+\/[0-9]+\/[0-9]+\/([0-9]{1,4})" target="_blank">&gt;&gt;[0-9]{1,4}<\/a>/gi;
-        return text.replace(exp,
-            replaceStr ? replaceStr : ">>$1");
+    static urlToReadable(text: string): string {
+        var exp = new RegExp(SystemDictionary.URL.pattern, "ig");
+        return text.replace(exp, "ユーアールエル");
     }
 
     static urlToLink(text: string): string {
-        var exp = /(\b(h?ttps?):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/gi;
+        var exp = new RegExp(SystemDictionary.URL.pattern, "ig");
         return text.replace(exp,
-            "<a href= \"" + ('$1'.lastIndexOf("ttp", 0) === 0 ? "" : "h") + '$1' + "\" target=\"_blank\">$1</a>");
+            "<a href= \"" + ('$1'.lastIndexOf("ttp", 0) === 0 ? "" : "h")
+            + '$1' + "\" target=\"_blank\">$1</a>");
+    }
+
+    static anchorToPlain(text: string): string {
+        var exp = new RegExp(SystemDictionary.ANCHOR.pattern, "ig");
+        return text.replace(exp, ">>$1");
+    }
+
+    static anchorToReadable(text: string): string {
+        var exp = new RegExp(SystemDictionary.ANCHOR.pattern, "ig");
+        return text.replace(exp, SystemDictionary.URL.reading);
     }
 
     static anchorToInnerLink(text: string): string {
-        var exp = /<a href="\/bbs\/read.cgi\/[a-zA-Z]+\/[0-9]+\/[0-9]+\/([0-9]{1,4})" target="_blank">&gt;&gt;[0-9]{1,4}<\/a>/gi;
+        var exp = new RegExp(SystemDictionary.ANCHOR.pattern, "ig");
         return text.replace(exp,
             "<a href=\"#MESSAGE-$1\" >&gt;&gt;$1</a>");
     }
+
     static isAA(text: string, lineLimit?: number, regexp?: RegExp): boolean {
-        let regex = new RegExp(AA_REGEX,"ig");
+        let regex = new RegExp(SystemDictionary.AA.pattern, "ig");
         if (text.split(/\r\n|\r|\n/).length < (lineLimit ? lineLimit : 3)) return false;
         return regex.test(text);
-        // return text.indexOf('　 ') !== -1
     }
 
     /**
@@ -47,7 +53,7 @@ class StringUtil {
             'ﾀﾞ': 'ダ', 'ﾁﾞ': 'ヂ', 'ﾂﾞ': 'ヅ', 'ﾃﾞ': 'デ', 'ﾄﾞ': 'ド',
             'ﾊﾞ': 'バ', 'ﾋﾞ': 'ビ', 'ﾌﾞ': 'ブ', 'ﾍﾞ': 'ベ', 'ﾎﾞ': 'ボ',
             'ﾊﾟ': 'パ', 'ﾋﾟ': 'ピ', 'ﾌﾟ': 'プ', 'ﾍﾟ': 'ペ', 'ﾎﾟ': 'ポ',
-            'ｳﾞ': 'ヴ', 'ﾜﾞ': 'ヷ', 'ｦﾞ': 'ヺ',
+            'ｳﾞ': 'ヴ', 'ﾜﾞ': '?', 'ｦﾞ': '?',
             'ｱ': 'ア', 'ｲ': 'イ', 'ｳ': 'ウ', 'ｴ': 'エ', 'ｵ': 'オ',
             'ｶ': 'カ', 'ｷ': 'キ', 'ｸ': 'ク', 'ｹ': 'ケ', 'ｺ': 'コ',
             'ｻ': 'サ', 'ｼ': 'シ', 'ｽ': 'ス', 'ｾ': 'セ', 'ｿ': 'ソ',

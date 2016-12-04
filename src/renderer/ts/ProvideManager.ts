@@ -5,7 +5,9 @@ import * as io from "socket.io-client";
 import StringUtil from "./StringUtil";
 import Logger from "./Logger";
 import { Speaker } from "./Speaker"
-const port = require("../../../config.json").port
+const CONFIG = require("../../../config.json");
+const SystemDictionary = CONFIG.SystemDictionary;
+const port = CONFIG.port
 const AA_TEMPLATE = "このメッセージはアスキーアートです。";
 const LONG_TEXT_TEMPLATE = "長文のため省略";
 const MODE = {
@@ -23,11 +25,11 @@ export default class ProvideManager {
     }
 
     provide(letter: string, body: string, reading: boolean = true) {
-        let anchorReplace = StringUtil.anchorToReadable(body);
+        let anchorReplace = StringUtil.anchorToPlain(body);
         let brReplace = StringUtil.replaceBr2NewLine(anchorReplace);
         const aa = () => {
             if (reading)
-                this.speaker.speak(letter + "\n" + AA_TEMPLATE, this.vParam);
+                this.speaker.speak(letter + "\n" + SystemDictionary.AA.reading, this.vParam);
             this.socket.emit(MODE.AA, letter + "\r\n" + brReplace);
         }
 
@@ -43,7 +45,7 @@ export default class ProvideManager {
 
         const messenger = () => {
             if (reading) {
-                let anchorReplace = StringUtil.anchorToReadable(body,"レス$1");
+                let anchorReplace = StringUtil.anchorToReadable(body);
                 let brReplace = StringUtil.replaceBr2NewLine(anchorReplace);
                 let urlReplace = StringUtil.urlToReadable(brReplace);
                 let ZENHANReplace = StringUtil.replaceHANKAKUtoZENKAKU(urlReplace);
