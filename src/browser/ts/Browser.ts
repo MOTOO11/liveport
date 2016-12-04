@@ -19,17 +19,12 @@ export default class Browser extends Vue {
         if (message.split("\n").length > config.textLineLimit) {
             this.onAa(message);
             return;
-        }
+        };
         this.mode = MODE.MESSAGE;
         this.body = message;
-        let size = this.calcRate(message);
-        this.fontSize = size + "vmin";
-        console.log(size);
-        if (window.innerHeight < window.innerWidth) {
-            if (size > config.textFontSize) {
-                this.fontSize = config.textFontSize + "vw";
-            }
-        }
+        this.fontSize = config.textFontSize;
+
+
     }
     onAa(aa: string) {
         this.mode = MODE.AA;
