@@ -60,11 +60,15 @@ gulp.task('ts:compile:prod', () => {
 gulp.task("html:useref", () => {
     return gulp.src(config.dist + "**/*.html")
         .pipe(useref())
-        .pipe(gulp.dest(config.dist, { base: config.dist }));
+        .pipe(gulp.dest(config.dist, {
+            base: config.dist
+        }));
 });
 gulp.task("assets:copy", () => {
     return gulp.src(config.src + "assets/**/*.*")
-        .pipe(gulp.dest(config.dist + "assets", { base: config.dist }));
+        .pipe(gulp.dest(config.dist + "assets", {
+            base: config.dist
+        }));
 });
 
 gulp.task('serve', () => {
@@ -112,7 +116,9 @@ gulp.task("release", ["build"], (done) => {
         else {
             gulp.src("README.md").pipe(gulp.dest(path[0]))
                 .on("end", () => {
-                    gulp.src("./" + path[0] + "/*", { base: path[0] })
+                    gulp.src("./" + path[0] + "/*", {
+                            base: path[0]
+                        })
                         .pipe(zip(path[0].split("\\")[1] + ".zip"))
                         .pipe(gulp.dest("./" + path[0].split("\\")[0]));
                 });
@@ -128,6 +134,7 @@ var fs = require('fs');
 
 var pkg = JSON.parse(fs.readFileSync('package.json', 'utf8'));
 var github = new GitHubApi();
+var open = require("open");
 
 const auth = require("./env.json").authenticate;
 const release = {
@@ -160,5 +167,6 @@ gulp.task('gh:release', () => {
         })
         .then((res) => {
             gutil.log('Asset "' + res.name + '" uploaded');
+            open("https://github.com/odangosan/liveport/releases/tag/" + "v" + pkg.version);
         });
 });
