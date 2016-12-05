@@ -6,6 +6,8 @@ import { VOICE, VoiceParameter } from "./Voice"
 import StringUtil from "./StringUtil";
 import Logger from "./Logger";
 import ProvideManager from "./ProvideManager";
+const CONFIG = require("../../../config.json");
+const LETTER: string = CONFIG.letter;
 import { remote } from "electron";
 const ApplicatonName = require("../../../package.json").name
 const VERSION = require("../../../package.json").version
@@ -85,7 +87,14 @@ export default class Application extends Vue {
         this.provideTimerLimitCountDown = this.provideTimeLimit;
         if (this.thread.bookmark != this.thread.allNum()) {
             let target = this.thread.messages[this.thread.bookmark];
-            this.pManager.provide("レス" + target.num + ":", target.text, this.pManager.reading);
+
+            let tmpLetter = LETTER.split("$1");
+            let letter = "";
+            if (tmpLetter.length > 1) {
+                letter = tmpLetter[0] + target.num + tmpLetter[1];
+            } else
+                letter = target.num.toString();
+            this.pManager.provide(letter + ":", target.text, this.pManager.reading);
             this.thread.next();
             if (this.autoScroll)
                 this.scrollTo(this.thread.bookmark);

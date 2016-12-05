@@ -1,6 +1,7 @@
 const BR = /<br>/gi;
 const CONFIG = require("../../../config.json");
 const SystemDictionary = CONFIG.SystemDictionary;
+const UserDictionary: [{ pattern: string, reading: string }] = CONFIG.UserDictionary;
 class StringUtil {
 
     static replaceBr2NewLine(str: string, nl?: string) {
@@ -9,7 +10,7 @@ class StringUtil {
 
     static urlToReadable(text: string): string {
         var exp = new RegExp(SystemDictionary.URL.pattern, "ig");
-        return text.replace(exp, "ユーアールエル");
+        return text.replace(exp, SystemDictionary.URL.reading);
     }
 
     static urlToLink(text: string): string {
@@ -26,7 +27,7 @@ class StringUtil {
 
     static anchorToReadable(text: string): string {
         var exp = new RegExp(SystemDictionary.ANCHOR.pattern, "ig");
-        return text.replace(exp, SystemDictionary.URL.reading);
+        return text.replace(exp, SystemDictionary.ANCHOR.reading);
     }
 
     static anchorToInnerLink(text: string): string {
@@ -39,6 +40,14 @@ class StringUtil {
         let regex = new RegExp(SystemDictionary.AA.pattern, "ig");
         if (text.split(/\r\n|\r|\n/).length < (lineLimit ? lineLimit : 3)) return false;
         return regex.test(text);
+    }
+
+    static applyUserDictionary(text: string): string {
+        for (var i in UserDictionary) {
+            var exp = new RegExp(UserDictionary[i].pattern, "ig");
+            text = text.replace(exp, UserDictionary[i].reading);
+        }
+        return text;
     }
 
     /**

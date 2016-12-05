@@ -48,7 +48,8 @@ export default class ProvideManager {
                 let anchorReplace = StringUtil.anchorToReadable(body);
                 let brReplace = StringUtil.replaceBr2NewLine(anchorReplace);
                 let urlReplace = StringUtil.urlToReadable(brReplace);
-                let ZENHANReplace = StringUtil.replaceHANKAKUtoZENKAKU(urlReplace);
+                let userDictionary = StringUtil.applyUserDictionary(urlReplace);
+                let ZENHANReplace = StringUtil.replaceHANKAKUtoZENKAKU(userDictionary);
                 this.speaker.speak(letter + "\n" + ZENHANReplace, this.vParam);
             }
             this.socket.emit(MODE.MESSAGE, letter + "\r\n" + brReplace);
