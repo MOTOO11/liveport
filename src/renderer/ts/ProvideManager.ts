@@ -24,7 +24,7 @@ export default class ProvideManager {
     constructor() {
     }
 
-    provide(letter: string, body: string, reading: boolean = true, callback?: () => any) {
+    provide(letter: string, body: string, reading: boolean = true, callback?: () => any, timeLimit?: number) {
         let anchorReplace = StringUtil.anchorToPlain(body);
         let brReplace = StringUtil.replaceBr2NewLine(anchorReplace);
         const aa = () => {

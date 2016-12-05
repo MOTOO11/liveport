@@ -2,7 +2,7 @@
 export enum VOICE {
     WSA = 1, SOFTALK = 2
 }
-
+const MAX_RATE = 1.8;
 "use strict"
 export class VoiceParameter {
     // default value : WebSpeechApi value
@@ -14,6 +14,12 @@ export class VoiceParameter {
         this.volume = volume;
         this.rate = rate;
         this.pitch = pitch
+    }
+
+    quick(magnification: number) {
+        let qVParam = new VoiceParameter(this.volume, this.rate, this.pitch);
+        qVParam.rate *= (magnification > MAX_RATE ? MAX_RATE : magnification);
+        return qVParam;
     }
 
     adjustmentVolume(min: number, max: number) {
