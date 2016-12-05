@@ -38,8 +38,7 @@ class SofTalk implements Speaker {
         });
     }
     speaking() {
-        this.cancel();
-        return false;
+        return true;
     }
 }
 
