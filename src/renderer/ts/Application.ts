@@ -83,6 +83,7 @@ export default class Application extends Vue {
     provideTimerLimitCountDown: number = this.provideTimeLimit;
 
     startProvide() {
+        clearTimeout(this.provideTimerID);
         if (!this.processing) return;
         this.provideTimerLimitCountDown = this.provideTimeLimit;
         if (this.thread.bookmark != this.thread.allNum()) {
