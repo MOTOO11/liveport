@@ -24,12 +24,12 @@ export default class ProvideManager {
     constructor() {
     }
 
-    provide(letter: string, body: string, reading: boolean = true) {
+    provide(letter: string, body: string, reading: boolean = true, callback?: () => any) {
         let anchorReplace = StringUtil.anchorToPlain(body);
         let brReplace = StringUtil.replaceBr2NewLine(anchorReplace);
         const aa = () => {
             if (reading)
-                this.speaker.speak(letter + "\n" + SystemDictionary.AA.reading, this.vParam);
+                this.speaker.speak(letter + "\n" + SystemDictionary.AA.reading, this.vParam, callback);
             this.socket.emit(MODE.AA, letter + "\r\n" + brReplace);
         }
 
@@ -50,7 +50,7 @@ export default class ProvideManager {
                 let urlReplace = StringUtil.urlToReadable(brReplace);
                 let userDictionary = StringUtil.applyUserDictionary(urlReplace);
                 let ZENHANReplace = StringUtil.replaceHANKAKUtoZENKAKU(userDictionary);
-                this.speaker.speak(letter + "\n" + ZENHANReplace, this.vParam);
+                this.speaker.speak(letter + "\n" + ZENHANReplace, this.vParam, callback);
             }
             this.socket.emit(MODE.MESSAGE, letter + "\r\n" + brReplace);
         }

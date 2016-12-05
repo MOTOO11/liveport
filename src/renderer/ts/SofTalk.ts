@@ -14,7 +14,8 @@ class SofTalk implements Speaker {
         this.path = path;
     }
     // 0-100 1-300 1-300
-    speak(text: string, vParam: VoiceParameter) {
+    // SofTalkは読み上げ終了を検知出来ない
+    speak(text: string, vParam: VoiceParameter, callback?: () => any) {
         var args = "";
         args += " /V:" + (vParam.use ? vParam.adjustmentVolume(0, 100) : defaultParameter.volume);
         args += " /S:" + (vParam.use ? vParam.adjustmentRate(1, 300) : defaultParameter.rate);
@@ -39,9 +40,6 @@ class SofTalk implements Speaker {
     speaking() {
         this.cancel();
         return false;
-    }
-    onEnd(callback: () => any) {
-
     }
 }
 

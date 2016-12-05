@@ -91,7 +91,7 @@ export default class Application extends Vue {
             let letter = tmpLetter.length > 1 ?
                 tmpLetter[0] + target.num + tmpLetter[1]
                 : target.num.toString();
-            this.pManager.provide(letter + ":", target.text, this.pManager.reading);
+            this.pManager.provide(letter + ":", target.text, this.pManager.reading, this.startProvide);
             this.thread.next();
             if (this.autoScroll)
                 this.scrollTo(this.thread.bookmark);
@@ -267,7 +267,7 @@ export default class Application extends Vue {
     }
 
     get settings() {
-        return this.url + this.dummyText
+        return this.url + this.dummyText + this.autoScroll
             + this.pManager.vParam.volume
             + this.pManager.vParam.rate
             + this.pManager.vParam.pitch
@@ -289,6 +289,7 @@ export default class Application extends Vue {
                 this.initUrlSource();
                 this.setTitle(this.thread.title);
             };
+            this.autoScroll = Boolean(settings.autoScroll);
             this.pManager.vParam.volume = Number(settings.volume);
             this.pManager.vParam.rate = Number(settings.rate);
             this.pManager.vParam.pitch = Number(settings.pitch);
@@ -316,6 +317,7 @@ export default class Application extends Vue {
     saveSettings() {
         localStorage.setItem(SETTINGS, JSON.stringify({
             url: this.url,
+            autoScroll: this.autoScroll,
             volume: this.pManager.vParam.volume,
             rate: this.pManager.vParam.rate,
             pitch: this.pManager.vParam.pitch,
