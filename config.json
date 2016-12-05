@@ -3,9 +3,9 @@
     "port": "3000",
     "textFontSize-説明-1": "メッセージを表示する際のフォントの大きさです。",
     "textFontSize": "3.8vw",
-    "textLineLimit-説明-1": "この数値を超えた行数のメッセージは全てAAとして処理されます",
-    "textLineLimit-説明-2": "[SystemDictionary→AA→pattern]に当てはまらない場合でもAAとして処理されます。",
-    "textLineLimit": 6,
+    "textLineLimit-説明-1": "この数値未満の行数のメッセージは全てAAとして処理されません",
+    "textLineLimit-説明-2": "[SystemDictionary→AA→pattern]に当てはまっていてもメッセージとして処理されます。",
+    "textLineLimit": 3,
     "letter-説明-1": "レス番号を読み上げる際に使用されます",
     "letter-説明-2": "[$1]には番号が代入されます",
     "letter": "レス$1",
@@ -29,11 +29,21 @@
         "ANCHOR": {
             "pattern": "<a href=\"\/bbs\/read.cgi\/[a-zA-Z]+\/[0-9]+\/[0-9]+\/([0-9]{1,4})\" target=\"_blank\">&gt;&gt;[0-9]{1,4}<\/a>",
             "reading": "レス$1"
+        },
+        "NG-説明-1": "文章中に[NgDictionary]に当てはまる部分は発見された場合、[reading]として処理されます。",
+        "NG": {
+            "reading": "NGワード"
         }
     },
+    "UserDictionary-説明-1": "文章中の[pattern]に当てはまる部分は[reading]として読み上げられます",
     "UserDictionary": [{
-        "pattern": "",
-        "reading": ""
-    }]
+        "pattern": "(ｗ|w){3,}",
+        "reading": "ワラワラ"
+    }],
+    "NgDictionary-説明-1": "文章中に[NgDictionary]が含まれる場合は[NG.reading]として処理されます。",
+    "NgDictionary": [
+        "",
+        ""
+    ]
 
 }

@@ -7,6 +7,7 @@ import Logger from "./Logger";
 import { Speaker } from "./Speaker"
 const CONFIG = require("../../../config.json");
 const SystemDictionary = CONFIG.SystemDictionary;
+const NgDictionary: string[] = CONFIG.NgDictionary;
 const port = CONFIG.port
 const AA_TEMPLATE = "このメッセージはアスキーアートです。";
 const LONG_TEXT_TEMPLATE = "長文のため省略";
@@ -21,10 +22,24 @@ export default class ProvideManager {
     vParam: VoiceParameter = new VoiceParameter();
     voice: number = VOICE.WSA;
     reading: boolean = true;
-    constructor() {
-    }
+    constructor() { }
 
     provide(letter: string, body: string, reading: boolean = true, callback?: () => any, timeLimit?: number) {
+        if (this.containsNg(body)) {
+            const ng = () => {
+                if (reading) {
+                    this.speaker.speak(letter + "\n" + CONFIG.SystemDictionary.NG.reading, this.vParam, callback);
+                }
+                this.socket.emit(MODE.MESSAGE, letter + "\r\n" + CONFIG.SystemDictionary.NG.reading);
+            }
+            if (this.speaker.speaking()) {
+                this.cancel(ng);
+                Logger.log("cancel", "too long text.");
+            } else {
+                ng();
+            }
+            return;
+        }
         let anchorReplace = StringUtil.anchorToPlain(body);
         let brReplace = StringUtil.replaceBr2NewLine(anchorReplace);
         const aa = () => {
@@ -33,7 +48,7 @@ export default class ProvideManager {
             this.socket.emit(MODE.AA, letter + "\r\n" + brReplace);
         }
 
-        if (this.isAA(brReplace, 2)) {
+        if (this.isAA(brReplace, CONFIG.textLineLimit)) {
             if (this.speaker.speaking()) {
                 this.cancel(aa);
                 Logger.log("cancel", "too long text.");
@@ -60,6 +75,10 @@ export default class ProvideManager {
         } else {
             messenger();
         }
+    }
+
+    containsNg(text: string): boolean {
+        return StringUtil.containsNg(text);
     }
 
     dummyText(body: string) {

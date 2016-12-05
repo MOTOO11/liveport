@@ -50,6 +50,11 @@ export default class Application extends Vue {
             },
             (err: any) => {
                 Logger.log("request failed", err);
+                let warn = {
+                    message: "ERROR : " + err,
+                    timeout: 6000
+                }
+                this.snackbar(warn);
                 this.setRequestTimer();
             }
         );
@@ -92,7 +97,7 @@ export default class Application extends Vue {
             let letter = tmpLetter.length > 1 ?
                 tmpLetter[0] + target.num + tmpLetter[1]
                 : target.num.toString();
-            this.pManager.provide(letter + ":", target.text, this.pManager.reading, this.startProvide);
+            this.pManager.provide(letter + ":", target.text, this.pManager.reading);
             this.thread.next();
             if (this.autoScroll)
                 this.scrollTo(this.thread.bookmark);
@@ -122,10 +127,22 @@ export default class Application extends Vue {
     }
 
     start() {
+        if (!this.validate()) return;
         this.processing = true;
         this.loadUrl();
         this.startThreadRequest();
         this.startProvide();
+    }
+    validate(): boolean {
+        if (this.pManager.voice === VOICE.SOFTALK && this.path === "") {
+            let warn = {
+                message: "ERROR : pathが設定されていません。",
+                timeout: 3000
+            }
+            this.snackbar(warn);
+            return false;
+        }
+        return true;
     }
 
     loadUrl() {

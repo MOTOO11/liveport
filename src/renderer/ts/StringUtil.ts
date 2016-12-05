@@ -2,6 +2,7 @@ const BR = /<br>/gi;
 const CONFIG = require("../../../config.json");
 const SystemDictionary = CONFIG.SystemDictionary;
 const UserDictionary: [{ pattern: string, reading: string }] = CONFIG.UserDictionary;
+const NgDictionary: string[] = CONFIG.NgDictionary;
 class StringUtil {
 
     static replaceBr2NewLine(str: string, nl?: string) {
@@ -48,6 +49,15 @@ class StringUtil {
             text = text.replace(exp, UserDictionary[i].reading);
         }
         return text;
+    }
+
+    static containsNg(text: string): boolean {
+        for (var i in NgDictionary) {
+            var exp = new RegExp(NgDictionary[i], "ig");
+            if (NgDictionary[i])
+                if (exp.test(text)) return true;
+        }
+        return false;
     }
 
     /**
