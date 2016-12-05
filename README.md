@@ -18,7 +18,7 @@
   * overflow: hidden; 長い文章を途中で省略する（必須）
   * color:white; 文字の色（変更可能）
 * URLを入力後、**[▶]読み込み開始**ボタンを押す。
-* 詳細な設定は[resource/app/config.json]
+* 詳細な設定は[resources/app/config.json]
 
 
 
