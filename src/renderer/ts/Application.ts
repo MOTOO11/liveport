@@ -87,13 +87,10 @@ export default class Application extends Vue {
         this.provideTimerLimitCountDown = this.provideTimeLimit;
         if (this.thread.bookmark != this.thread.allNum()) {
             let target = this.thread.messages[this.thread.bookmark];
-
             let tmpLetter = LETTER.split("$1");
-            let letter = "";
-            if (tmpLetter.length > 1) {
-                letter = tmpLetter[0] + target.num + tmpLetter[1];
-            } else
-                letter = target.num.toString();
+            let letter = tmpLetter.length > 1 ?
+                tmpLetter[0] + target.num + tmpLetter[1]
+                : target.num.toString();
             this.pManager.provide(letter + ":", target.text, this.pManager.reading);
             this.thread.next();
             if (this.autoScroll)
