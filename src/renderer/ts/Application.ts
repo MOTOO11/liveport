@@ -71,6 +71,10 @@ export default class Application extends Vue {
         }
     }
 
+    @Watch("provideTimeLimit")
+    onChangePTimeLimit() {
+        this.provideTimerLimitCountDown = this.provideTimeLimit;
+    }
     // 読み上げ時間数上限
     provideTimeLimit: number = 10;
     // 表示タイマーID
@@ -78,10 +82,6 @@ export default class Application extends Vue {
     // 表示カウントダウン
     provideTimerLimitCountDown: number = this.provideTimeLimit;
 
-    @Watch("provideTimeLimit")
-    onChangePTimeLimit() {
-        this.provideTimerLimitCountDown = this.provideTimeLimit;
-    }
     startProvide() {
         if (!this.processing) return;
         this.provideTimerLimitCountDown = this.provideTimeLimit;
@@ -106,7 +106,7 @@ export default class Application extends Vue {
     }
     haltProvide() {
         this.pManager.cancel();
-        this.provideDummyTest();
+        this.provideDummyText();
     }
     setProvideTimer() {
         if (!this.processing) return;
@@ -174,7 +174,7 @@ export default class Application extends Vue {
 
     // 表示するものがない時
     dummyText: string = "";
-    provideDummyTest() {
+    provideDummyText() {
         this.pManager.dummyText(this.dummyText);
     }
     dummyTextTemp: string = "";
@@ -202,7 +202,7 @@ export default class Application extends Vue {
         return Thread.isShitarabaURL(this.url);
     }
 
-    snackbar(data: { message: string, timeout: number }) {
+    snackbar(data: { message: string, timeout: number } = { message: "info", timeout: 3000 }) {
         var snackbarContainer: any = document.querySelector('#demo-snackbar-example');
         // var handler = function (event) {
         //     Logger.log("snackbar", "");
