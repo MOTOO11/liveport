@@ -4,7 +4,7 @@
     "textFontSize-説明-1": "メッセージを表示する際のフォントの大きさです。",
     "textFontSize": "3.8vw",
     "textLineLimit-説明-1": "この数値を超えた行数のメッセージは全てAAとして処理されます",
-    "textLineLimit-説明-2": "[AA]に当てはまらない場合でもAAとして処理されます。",
+    "textLineLimit-説明-2": "[SystemDictionary→AA→pattern]に当てはまらない場合でもAAとして処理されます。",
     "textLineLimit": 6,
     "letter-説明-1": "レス番号を読み上げる際に使用されます",
     "letter-説明-2": "[$1]には番号が代入されます",
