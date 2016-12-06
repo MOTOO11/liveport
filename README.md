@@ -1,5 +1,6 @@
 ## liveport  - live broadcast support tool.
-したらば掲示板・CaveTubeのコメントを、ブラウザ上に表示・読み上げ(v1.0.0)
+したらば掲示板・CaveTubeのコメントを、ブラウザ上に表示・読み上げ(v1.0.0)  
+### [download](https://github.com/odangosan/liveport/releases)
 ### 使い方
 * liveport.exeを起動
 * OBS Studioの設定
