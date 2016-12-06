@@ -1,7 +1,9 @@
 "use strict"
 import * as Vue from "Vue";
 import { Component, Watch } from "vue-typed"
-import { Thread } from "./Thread";
+import { DataSource } from "./DataSource";
+import { Shitaraba } from "./Shitaraba";
+import { CaveTube } from "./CaveTube";
 import { VOICE, VoiceParameter } from "./Voice"
 import StringUtil from "./StringUtil";
 import Logger from "./Logger";
@@ -19,13 +21,13 @@ export default class Application extends Vue {
     testMessage: string = 'このテキストはテストメッセージです';
     url: string = "";
     processing: boolean = false;
-    thread: Thread;
+    thread: DataSource;
     constructor() {
         super();
         Logger.log("start", "hello application.");
         this.pManager = new ProvideManager();
         this.setTitle("");
-        this.thread = new Thread();
+        this.thread = new Shitaraba("dummy");
         this.loadSettings();
     }
 
@@ -127,50 +129,56 @@ export default class Application extends Vue {
     }
 
     start() {
-        if (!this.validate()) return;
         this.processing = true;
-        this.loadUrl();
+        if (!this.validate()) {
+            this.processing = false;
+            return;
+        }
+        if (this.thread) {
+            if (this.url != this.thread.url) {
+                this.loadUrlSource();
+            }
+        } else {
+            this.loadUrlSource();
+        }
         this.startThreadRequest();
         this.startProvide();
     }
+
     validate(): boolean {
-        if (this.pManager.voice === VOICE.SOFTALK && this.path === "") {
+        if (this.pManager.voice === VOICE.SOFTALK && this.path === "" && this.pManager.reading && this.processing === true) {
             let warn = {
-                message: "ERROR : pathが設定されていません。",
-                timeout: 3000
+                message: "ERROR : pathが設定されていません。"
             }
             this.snackbar(warn);
+            return false;
+        }
+
+        if (!this.isValidURL()) {
+            Logger.log("invalid url", "not supported url.");
             return false;
         }
         return true;
     }
 
-    loadUrl() {
-        if (this.url != this.thread.url) {
-            this.initUrlSource();
-            Logger.log("change", "modified thread url.");
-        }
-    }
-    initUrlSource() {
-        this.thread = new Thread(this.url);
-    }
     // refresh
     requestOnce() {
-        if (!this.url) {
-            Logger.log("invalid url", "no input.");
+        if (!this.validate()) {
             return;
         }
-        if (!Thread.isShitarabaURL(this.url)) {
-            Logger.log("invalid url", "not shitaraba url.");
-            return;
-        }
-        this.thread = new Thread(this.url);
+        this.loadUrlSource(false);
+
         this.thread.request(
             (newArrival: number) => {
                 Logger.log("request success", newArrival.toString());
             },
             (err: any) => {
                 Logger.log("request failed", err);
+                let warn = {
+                    message: "ERROR : " + err,
+                    timeout: 6000
+                }
+                this.snackbar(warn);
             }
         );
     }
@@ -217,10 +225,10 @@ export default class Application extends Vue {
 
     // computed
     get validUrl() {
-        return Thread.isShitarabaURL(this.url);
+        return this.isValidURL();
     }
 
-    snackbar(data: { message: string, timeout: number } = { message: "info", timeout: 3000 }) {
+    snackbar(data: { message: string, timeout?: number } = { message: "info", timeout: 3000 }) {
         var snackbarContainer: any = document.querySelector('#demo-snackbar-example');
         // var handler = function (event) {
         //     Logger.log("snackbar", "");
@@ -304,7 +312,8 @@ export default class Application extends Vue {
         try {
             this.url = settings.url;
             if (this.url) {
-                this.initUrlSource();
+                if (this.isValidURL())
+                    this.loadUrlSource();
                 this.setTitle(this.thread.title);
             };
             this.autoScroll = Boolean(settings.autoScroll);
@@ -354,4 +363,29 @@ export default class Application extends Vue {
         var settings = JSON.parse(localStorage.getItem(SETTINGS));
     }
     version = VERSION;
+
+
+    isValidURL(): boolean {
+        if (!this.url) {
+            Logger.log("invalid url", "no input.");
+            return false;
+        }
+        return Shitaraba.isValidURL(this.url) || CaveTube.isValidURL(this.url);
+    }
+
+    // allocate
+    loadUrlSource(load: boolean = true) {
+        if (Shitaraba.isValidURL(this.url)) {
+            this.thread = new Shitaraba(this.url);
+            if (load) {
+                this.thread.load();
+            }
+        }
+        if (CaveTube.isValidURL(this.url)) {
+            this.thread = new CaveTube(this.url);
+            if (load) {
+                this.thread.load();
+            }
+        }
+    }
 }

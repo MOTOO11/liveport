@@ -1,16 +1,13 @@
 import Message from "./Message"
-abstract class DataSource {
+export abstract class DataSource {
     messages: Message[] = [];
     url: string = "";
     bookmark: number = 0;
     title: string = "";
-    constructor(url?: string) {
-        if (url) {
-            this.url = url;
-            this.dataSourceFactory(this.url);
-        }
+    constructor(url: string) {
+        this.url = url;
     }
-    
+
     abstract request(success: (boolean) => void, failed: (err: any) => void);
     abstract data2json(data: string): number;
 
@@ -28,16 +25,17 @@ abstract class DataSource {
         this.save();
     }
 
-    dataSourceFactory(url: string) {
-        var thread = DataSource.loadDataSource(url);
+    load(): boolean {
+        var thread = DataSource.loadDataSource(this.url);
         if (thread == null) {
             console.log("new thread.")
-            return;
+            return false;
         }
         console.log("read thread from localstorage.")
         this.decodeFromJson(thread);
+        return true;
     }
-    
+
     decodeFromJson(data: any) {
         var data = JSON.parse(data);
         this.bookmark = data.bookmark;
@@ -82,5 +80,3 @@ abstract class DataSource {
         localStorage.clear();
     }
 }
-
-export default DataSource;

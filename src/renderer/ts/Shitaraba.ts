@@ -2,19 +2,18 @@
 import * as rp from "request-promise";
 import * as  iconv from "iconv-lite";
 import Message from "./Message";
-import DataSource from "./DataSource";
-const URL = "http://jbbs.shitaraba.net/bbs/read.cgi/netgame/12802/1478775754/";
+import {DataSource} from "./DataSource";
 const SHITARABA_REGEX = new RegExp(/http:\/\/jbbs.shitaraba.net\/bbs\/read.cgi\/(\w+)\/(\d+)\/(\d+)\/.*/);
 const RES_SPLITTER = new RegExp(/<>/g);
 const NEWLINE_SPLITTER = new RegExp(/\n/g);
 
-export class Thread extends DataSource {
+export class Shitaraba extends DataSource {
     request(success: (boolean) => void, failed: (err: any) => void) {
         if (!this.url) {
             failed("url is not set");
             return;
         }
-        if (!Thread.isShitarabaURL(this.url)) {
+        if (!Shitaraba.isValidURL(this.url)) {
             failed("not shitaraba url");
             return;
         }
@@ -65,9 +64,9 @@ export class Thread extends DataSource {
         return resArray.length;
     }
 
-    static isShitarabaURL(url: string): boolean {
+    static isValidURL(url: string): boolean {
         return SHITARABA_REGEX.test(url);
     }
 }
 
-export default Thread;
+export default Shitaraba;
