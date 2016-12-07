@@ -183,6 +183,15 @@ gulp.task('gh:release', () => {
             open("https://github.com/odangosan/liveport/releases/tag/" + "v" + pkg.version);
             return res.id
         }).then((id) => {
+            return pify(github.repos.getReleaseByTag)({
+                owner: release.owner,
+                repo: release.repo,
+                tag: "v" + pkg.version
+            })
+        }).then((res) => {
+            gutil.log('Tag id "' + res.id + '"');
+            return res.id
+        }).then((id) => {
             return pify(github.repos.uploadAsset)({
                 owner: release.owner,
                 repo: release.repo,
