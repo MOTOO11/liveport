@@ -94,12 +94,13 @@ gulp.task('serve', () => {
 });
 
 const zip = require('gulp-zip');
+const merge = require("event-stream").merge;
 gulp.task("release", ["build"], (done) => {
     runSequence(["ts:compile:prod", "html:useref"]);
     packager({
         dir: ".", // アプリケーションのパッケージとなるディレクトリ
         out: "./release", // .app や .exeの出力先ディレクトリ
-        arch: "x64", // CPU種別. x64 or ia32
+        arch: "x64,ia32", // CPU種別. x64 or ia32
         platform: "win32", // OS種別. darwin or win32 or linux
         icon: "./src/assets/icon/favicon.ico",
         //asar: true, // アーカイブ化
@@ -112,9 +113,12 @@ gulp.task("release", ["build"], (done) => {
             "webpack.browser.config.js", "webpack.config.js", "webpack.renderer.config.js"
         ]
     }, (err, path) => {
-        if (err) console.log(err);
-        else {
-            gulp.src("README.md").pipe(gulp.dest(path[0]))
+        if (err) {
+            console.log(err);
+            console.log(path);
+        } else {
+            console.log(path);
+            const v1 = gulp.src("README.md").pipe(gulp.dest(path[0]))
                 .on("end", () => {
                     gulp.src("./" + path[0] + "/*", {
                             base: path[0]
@@ -122,6 +126,15 @@ gulp.task("release", ["build"], (done) => {
                         .pipe(zip(path[0].split("\\")[1] + ".zip"))
                         .pipe(gulp.dest("./" + path[0].split("\\")[0]));
                 });
+            const v2 = gulp.src("README.md").pipe(gulp.dest(path[1]))
+                .on("end", () => {
+                    gulp.src("./" + path[1] + "/*", {
+                            base: path[1]
+                        })
+                        .pipe(zip(path[1].split("\\")[1] + ".zip"))
+                        .pipe(gulp.dest("./" + path[1].split("\\")[0]));
+                });
+            return merge(v1, v2);
         }
         done();
     });
@@ -141,7 +154,7 @@ const release = {
     owner: "odangosan",
     repo: "liveport",
     dir: "release/",
-    name: "liveport-win32-x64"
+    name: ["liveport-win32-x64", "liveport-win32-ia32"]
 }
 github.authenticate(auth);
 
@@ -161,12 +174,25 @@ gulp.task('gh:release', () => {
                 owner: release.owner,
                 repo: release.repo,
                 id: id,
-                name: release.name + "-" + pkg.version + '.zip',
-                filePath: release.dir + release.name + ".zip"
+                name: release.name[0] + "-" + pkg.version + '.zip',
+                filePath: release.dir + release.name[0] + ".zip"
             })
         })
         .then((res) => {
             gutil.log('Asset "' + res.name + '" uploaded');
             open("https://github.com/odangosan/liveport/releases/tag/" + "v" + pkg.version);
-        });
+            return res.id
+        }).then((id) => {
+            return pify(github.repos.uploadAsset)({
+                owner: release.owner,
+                repo: release.repo,
+                id: id,
+                name: release.name[1] + "-" + pkg.version + '.zip',
+                filePath: release.dir + release.name[1] + ".zip"
+            })
+        })
+        .then((res) => {
+            gutil.log('Asset "' + res.name + '" uploaded');
+            open("https://github.com/odangosan/liveport/releases/tag/" + "v" + pkg.version);
+        })
 });
