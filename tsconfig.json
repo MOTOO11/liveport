@@ -27,6 +27,7 @@
         "src/renderer/ts/Logger.ts",
         "src/renderer/ts/ProvideManager.ts",
         "src/renderer/ts/SofTalk.ts",
+        "src/renderer/ts/Tamiyasu.ts",
         "src/renderer/ts/Speaker.ts",
         "src/renderer/ts/StringUtil.ts",
         "src/renderer/ts/Shitaraba.ts",

@@ -99,7 +99,7 @@ export default class Application extends Vue {
             let letter = tmpLetter.length > 1 ?
                 tmpLetter[0] + target.num + tmpLetter[1]
                 : target.num.toString();
-            this.pManager.provide(letter + ":", target.text, this.pManager.reading);
+            this.pManager.provide(letter + ":", target.text, this.pManager.reading, this.startProvide, this.provideTimeLimit);
             this.thread.next();
             if (this.autoScroll)
                 this.scrollTo(this.thread.bookmark);
@@ -146,7 +146,7 @@ export default class Application extends Vue {
     }
 
     validate(): boolean {
-        if (this.pManager.voice === VOICE.SOFTALK && this.path === "" && this.pManager.reading && this.processing === true) {
+        if (this.usePath() && this.path === "" && this.pManager.reading && this.processing === true) {
             let warn = {
                 message: "ERROR : pathが設定されていません。"
             }
@@ -161,6 +161,9 @@ export default class Application extends Vue {
         return true;
     }
 
+    usePath():boolean{
+        return this.pManager.voice === VOICE.SOFTALK  || this.pManager.voice === VOICE.TAMIYASU;
+    }
     // refresh
     requestOnce() {
         if (!this.validate()) {
@@ -243,7 +246,7 @@ export default class Application extends Vue {
     }
 
     test(letter: string, body: string) {
-        this.pManager.provide(letter, body, this.pManager.reading);
+        this.pManager.provide(letter, body, this.pManager.reading,null,this.provideTimeLimit);
     }
 
     autoScroll: boolean = false;

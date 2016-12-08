@@ -22,16 +22,16 @@ class WebSpeechApi implements Speaker {
         // 音程 min 0 ~ max 2
         this.speech.pitch = vParam.use ? vParam.adjustmentPitch(0, 2) : defaultParameter.pitch;
         this.speech.text = text;
-        if (callback)
-            this.speech.onend = callback;
+        // if (callback)
+        //     this.speech.onend = callback;
         speechSynthesis.speak(this.speech);
     }
 
     cancel() {
-        var callback = () => {
-            console.log("overwrite onend callback");
-        }
-        this.speech.onend = callback;
+        // var callback = () => {
+        //     console.log("cancel");
+        // }
+        // this.speech.onend = callback;
         speechSynthesis.cancel();
     }
     

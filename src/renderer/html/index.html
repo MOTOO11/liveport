@@ -36,7 +36,7 @@
                 <nav class="mdl-navigation">
                     <span class="mdl-navigation__link">
                         <label><i class="material-icons">refresh</i> リロード：{{reload}}</label>
-                        <input class="mdl-slider mdl-js-slider" type="range" max="60" min="7" v-model="reload" v-bind:disabled="processing" />
+                        <input class="mdl-slider mdl-js-slider" type="range" max="60" min="10" v-model="reload" v-bind:disabled="processing" />
                     </span>
                     <span class="mdl-navigation__link">
                         <label><i class="material-icons">record_voice_over</i> 読み上げ</label>
@@ -47,7 +47,7 @@
                     </span>
                     <span class="mdl-navigation__link">
                         <label><i class="material-icons">timer</i> 読み上げ時間制限：{{provideTimeLimit}}</label>
-                        <input class="mdl-slider mdl-js-slider" type="range" max="60" min="3" v-model="provideTimeLimit" v-bind:disabled="processing" />
+                        <input class="mdl-slider mdl-js-slider" type="range" max="60" min="10" v-model="provideTimeLimit" v-bind:disabled="processing" />
                     </span>
                     <span class="mdl-navigation__link">
                         <label><i class="material-icons">mic</i> 読み上げボイス</label><br>
@@ -59,9 +59,13 @@
                             <input type="radio" id="option-2" class="mdl-radio__button"  v-model="pManager.voice"  v-bind:value="2" v-bind:disabled="processing">
                             <span class="mdl-radio__label">SofTalk</span>
                         </label>
+                    <label class="mdl-radio mdl-js-radio mdl-js-ripple-effect" for="option-3">
+                            <input type="radio" id="option-3" class="mdl-radio__button"  v-model="pManager.voice"  v-bind:value="3" v-bind:disabled="processing">
+                            <span class="mdl-radio__label">民安talk</span>
+                        </label>
                     </span>
                     <span class="mdl-navigation__link">
-                        <label><i class="material-icons">find_in_page</i> softalkのパス</label>                        
+                        <label><i class="material-icons">find_in_page</i> softalk/vrxのパス</label>                        
                         <div class="mdl-textfield mdl-js-textfield">
                             <input class="mdl-textfield__input"  v-on:click="findSofTalkPathDialog()" id="path" autocomplete="off" v-model="path" v-bind:disabled="processing">
                         </div>

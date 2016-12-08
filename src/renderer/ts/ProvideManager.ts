@@ -1,5 +1,6 @@
 import SofTalk from "./SofTalk"
 import WebspeechApi from "./WebspeechApi"
+import Tamiyasu from "./Tamiyasu"
 import { VOICE, VoiceParameter } from "./Voice"
 import * as io from "socket.io-client";
 import StringUtil from "./StringUtil";
@@ -28,7 +29,7 @@ export default class ProvideManager {
         if (this.containsNg(body)) {
             const ng = () => {
                 if (reading) {
-                    this.speaker.speak(letter + "\n" + CONFIG.SystemDictionary.NG.reading, this.vParam, callback);
+                    this.speak(letter + "\n" + CONFIG.SystemDictionary.NG.reading, callback,timeLimit);
                 }
                 this.socket.emit(MODE.MESSAGE, letter + "\r\n" + CONFIG.SystemDictionary.NG.reading);
             }
@@ -44,7 +45,7 @@ export default class ProvideManager {
         let brReplace = StringUtil.replaceBr2NewLine(anchorReplace);
         const aa = () => {
             if (reading)
-                this.speaker.speak(letter + "\n" + SystemDictionary.AA.reading, this.vParam, callback);
+                this.speak(letter + "\n" + SystemDictionary.AA.reading, callback,timeLimit);
             this.socket.emit(MODE.AA, letter + "\r\n" + brReplace);
         }
 
@@ -65,7 +66,7 @@ export default class ProvideManager {
                 let urlReplace = StringUtil.urlToReadable(brReplace);
                 let userDictionary = StringUtil.applyUserDictionary(urlReplace);
                 let ZENHANReplace = StringUtil.replaceHANKAKUtoZENKAKU(userDictionary);
-                this.speaker.speak(letter + "\n" + ZENHANReplace, this.vParam, callback);
+                this.speak(letter + "\n" + ZENHANReplace, callback,timeLimit);
             }
             this.socket.emit(MODE.MESSAGE, letter + "\r\n" + brReplace);
         }
@@ -76,7 +77,13 @@ export default class ProvideManager {
             messenger();
         }
     }
-
+    speak(body: string, callback?: () => any, timeLimit?: number) {
+        let text = body;
+        if (this.voice === VOICE.TAMIYASU) {
+            text = Tamiyasu.calcStringSize(body,timeLimit);
+        }
+        this.speaker.speak(text, this.vParam, callback);
+    }
     containsNg(text: string): boolean {
         return StringUtil.containsNg(text);
     }
@@ -95,6 +102,8 @@ export default class ProvideManager {
             this.speaker = new WebspeechApi();
         } else if (value === VOICE.SOFTALK) {
             this.speaker = new SofTalk(path);
+        } else if (value === VOICE.TAMIYASU) {
+            this.speaker = new Tamiyasu(path);
         }
     }
 
