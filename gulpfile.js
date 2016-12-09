@@ -109,7 +109,7 @@ gulp.task("release", ["build"], (done) => {
         overwrite: true,
         ignore: [".vscode", "src", "typings",
             ".gitignore", "gulpfile.js", "postcss.config.js",
-            "tsconfig.json", "typings.json", "README.md", "env.json",
+            "tsconfig.json", "typings.json", "README.md", "env.json", "doc",
             "webpack.browser.config.js", "webpack.config.js", "webpack.renderer.config.js"
         ]
     }, (err, path) => {
@@ -137,7 +137,6 @@ gulp.task("release", ["build"], (done) => {
 
                         });
                 });
-
         }
         done();
     });
