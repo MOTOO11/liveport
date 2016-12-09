@@ -96,9 +96,8 @@
                         <button v-on:click="test('テスト：',testMessage)" v-bind:disabled="processing">send</button>
                         </div>
                     </span>
-
                     <span class="mdl-navigation__link">
-                        <label><i class="material-icons">info</i> version:{{version}}</label>                  
+                        <label><i v-on:click="clearDataSource()" class="material-icons cursor--hand">info</i> version:{{version}}</label>                  
                     </span>
                 </nav>
             </div>

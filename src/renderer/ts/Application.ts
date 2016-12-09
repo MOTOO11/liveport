@@ -27,7 +27,7 @@ export default class Application extends Vue {
         Logger.log("start", "hello application.");
         this.pManager = new ProvideManager();
         this.setTitle("");
-        this.thread = new Shitaraba("dummy");
+        this.thread = new Shitaraba("dummyThread");
         this.loadSettings();
     }
 
@@ -161,8 +161,8 @@ export default class Application extends Vue {
         return true;
     }
 
-    usePath():boolean{
-        return this.pManager.voice === VOICE.SOFTALK  || this.pManager.voice === VOICE.TAMIYASU;
+    usePath(): boolean {
+        return this.pManager.voice === VOICE.SOFTALK || this.pManager.voice === VOICE.TAMIYASU;
     }
     // refresh
     requestOnce() {
@@ -203,10 +203,13 @@ export default class Application extends Vue {
 
     // 表示するものがない時
     dummyText: string = "";
+
     provideDummyText() {
         this.pManager.dummyText(this.dummyText);
     }
+
     dummyTextTemp: string = "";
+    
     insertDummyText() {
         this.dummyText = this.dummyTextTemp;
         if (!this.processing)
@@ -246,11 +249,10 @@ export default class Application extends Vue {
     }
 
     test(letter: string, body: string) {
-        this.pManager.provide(letter, body, this.pManager.reading,null,this.provideTimeLimit);
+        this.pManager.provide(letter, body, this.pManager.reading, null, this.provideTimeLimit);
     }
 
-    autoScroll: boolean = false;
-    cnangeAutoScroll() {
+    autoScroll: boolean = false;    cnangeAutoScroll() {
         this.autoScroll = !this.autoScroll;
     }
     scrollTo(value: number, duration?: number) {
@@ -270,7 +272,6 @@ export default class Application extends Vue {
         Logger.log("pManager.reading", this.pManager.reading)
     }
 
-    // softalk or webspeechapi
     path: string = "";
     @Watch("pManager.voice")
     onVoiceChange(newValue: number, oldValue: number) {
@@ -340,10 +341,12 @@ export default class Application extends Vue {
             this.loadSettings();
         }
     }
+
     mounted() {
         if (this.thread.bookmark != 0)
             this.scrollTo(this.thread.bookmark);
     };
+
     saveSettings() {
         localStorage.setItem(SETTINGS, JSON.stringify({
             url: this.url,
@@ -360,13 +363,14 @@ export default class Application extends Vue {
             dummyText: this.dummyText
         }));
     };
+
     @Watch("settings")
     onSettingsChange(newValue: number, oldValue: number) {
         this.saveSettings()
         var settings = JSON.parse(localStorage.getItem(SETTINGS));
     }
-    version = VERSION;
 
+    version = VERSION;
 
     isValidURL(): boolean {
         if (!this.url) {
@@ -390,5 +394,14 @@ export default class Application extends Vue {
                 this.thread.load();
             }
         }
+    }
+
+    clearDataSource() {
+        for (var a in localStorage) {
+            if (a.startsWith("http"))
+                DataSource.clearDataSource(a);
+        }
+        this.snackbar({ message: "キャッシュを消去しました" });
+        this.thread = new Shitaraba("dummyThread");
     }
 }

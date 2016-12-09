@@ -27,7 +27,7 @@ class Main {
         // Create the browser window.
         this.mainWindow = new BrowserWindow({
             width: 800, height: 600,
-            icon: __dirname + '/assets/icon/favicon.png',
+            icon: __dirname + '/assets/icon/favicon.png'
         });
         // disable menubar.
         this.mainWindow.setMenu(null);
