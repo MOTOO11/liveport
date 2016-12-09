@@ -118,23 +118,26 @@ gulp.task("release", ["build"], (done) => {
             console.log(path);
         } else {
             console.log(path);
-            const v1 = gulp.src("README.md").pipe(gulp.dest(path[0]))
+            gulp.src("README.md").pipe(gulp.dest(path[0]))
                 .on("end", () => {
                     gulp.src("./" + path[0] + "/*", {
                             base: path[0]
                         })
                         .pipe(zip(path[0].split("\\")[1] + ".zip"))
-                        .pipe(gulp.dest("./" + path[0].split("\\")[0]));
+                        .pipe(gulp.dest("./" + path[0].split("\\")[0]))
+                        .on("end", () => {
+                            gulp.src("README.md").pipe(gulp.dest(path[1]))
+                                .on("end", () => {
+                                    gulp.src("./" + path[1] + "/*", {
+                                            base: path[1]
+                                        })
+                                        .pipe(zip(path[1].split("\\")[1] + ".zip"))
+                                        .pipe(gulp.dest("./" + path[1].split("\\")[0]));
+                                });
+
+                        });
                 });
-            const v2 = gulp.src("README.md").pipe(gulp.dest(path[1]))
-                .on("end", () => {
-                    gulp.src("./" + path[1] + "/*", {
-                            base: path[1]
-                        })
-                        .pipe(zip(path[1].split("\\")[1] + ".zip"))
-                        .pipe(gulp.dest("./" + path[1].split("\\")[0]));
-                });
-            return merge(v1, v2);
+
         }
         done();
     });
