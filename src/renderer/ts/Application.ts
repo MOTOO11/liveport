@@ -15,6 +15,7 @@ const ApplicatonName = require("../../../package.json").name
 const VERSION = require("../../../package.json").version
 import * as $ from "jquery"
 const SETTINGS = "settings";
+
 @Component({})
 export default class Application extends Vue {
     pManager: ProvideManager;
@@ -93,20 +94,24 @@ export default class Application extends Vue {
         clearTimeout(this.provideTimerID);
         if (!this.processing) return;
         this.provideTimerLimitCountDown = this.provideTimeLimit;
-        if (this.thread.bookmark != this.thread.allNum()) {
-            let target = this.thread.messages[this.thread.bookmark];
-            let tmpLetter = LETTER.split("$1");
-            let letter = tmpLetter.length > 1 ?
-                tmpLetter[0] + target.num + tmpLetter[1]
-                : target.num.toString();
-            this.pManager.provide(letter + ":", target.text, this.pManager.reading, this.startProvide, this.provideTimeLimit);
-            this.thread.next();
-            if (this.autoScroll)
-                this.scrollTo(this.thread.bookmark);
-        } else {
-            this.haltProvide();
+        let provide = () => {
+            if (this.thread.bookmark != this.thread.allNum()) {
+                let target = this.thread.messages[this.thread.bookmark];
+                let tmpLetter = LETTER.split("$1");
+                let letter = tmpLetter.length > 1 ?
+                    tmpLetter[0] + target.num + tmpLetter[1]
+                    : target.num.toString();
+                this.pManager.provide(letter + ":", target.text, this.pManager.reading, this.startProvide, this.provideTimeLimit);
+                this.thread.next();
+                if (this.autoScroll)
+                    this.scrollTo(this.thread.bookmark);
+            } else {
+                this.haltProvide();
+            }
+            this.setProvideTimer();
         }
-        this.setProvideTimer();
+        if (this.playingNotificationSound) this.notificationSound(provide);
+        else provide();
     }
     stopProvide() {
         clearTimeout(this.provideTimerID);
@@ -123,7 +128,7 @@ export default class Application extends Vue {
         } else {
             this.provideTimerID = window.setTimeout(() => {
                 this.provideTimerLimitCountDown--;
-                this.setProvideTimer();;
+                this.setProvideTimer();
             }, 1000);
         }
     }
@@ -209,7 +214,7 @@ export default class Application extends Vue {
     }
 
     dummyTextTemp: string = "";
-    
+
     insertDummyText() {
         this.dummyText = this.dummyTextTemp;
         if (!this.processing)
@@ -252,7 +257,7 @@ export default class Application extends Vue {
         this.pManager.provide(letter, body, this.pManager.reading, null, this.provideTimeLimit);
     }
 
-    autoScroll: boolean = false;    cnangeAutoScroll() {
+    autoScroll: boolean = false; cnangeAutoScroll() {
         this.autoScroll = !this.autoScroll;
     }
     scrollTo(value: number, duration?: number) {
@@ -302,6 +307,7 @@ export default class Application extends Vue {
             + this.pManager.vParam.rate
             + this.pManager.vParam.pitch
             + this.pManager.vParam.use
+            + this.playingNotificationSound
             + this.reload + this.provideTimeLimit + this.pManager.reading
             + this.path + this.pManager.voice;
     }
@@ -320,6 +326,7 @@ export default class Application extends Vue {
                     this.loadUrlSource();
                 this.setTitle(this.thread.title);
             };
+            this.playingNotificationSound = Boolean(settings.playingNotificationSound);
             this.autoScroll = Boolean(settings.autoScroll);
             this.pManager.vParam.volume = Number(settings.volume);
             this.pManager.vParam.rate = Number(settings.rate);
@@ -360,6 +367,7 @@ export default class Application extends Vue {
             reading: this.pManager.reading,
             path: this.path,
             voice: this.pManager.voice,
+            playingNotificationSound: this.playingNotificationSound,
             dummyText: this.dummyText
         }));
     };
@@ -394,6 +402,14 @@ export default class Application extends Vue {
                 this.thread.load();
             }
         }
+    }
+
+    playingNotificationSound: boolean = false;
+    notificationSound(callback: () => void) {
+        let defaultNotificationSound = "../../assets/audio/notification.mp3";
+        let audio = new Audio(defaultNotificationSound);
+        audio.onended = callback;
+        audio.play();
     }
 
     clearDataSource() {

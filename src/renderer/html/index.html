@@ -90,6 +90,13 @@
                         <input class="mdl-slider mdl-js-slider" type="range" max="100" min="0" v-model="pManager.vParam.pitch" v-bind:disabled="!pManager.vParam.use" />
                     </span>
                     <span class="mdl-navigation__link">
+                        <label><i class="material-icons">audiotrack</i> 着信音</label>
+                        <label class="mdl-switch mdl-js-switch mdl-js-ripple-effect" for="playNotificationSound">
+                            <input type="checkbox" id="playNotificationSound" class="mdl-switch__input"  v-model="playingNotificationSound">
+                            <span class="mdl-switch__label">{{playingNotificationSound?"on":"off"}}</span>
+                    </label>
+                    </span>
+                    <span class="mdl-navigation__link">
                         <label><i class="material-icons">record_voice_over</i> 読み上げテスト</label>                        
                         <div class="mdl-textfield mdl-js-textfield">
                         <textarea class="mdl-textfield__input" id="m" autocomplete="off" v-model="testMessage"></textarea>

@@ -3,5 +3,6 @@
   "dependencies": {
     "vue": "npm:vue/types/index.d.ts"
   },
-  "globalDependencies": {}
+  "globalDependencies": {},
+  "globalDevDependencies": {}
 }
