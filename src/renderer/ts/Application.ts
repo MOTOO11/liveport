@@ -95,23 +95,24 @@ export default class Application extends Vue {
         if (!this.processing) return;
         this.provideTimerLimitCountDown = this.provideTimeLimit;
         let provide = () => {
-            if (this.thread.bookmark != this.thread.allNum()) {
-                let target = this.thread.messages[this.thread.bookmark];
-                let tmpLetter = LETTER.split("$1");
-                let letter = tmpLetter.length > 1 ?
-                    tmpLetter[0] + target.num + tmpLetter[1]
-                    : target.num.toString();
-                this.pManager.provide(letter + ":", target.text, this.pManager.reading, this.startProvide, this.provideTimeLimit);
-                this.thread.next();
-                if (this.autoScroll)
-                    this.scrollTo(this.thread.bookmark);
-            } else {
-                this.haltProvide();
-            }
-            this.setProvideTimer();
+            let target = this.thread.messages[this.thread.bookmark];
+            let tmpLetter = LETTER.split("$1");
+            let letter = tmpLetter.length > 1 ?
+                tmpLetter[0] + target.num + tmpLetter[1]
+                : target.num.toString();
+            this.pManager.provide(letter + ":", target.text, this.pManager.reading, this.startProvide, this.provideTimeLimit);
+            this.thread.next();
+            if (this.autoScroll)
+                this.scrollTo(this.thread.bookmark);
         }
-        if (this.playingNotificationSound) this.notificationSound(provide);
-        else provide();
+        if (this.thread.bookmark != this.thread.allNum()) {
+            if (this.playingNotificationSound) this.notificationSound(provide);
+            else provide();
+        } else {
+            this.haltProvide();
+        }
+        this.setProvideTimer();
+
     }
     stopProvide() {
         clearTimeout(this.provideTimerID);
