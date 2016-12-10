@@ -8,7 +8,7 @@ const DK = "46CBA895366C49938CDEC4308E0DFE6B";
 
 export class CaveTube extends DataSource {
     stream_name: string = "";
-    request(success: (boolean) => void, failed: (err: any) => void) {
+    request(success: (number) => void, failed: (err: any) => void) {
         if (!this.url) {
             failed("url is not set");
             return;
@@ -22,7 +22,7 @@ export class CaveTube extends DataSource {
 
     }
 
-    datRequest(success: (boolean) => void, failed: (err: any) => void) {
+    datRequest(success: (number) => void, failed: (err: any) => void) {
         var commentUrl = "http://ws.cavelis.net:3000/comment/" + this.stream_name + "?devkey=" + DK;
         console.log("request comment url : " + commentUrl);
         return rp({ url: commentUrl, timeout: 8000 })
@@ -67,7 +67,7 @@ export class CaveTube extends DataSource {
         */
         var resArray: Message[] = [];
         for (var i in comments) {
-            if (+i+1 > this.messages.length) {
+            if (+i + 1 > this.messages.length) {
                 var res = new Message();
                 res.num = comments[i].comment_num;
                 res.name = comments[i].name;
@@ -97,6 +97,32 @@ export class CaveTube extends DataSource {
         var min = (d.getMinutes() < 10) ? '0' + d.getMinutes() : d.getMinutes();
         var sec = (d.getSeconds() < 10) ? '0' + d.getSeconds() : d.getSeconds();
         return `${year}/${month}/${day} ${hour}:${min}:${sec}`;
+    }
+    listUrl = "";
+    getLists(success: () => void, failed: (err: any) => void) {
+        // if (!this.listUrl) this.createListUsrl();
+        // console.log("request list url : " + this.listUrl);
+        // rp({ url: this.listUrl, encoding: null, timeout: 8000 })
+        //     .then((htmlString) => {
+        //         console.log("request result : ok!");
+        //         var decoding = iconv.decode(htmlString, "EUC-JP")
+        //         let NewArrivals = this.data2json(decoding);
+        //         success();
+        //     })
+        //     .catch((err) => {
+        //         console.log("error...");
+        //         console.log(err);
+        //         failed(err);
+        //     });
+        failed("未実装");
+    }
+    createListUsrl(): string {
+        return "";
+    }
+    data2Lists(value: string) {
+    }
+    sendMessage(success: () => void, failed: (err: any) => void) {
+        failed("未実装");
     }
 
     static isValidURL(url: string): boolean {

@@ -230,6 +230,14 @@ export default class Application extends Vue {
         });
     }
 
+    showListWindow() {
+        var dialog: any = document.querySelector("#listwindow");
+        dialog.showModal();
+        dialog.querySelector('.close').addEventListener('click', () => {
+            dialog.close();
+        });
+    }
+
     replace(msg: string) {
         var utl = StringUtil.urlToLink(msg);
         return StringUtil.anchorToInnerLink(utl);

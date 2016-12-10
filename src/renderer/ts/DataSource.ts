@@ -8,7 +8,7 @@ export abstract class DataSource {
         this.url = url;
     }
 
-    abstract request(success: (boolean) => void, failed: (err: any) => void);
+    abstract request(success: (number) => void, failed: (err: any) => void);
     abstract data2json(data: string): number;
 
     allNum() {
@@ -61,6 +61,9 @@ export abstract class DataSource {
         });
     }
 
+    abstract sendMessage(success: () => void, failed: (err: any) => void);
+    abstract getLists(success: () => void, failed: (err: any) => void);
+
     save() {
         localStorage.setItem(this.url, this.stringify());
     }
@@ -79,4 +82,10 @@ export abstract class DataSource {
     static clearAllDataSource(url: string) {
         localStorage.clear();
     }
+}
+
+export class ThreadList {
+    title = "";
+    url = "";
+    name="";
 }

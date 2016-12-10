@@ -179,6 +179,12 @@
             <div class="mdl-tooltip mdl-tooltip--left mdl-tooltip--larg" data-mdl-for="dummyTextButton">
                 字幕用テキストを設定
             </div>
+            <button v-on:click="showListWindow()" id="list" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent mdl-js-ripple-effect">
+                 <i class="material-icons">message</i>
+            </button>
+            <div class="mdl-tooltip mdl-tooltip--left mdl-tooltip--larg" data-mdl-for="list">
+                一覧表示
+            </div>
         </div>
         <!-- fixed right menu -->
         <!-- snack bar -->
@@ -202,6 +208,13 @@
             </div>
         </dialog>
         <!-- dummytext dialog -->
+        <dialog class="mdl-dialog" id="listwindow">
+            <div class="mdl-dialog__content">
+            </div>
+            <div class="mdl-dialog__actions mdl-dialog__actions--full-width">
+                <button type="button" class="mdl-button close">閉じる</button>
+            </div>
+        </dialog>
     </div>
     <!--<div id="loading" class="aa"><br/> 　　　　　　 ／ﾌﾌ 　　　　　　 　ム｀ヽ<br/> 　　　　　　/ ノ)　 ∧＿∧　　　　）　ヽ<br/> 　　　　　ﾞ/ ｜　　(´・ω・`）ノ⌒（ゝ._,ノ Now loading....<br/> 　　　　　/　ﾉ⌒7⌒ヽーく　 ＼　／<br/> 　　　　　丶＿ ノ ｡　　 ノ､　　｡|/<br/> 　　　　　　　 `ヽ `ー-'_人`ーﾉ　<br/> 　　　　　　　　 丶 ￣ _人'彡ﾉ<br/> 　　　　　　　　　ﾉ　　r'十ヽ/
         <br/> 　　　　　　　／｀ヽ _/　十∨<br/>
