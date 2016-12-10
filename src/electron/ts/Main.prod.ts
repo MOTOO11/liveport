@@ -1,10 +1,12 @@
 const electron = require('electron');
+const fs = require('fs');
 import { shell } from 'electron';
 const path = require('path')
 import * as url from "url";
 const BrowserWindow: typeof Electron.BrowserWindow = electron.BrowserWindow;
 const app: Electron.App = electron.app;
 const port = require("../config.json").port;
+const info_path = "./bounds.json";
 process.env.NODE_ENV = "production";
 
 class Main {
@@ -26,9 +28,16 @@ class Main {
     onReady() {
         // Create the browser window.
         this.mainWindow = new BrowserWindow({
-            width: 800, height: 600,
             icon: __dirname + '/assets/icon/favicon.png'
         });
+        let bounds_info;
+        try {
+            bounds_info = JSON.parse(fs.readFileSync(info_path, 'utf8'));
+        }
+        catch (e) {
+            bounds_info = { width: 800, height: 600 };  // デフォルトバリュー
+        }
+        this.mainWindow.setBounds(bounds_info);
         // disable menubar.
         this.mainWindow.setMenu(null);
         this.mainWindow.loadURL(url.format({
@@ -38,6 +47,10 @@ class Main {
         }));
         this.mainWindow.on('closed', () => {
             this.mainWindow = null;
+        });
+        this.mainWindow.on('close', () => {
+            var info_path = path.join(app.getPath("userData"), "bounds-info.json");
+            fs.writeFileSync(info_path, JSON.stringify(this.mainWindow.getBounds()));
         });
         this.mainWindow.webContents.on('new-window', (e, url) => {
             e.preventDefault();

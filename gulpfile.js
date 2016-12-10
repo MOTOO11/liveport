@@ -107,7 +107,7 @@ gulp.task("release", ["build"], (done) => {
         // prune: true, // exclude devDep
         version: "1.4.8", // Electronのversion
         overwrite: true,
-        ignore: [".vscode", "src", "typings",
+        ignore: [".vscode", "src", "typings", "bounds.json",
             ".gitignore", "gulpfile.js", "postcss.config.js",
             "tsconfig.json", "typings.json", "README.md", "env.json", "doc",
             "webpack.browser.config.js", "webpack.config.js", "webpack.renderer.config.js"

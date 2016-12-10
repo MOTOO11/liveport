@@ -5,3 +5,4 @@ release/
 .vscode/
 typings/
 env.json
+bounds.json
