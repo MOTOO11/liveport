@@ -27,8 +27,8 @@ export default class Application extends Vue {
         super();
         Logger.log("start", "hello application.");
         this.pManager = new ProvideManager();
-        this.setTitle("");
         this.thread = new Shitaraba("dummyThread");
+        this.setTitleWithTimer();
         this.loadSettings();
     }
 
@@ -223,7 +223,7 @@ export default class Application extends Vue {
     }
 
     showDummyTextWindow() {
-        var dialog: any = document.querySelector('dialog');
+        var dialog: any = document.querySelector("#subtitling");
         dialog.showModal();
         dialog.querySelector('.close').addEventListener('click', () => {
             dialog.close();
@@ -270,7 +270,17 @@ export default class Application extends Vue {
 
     @Watch('thread.title')
     onTitleChange(newValue: number, oldValue: number) {
-        this.setTitle(this.thread.title);
+        this.setTitleWithTimer();
+    }
+
+    @Watch('provideTimerLimitCountDown')
+    onTimerChange(newValue: number, oldValue: number) {
+        this.setTitleWithTimer();
+    }
+
+    setTitleWithTimer() {
+        let value = `reload(${this.reloadTimerCountDown}/${this.reload}) voice(${this.provideTimerLimitCountDown}/${this.provideTimeLimit})`
+        this.setTitle(value + " - " + this.thread.title);
     }
 
     @Watch('pManager.reading')
@@ -325,7 +335,7 @@ export default class Application extends Vue {
             if (this.url) {
                 if (this.isValidURL())
                     this.loadUrlSource();
-                this.setTitle(this.thread.title);
+                this.setTitleWithTimer();
             };
             this.playingNotificationSound = Boolean(settings.playingNotificationSound);
             this.autoScroll = Boolean(settings.autoScroll);
