@@ -120,7 +120,7 @@ gulp.task("release", ["build"], (done) => {
             console.log(path);
             gulp.src("README.md").pipe(gulp.dest(path[0]))
                 .on("end", () => {
-                    gulp.src("./" + path[0] + "/*", {
+                    gulp.src("./" + path[0] + "/**", {
                             base: path[0]
                         })
                         .pipe(zip(path[0].split("\\")[1] + ".zip"))
@@ -128,7 +128,7 @@ gulp.task("release", ["build"], (done) => {
                         .on("end", () => {
                             gulp.src("README.md").pipe(gulp.dest(path[1]))
                                 .on("end", () => {
-                                    gulp.src("./" + path[1] + "/*", {
+                                    gulp.src("./" + path[1] + "/**", {
                                             base: path[1]
                                         })
                                         .pipe(zip(path[1].split("\\")[1] + ".zip"))
@@ -182,7 +182,6 @@ gulp.task('gh:release', () => {
         })
         .then((res) => {
             gutil.log('Asset "' + res.name + '" uploaded');
-            open("https://github.com/odangosan/liveport/releases/tag/" + "v" + pkg.version);
             return res.id
         }).then((id) => {
             return pify(github.repos.getReleaseByTag)({
