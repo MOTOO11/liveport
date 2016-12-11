@@ -48,8 +48,9 @@ class Main {
             this.mainWindow = null;
         });
         this.mainWindow.on('close', () => {
-            var info_path = path.join(app.getPath("userData"), "bounds-info.json");
-            fs.writeFileSync(info_path, JSON.stringify(this.mainWindow.getBounds()));
+            try {
+                fs.writeFileSync(info_path, JSON.stringify(this.mainWindow.getBounds()));
+            } catch (e) { }
         });
         this.mainWindow.webContents.on('new-window', (e, url) => {
             e.preventDefault();
