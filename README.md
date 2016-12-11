@@ -20,7 +20,7 @@
   * color:white; 文字の色（変更可能）
 * タイトルバーにURLを入力後、**[▶]読み込み開始**ボタンを押す
 * 詳細な設定は[resources/app/config.json]
-  * NGワード・読み替えなど
+  * NGワード・読み替え・表示装飾など
 
 * データは以下に保存
   * C:\Users\%USERNAME%\AppData\Roaming\liveport\
