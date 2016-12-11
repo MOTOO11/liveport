@@ -75,11 +75,15 @@ export class CaveTube extends DataSource {
                 res.date = this.calcDatatime(comments[i].time);
                 res.text = comments[i].message;
                 res.id = "";
+                res.latest = true;
                 resArray.push(res);
             }
         }
         this.title = this.url;
         console.log("new thread title : " + this.title);
+        this.messages.forEach(element => {
+            element.latest = false;
+        });
         this.messages = this.messages.concat(resArray);
         this.messages.filter((x, i, self) => self.indexOf(x) === i);
         this.sortMessage();
@@ -121,7 +125,7 @@ export class CaveTube extends DataSource {
     }
     data2Lists(value: string) {
     }
-    sendMessage(message:any,success: () => void, failed: (err: any) => void) {
+    sendMessage(message: any, success: () => void, failed: (err: any) => void) {
         failed("未実装");
     }
 

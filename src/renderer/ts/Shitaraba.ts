@@ -51,6 +51,7 @@ export class Shitaraba extends DataSource {
             res.date = r[3];
             res.text = r[4];
             res.title = r[5];
+            res.latest=true;
             if (res.title) {
                 this.title = res.title;
                 console.log("new thread title : " + res.title);
@@ -58,6 +59,9 @@ export class Shitaraba extends DataSource {
             res.id = r[6];
             resArray.push(res);
         }
+        this.messages.forEach(element => {
+            element.latest = false;
+        });
         this.messages = this.messages.concat(resArray);
         this.sortMessage();
         this.save();
@@ -114,7 +118,7 @@ export class Shitaraba extends DataSource {
         // message.MESSAGE = iconv.decode(new Buffer(message.MESSAGE, "UTF-8"), "EUC-JP").toString();
         // message.MAIL = iconv.decode(new Buffer(message.MAIL, "UTF-8"), "EUC-JP").toString();
         const option = {
-            url: this.sendUrl,  timeout: 8000,
+            url: this.sendUrl, encoding: null, timeout: 8000,
             // form: {
             //     DIR: this.DIR, BBS: this.BBS, KEY: this.KEY,
             //     NAME: message.NAME, MAIL: message.MAIL, MESSAGE: message.MESSAGE

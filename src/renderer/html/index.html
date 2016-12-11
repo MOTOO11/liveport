@@ -110,12 +110,12 @@
             </div>
             <!-- setting -->
             <!-- display -->
-            <main class="mdl-layout__content">
+            <main class="mdl-layout__content" v-bind:style="CSS.body">
                 <div class="viewer__showThread">
                     <div v-show="!showList">
-                        <dl v-for="item in thread.messages">
-                            <dt :id="'MESSAGE-'+item.num" :key="item.num">{{item.num}}:<span v-html="item.name"></span>[{{item.mail}}] {{item.date}} ID:{{item.id}}</dt>
-                            <dd v-html="replace(item.text)" class="aa" :key="item.num"></dd>
+                        <dl v-for="item in thread.messages" v-bind:style="CSS.res">
+                            <dt v-bind:style="CSS.header" :id="'MESSAGE-'+item.num" :key="item.num"><span v-bind:class="[item.latest ? 'num--new':'']" v-bind:style="CSS.num">{{item.num}}</span>:<span v-html="item.name" v-bind:style="CSS.name"></span><span v-bind:style="CSS.mail">[{{item.mail}}]</span> <span v-bind:style="CSS.date">{{item.date}}</span> <span v-bind:style="CSS.id">ID:{{item.id}}</span></dt>
+                            <dd v-html="replace(item.text)" v-bind:style="CSS.message" class="aa" :key="item.num"></dd>
                         </dl>
                     </div>
                     <div v-show="showList">
@@ -128,9 +128,12 @@
             <!-- display -->
             <!-- footer -->
             <!--<footer class="mdl-mini-footer">
-                <input type="text" value="name" v-model="NAME"><input type="text" v-model="MAIL">
-                <textarea id="post" autocomplete="off" rows="3" v-model="MESSAGE"></textarea>
-                <button v-on:click="sendMessage()">send</button>
+                <div class="mdl-mini-footer__left-section">
+                    <textarea id="post" autocomplete="off" rows="3" v-model="MESSAGE"></textarea>
+                </div>
+                <div class="mdl-mini-footer__right-section">
+                    <input type="text" value="name" v-model="NAME"><input type="text" v-model="MAIL">
+                    <button v-on:click="sendMessage()">send</button></div>
             </footer>-->
             <!-- footer -->
             <!-- display -->

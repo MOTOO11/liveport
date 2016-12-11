@@ -10,6 +10,7 @@ import Logger from "./Logger";
 import ProvideManager from "./ProvideManager";
 const CONFIG = require("../../../config.json");
 const LETTER: string = CONFIG.letter;
+const CustomCss = CONFIG.CustomCss;
 import { remote } from "electron";
 const ApplicatonName = require("../../../package.json").name
 const VERSION = require("../../../package.json").version
@@ -42,15 +43,16 @@ export default class Application extends Vue {
     onChangeRTimeLimit() {
         this.reloadTimerCountDown = this.reload;
     }
-
+    newArrival = 0;
     startThreadRequest() {
         if (!this.processing) return;
-        this.snackbar({ message: "データ取得開始", timeout: 1000 });
         this.reloadTimerCountDown = this.reload;
         this.thread.request(
             (newArrival: number) => {
                 Logger.log("request success", newArrival.toString());
-                this.snackbar({ message: "新着レス：" + newArrival });
+                this.newArrival = newArrival;
+                // if (newArrival > 0)
+                // this.snackbar({ message: "新着レス：" + newArrival });
                 this.setRequestTimer();
             },
             (err: any) => {
@@ -116,6 +118,9 @@ export default class Application extends Vue {
         this.setProvideTimer();
 
     }
+
+
+
     stopProvide() {
         clearTimeout(this.provideTimerID);
         this.haltProvide();
@@ -255,7 +260,7 @@ export default class Application extends Vue {
 
     sendMessage() {
         console.log("send");
-        if(!this.MESSAGE)return;
+        if (!this.MESSAGE) return;
         const message = {
             NAME: this.NAME, MAIL: this.MAIL, MESSAGE: this.MESSAGE
         }
@@ -474,5 +479,17 @@ export default class Application extends Vue {
         }
         this.snackbar({ message: "キャッシュを消去しました" });
         this.thread = new Shitaraba("dummyThread");
+    }
+
+    CSS = {
+        body: CustomCss.body,
+        res: CustomCss.res,
+        num: CustomCss.num,
+        name: CustomCss.name,
+        mail: CustomCss.mail,
+        date: CustomCss.date,
+        id: CustomCss.id,
+        header: CustomCss.header,
+        message: CustomCss.message
     }
 }

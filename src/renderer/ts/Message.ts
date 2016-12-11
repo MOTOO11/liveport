@@ -7,6 +7,7 @@ export default class Message {
     text: string;
     title: string;
     id: string;
+    latest: boolean = false;
     constructor() { }
 
     static decodeFromJson(data: any) {
