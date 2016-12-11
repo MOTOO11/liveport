@@ -34,10 +34,9 @@ class Main {
         try {
             bounds_info = JSON.parse(fs.readFileSync(info_path, 'utf8'));
         }
-        catch (e) {
-            bounds_info = { width: 800, height: 600 };  // デフォルトバリュー
-        }
-        this.mainWindow.setBounds(bounds_info);
+        catch (e) { }
+        if (bounds_info)
+            this.mainWindow.setBounds(bounds_info);
         // disable menubar.
         this.mainWindow.setMenu(null);
         this.mainWindow.loadURL(url.format({
