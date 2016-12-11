@@ -32,7 +32,7 @@
             <!-- header -->
             <div class="mdl-layout__drawer">
                 <!-- setting -->
-                <span class="mdl-layout-title">設定</span>
+                <span v-on:click="open()" class="mdl-layout-title">設定</span>
                 <nav class="mdl-navigation">
                     <span class="mdl-navigation__link">
                         <label><i class="material-icons">refresh</i> リロード：{{reload}}</label>
@@ -112,21 +112,36 @@
             <!-- display -->
             <main class="mdl-layout__content">
                 <div class="viewer__showThread">
-                    <dl v-for="item in thread.messages">
-                        <dt :id="'MESSAGE-'+item.num" :key="item.num">{{item.num}}:<span v-html="item.name"></span>[{{item.mail}}] {{item.date}} ID:{{item.id}}</dt>
-                        <dd v-html="replace(item.text)" class="aa" :key="item.num"></dd>
-                    </dl>
+                    <div v-show="!showList">
+                        <dl v-for="item in thread.messages">
+                            <dt :id="'MESSAGE-'+item.num" :key="item.num">{{item.num}}:<span v-html="item.name"></span>[{{item.mail}}] {{item.date}} ID:{{item.id}}</dt>
+                            <dd v-html="replace(item.text)" class="aa" :key="item.num"></dd>
+                        </dl>
+                    </div>
+                    <div v-show="showList">
+                        <div v-for="item in thread.threadLists">
+                            <a v-bind:href="item.url" class="aa" v-on:click.prevent="setUrlFromShowList(item.url)">{{item.title}}</a>
+                        </div>
+                    </div>
                 </div>
             </main>
+            <!-- display -->
+            <!-- footer -->
+            <!--<footer class="mdl-mini-footer">
+                <input type="text" value="name" v-model="NAME"><input type="text" v-model="MAIL">
+                <textarea id="post" autocomplete="off" rows="3" v-model="MESSAGE"></textarea>
+                <button v-on:click="sendMessage()">send</button>
+            </footer>-->
+            <!-- footer -->
             <!-- display -->
         </div>
         <!-- fixed right menu -->
         <div class="fixed-menubar__right">
-            <button id="reloadTimerCountDown" class="mdl-button mdl-js-button mdl-button--raised mdl-button--default" v-bind:class="{ 'mdl-button--colored ':processing }" v-bind:disabled="!processing">
-                {{reloadTimerCountDown}}
-            </button>
-            <div class="mdl-tooltip mdl-tooltip--left mdl-tooltip--larg" data-mdl-for="reloadTimerCountDown">
-                データ取得タイマー
+            <button id="bookmark" class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored mdl-button--default">
+                {{thread.bookmark}}
+                </button>
+            <div class="mdl-tooltip mdl-tooltip--left mdl-tooltip--larg" data-mdl-for="bookmark">
+                表示中の番号
             </div>
             <button v-on:click="start()" id="start" v-bind:disabled="!validUrl" v-show="!processing" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent mdl-js-ripple-effect">
                 <i class="material-icons">play_arrow</i>
@@ -146,21 +161,10 @@
             <div class="mdl-tooltip mdl-tooltip--left mdl-tooltip--larg" data-mdl-for="latest">
                 最新まで移動
             </div>
-            <button id="bookmark" class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored mdl-button--default">
-                {{thread.bookmark}}
-                </button>
-            <div class="mdl-tooltip mdl-tooltip--left mdl-tooltip--larg" data-mdl-for="bookmark">
-                表示中の番号
-            </div>
+
             <button class="mdl-button mdl-js-button" disabled>
                          
             </button>
-            <button id="provideTimerLimitCountDown" class="mdl-button mdl-js-button mdl-button--raised mdl-button--default" v-bind:class="{ 'mdl-button--colored ':processing }" v-bind:disabled="!processing">
-                {{provideTimerLimitCountDown}}
-            </button>
-            <div class="mdl-tooltip mdl-tooltip--left mdl-tooltip--larg" data-mdl-for="provideTimerLimitCountDown">
-                読み上げタイマー
-            </div>
             <button v-on:click="cnangeAutoScroll()" id="autoScrollOn" v-show="!autoScroll" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent mdl-js-ripple-effect">
                   <i class="material-icons">arrow_drop_down</i>
             </button>
@@ -179,16 +183,17 @@
             <div class="mdl-tooltip mdl-tooltip--left mdl-tooltip--larg" data-mdl-for="dummyTextButton">
                 字幕用テキストを設定
             </div>
-            <button v-on:click="showListWindow()" id="list" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent mdl-js-ripple-effect">
-                 <i class="material-icons">message</i>
+            <button v-on:click="flipShowListMode()" id="showList" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent mdl-js-ripple-effect">
+                 <i v-show="!showList" class="material-icons">view_list</i>
+                 <i v-show="showList"  class="material-icons">arrow_back</i>
             </button>
-            <div class="mdl-tooltip mdl-tooltip--left mdl-tooltip--larg" data-mdl-for="list">
-                一覧表示
+            <div class="mdl-tooltip mdl-tooltip--left mdl-tooltip--larg" data-mdl-for="showList">
+                {{showList?"戻る":"一覧"}}
             </div>
         </div>
         <!-- fixed right menu -->
         <!-- snack bar -->
-        <div id="demo-snackbar-example" class="mdl-js-snackbar mdl-snackbar">
+        <div id="snackbar" class="mdl-js-snackbar mdl-snackbar">
             <div class="mdl-snackbar__text"></div>
             <button class="mdl-snackbar__action" type="button"></button>
         </div>
@@ -208,13 +213,6 @@
             </div>
         </dialog>
         <!-- dummytext dialog -->
-        <dialog class="mdl-dialog" id="listwindow">
-            <div class="mdl-dialog__content">
-            </div>
-            <div class="mdl-dialog__actions mdl-dialog__actions--full-width">
-                <button type="button" class="mdl-button close">閉じる</button>
-            </div>
-        </dialog>
     </div>
     <!--<div id="loading" class="aa"><br/> 　　　　　　 ／ﾌﾌ 　　　　　　 　ム｀ヽ<br/> 　　　　　　/ ノ)　 ∧＿∧　　　　）　ヽ<br/> 　　　　　ﾞ/ ｜　　(´・ω・`）ノ⌒（ゝ._,ノ Now loading....<br/> 　　　　　/　ﾉ⌒7⌒ヽーく　 ＼　／<br/> 　　　　　丶＿ ノ ｡　　 ノ､　　｡|/<br/> 　　　　　　　 `ヽ `ー-'_人`ーﾉ　<br/> 　　　　　　　　 丶 ￣ _人'彡ﾉ<br/> 　　　　　　　　　ﾉ　　r'十ヽ/
         <br/> 　　　　　　　／｀ヽ _/　十∨<br/>

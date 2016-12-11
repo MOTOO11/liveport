@@ -4,6 +4,7 @@ export abstract class DataSource {
     url: string = "";
     bookmark: number = 0;
     title: string = "";
+    threadLists: ThreadList[] = [];
     constructor(url: string) {
         this.url = url;
     }
@@ -61,7 +62,7 @@ export abstract class DataSource {
         });
     }
 
-    abstract sendMessage(success: () => void, failed: (err: any) => void);
+    abstract sendMessage(message:any,success: () => void, failed: (err: any) => void);
     abstract getLists(success: () => void, failed: (err: any) => void);
 
     save() {
@@ -87,5 +88,5 @@ export abstract class DataSource {
 export class ThreadList {
     title = "";
     url = "";
-    name="";
+    key = "";
 }

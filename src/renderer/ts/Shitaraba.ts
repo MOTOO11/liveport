@@ -64,18 +64,24 @@ export class Shitaraba extends DataSource {
         return resArray.length;
     }
     listUrl = "";
-    threadList: ThreadList[] = [];
-    getLists(success: () => void, failed: (err: any) => void) {
-        if (!this.listUrl) {
+    setThreadDetails() {
+        if (!this.listUrl && !this.sendUrl) {
             var matches = this.url.match(SHITARABA_REGEX);
             this.listUrl = `http://jbbs.shitaraba.net/${matches[1]}/${matches[2]}/subject.txt`;
+            this.DIR = matches[1];
+            this.BBS = matches[2];
+            this.sendUrl = `http://jbbs.shitaraba.net/bbs/write.cgi/${this.DIR}/${this.BBS}/${this.KEY}`;
         }
+    }
+    getLists(success: () => void, failed: (err: any) => void) {
+        this.setThreadDetails();
+        this.threadLists = [];
         console.log("request list url : " + this.listUrl);
         rp({ url: this.listUrl, encoding: null, timeout: 8000 })
             .then((htmlString) => {
                 console.log("request result : ok!");
                 var decoding = iconv.decode(htmlString, "EUC-JP")
-                let NewArrivals = this.list2Json(decoding);
+                let NewArrivals = this.data2Lists(decoding);
                 success();
             })
             .catch((err) => {
@@ -84,35 +90,60 @@ export class Shitaraba extends DataSource {
                 failed(err);
             });
     }
-    list2Json(value: string) {
-        var line = value.split(NEWLINE_SPLITTER);
-        let pattern = new RegExp(/(\n){10}\.cgi,(\w+)/, "ig");
-        line.forEach(element => {
-            let match = element.match(pattern);
-            var l = new ThreadList();
-            l.url = match[0];
-            l.title = match[1];
-            this.threadList.push(l);
-        });
-        //1480790278.cgi,ガンジー205(739)
-        this.threadList.sort((n1, n2) => {
-            if (n1.name < n2.name) {
-                return -1;
-            }
-            if (n1.name > n2.name) {
-                return 1;
-            }
-            return 0;
-        });
-    }
-
-
     data2Lists(value: string) {
-
+        var line = value.split(NEWLINE_SPLITTER);
+        for (var i = 0; i < line.length - 1; i++) {
+            let pattern = new RegExp(/(\d{10})\.cgi,(.+)/, "ig");
+            let match = pattern.exec(line[i]);
+            var l = new ThreadList();
+            l.key = match[1];
+            l.title = match[2];
+            l.url = `http://jbbs.shitaraba.net/bbs/read.cgi/${this.DIR}/${this.BBS}/${l.key}/`;
+            this.threadLists.push(l);
+        }
     }
-    sendMessage(success: () => void, failed: (err: any) => void) {
-        var matches = this.url.match(SHITARABA_REGEX);
-        var sendUrl = `http://jbbs.shitaraba.net/bbs/write.cgi/${matches[1]}/${matches[2]}/${matches[3]}/`;
+
+    BBS = "";
+    KEY = "";
+    DIR = "";
+    sendUrl = "";
+    sendMessage(message: { MESSAGE: string, NAME: string, MAIL: string }, success: () => void, failed: (err: any) => void) {
+        this.setThreadDetails();
+        console.log("send url : " + this.sendUrl);
+        // message.NAME = iconv.decode(new Buffer(message.NAME, "UTF-8"), "EUC-JP").toString();
+        // message.MESSAGE = iconv.decode(new Buffer(message.MESSAGE, "UTF-8"), "EUC-JP").toString();
+        // message.MAIL = iconv.decode(new Buffer(message.MAIL, "UTF-8"), "EUC-JP").toString();
+        const option = {
+            url: this.sendUrl,  timeout: 8000,
+            // form: {
+            //     DIR: this.DIR, BBS: this.BBS, KEY: this.KEY,
+            //     NAME: message.NAME, MAIL: message.MAIL, MESSAGE: message.MESSAGE
+            // },
+            form: {
+                DIR: this.DIR, BBS: this.BBS, KEY: this.KEY,
+                NAME: "", MAIL: "", MESSAGE: "message"
+            }
+        };
+
+        // let form = "NAME="+ 
+        rp.post(option)
+            .then((htmlString) => {
+                console.log("send result : ok!");
+                var decoding = iconv.decode(htmlString, "EUC-JP")
+                // <b>\n(.+)\n.+\n.+\n(.+)\n.*<\/b>
+                let errorPattern = new RegExp(/<b>\n(.+)\n.+\n.+\n(.+)\n.*<\/b>/, "ig")
+                //ERROR!! 
+                let match = decoding.match(errorPattern);
+                if (match) {
+                    failed(`${match[2]}`);
+                }
+                success();
+            })
+            .catch((err) => {
+                console.log("error...");
+                console.log(err);
+                failed(err);
+            });
     }
 
     static isValidURL(url: string): boolean {

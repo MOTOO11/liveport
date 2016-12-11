@@ -121,7 +121,7 @@ export class CaveTube extends DataSource {
     }
     data2Lists(value: string) {
     }
-    sendMessage(success: () => void, failed: (err: any) => void) {
+    sendMessage(message:any,success: () => void, failed: (err: any) => void) {
         failed("未実装");
     }
 

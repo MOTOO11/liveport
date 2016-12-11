@@ -45,10 +45,12 @@ export default class Application extends Vue {
 
     startThreadRequest() {
         if (!this.processing) return;
+        this.snackbar({ message: "データ取得開始", timeout: 1000 });
         this.reloadTimerCountDown = this.reload;
         this.thread.request(
             (newArrival: number) => {
                 Logger.log("request success", newArrival.toString());
+                this.snackbar({ message: "新着レス：" + newArrival });
                 this.setRequestTimer();
             },
             (err: any) => {
@@ -175,6 +177,7 @@ export default class Application extends Vue {
         if (!this.validate()) {
             return;
         }
+        this.showList = false;
         this.loadUrlSource(false);
 
         this.thread.request(
@@ -229,14 +232,42 @@ export default class Application extends Vue {
             dialog.close();
         });
     }
-
-    showListWindow() {
-        var dialog: any = document.querySelector("#listwindow");
-        dialog.showModal();
-        dialog.querySelector('.close').addEventListener('click', () => {
-            dialog.close();
+    getLists() {
+        this.snackbar({ message: "一覧の読み込みを開始", timeout: 1000 });
+        this.thread.getLists(() => {
+            this.snackbar({ message: "一覧の読み込みに成功", timeout: 1000 });
+        }, (err) => {
+            this.snackbar({ message: err, timeout: 6000 });
         });
     }
+
+    flipShowListMode() {
+        if (!this.showList) this.getLists();
+        this.showList = !this.showList;
+    }
+    showList = false;
+
+    setUrlFromShowList(url: string) {
+        this.url = url;
+        this.loadUrlSource();
+        this.requestOnce();
+    }
+
+    sendMessage() {
+        console.log("send");
+        if(!this.MESSAGE)return;
+        const message = {
+            NAME: this.NAME, MAIL: this.MAIL, MESSAGE: this.MESSAGE
+        }
+        this.thread.sendMessage(message, () => {
+            this.MESSAGE = "";
+        }, (err) => {
+            this.snackbar({ message: err });
+        });
+    }
+    MAIL = "";
+    NAME = "";
+    MESSAGE = "";
 
     replace(msg: string) {
         var utl = StringUtil.urlToLink(msg);
@@ -249,7 +280,7 @@ export default class Application extends Vue {
     }
 
     snackbar(data: { message: string, timeout?: number } = { message: "info", timeout: 3000 }) {
-        var snackbarContainer: any = document.querySelector('#demo-snackbar-example');
+        var snackbarContainer: any = document.querySelector('#snackbar');
         // var handler = function (event) {
         //     Logger.log("snackbar", "");
         // };
@@ -328,7 +359,8 @@ export default class Application extends Vue {
             + this.pManager.vParam.use
             + this.playingNotificationSound
             + this.reload + this.provideTimeLimit + this.pManager.reading
-            + this.path + this.pManager.voice;
+            + this.path + this.pManager.voice
+            + this.NAME + this.MAIL;
     }
 
     loadSettings() {
@@ -345,6 +377,8 @@ export default class Application extends Vue {
                     this.loadUrlSource();
                 this.setTitleWithTimer();
             };
+            this.NAME = settings.NAME;
+            this.MAIL = settings.MAIL;
             this.playingNotificationSound = Boolean(settings.playingNotificationSound);
             this.autoScroll = Boolean(settings.autoScroll);
             this.pManager.vParam.volume = Number(settings.volume);
@@ -387,7 +421,9 @@ export default class Application extends Vue {
             path: this.path,
             voice: this.pManager.voice,
             playingNotificationSound: this.playingNotificationSound,
-            dummyText: this.dummyText
+            dummyText: this.dummyText,
+            MAIL: this.MAIL,
+            NAME: this.NAME
         }));
     };
 
