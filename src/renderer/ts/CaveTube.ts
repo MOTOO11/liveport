@@ -118,15 +118,15 @@ export class CaveTube extends DataSource {
         //         console.log(err);
         //         failed(err);
         //     });
-        failed("未実装");
+        failed("未実装です");
     }
     createListUsrl(): string {
         return "";
     }
     data2Lists(value: string) {
     }
-    sendMessage(message: any, success: () => void, failed: (err: any) => void) {
-        failed("未実装");
+    sendMessage(message: any, success: (result: string) => void, failed: (err: any) => void) {
+        failed("未実装です");
     }
 
     static isValidURL(url: string): boolean {

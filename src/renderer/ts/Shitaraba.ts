@@ -2,10 +2,12 @@
 import * as rp from "request-promise";
 import * as  iconv from "iconv-lite";
 import Message from "./Message";
+import * as encoding from "encoding-japanese";
 import { DataSource, ThreadList } from "./DataSource";
 const SHITARABA_REGEX = new RegExp(/http:\/\/jbbs.shitaraba.net\/bbs\/read.cgi\/(\w+)\/(\d+)\/(\d+)\/.*/);
 const RES_SPLITTER = new RegExp(/<>/g);
 const NEWLINE_SPLITTER = new RegExp(/\n/g);
+const DEFAULT_TIMEOUT = 10000;
 
 export class Shitaraba extends DataSource {
     request(success: (number) => void, failed: (err: any) => void) {
@@ -20,7 +22,7 @@ export class Shitaraba extends DataSource {
         var matches = this.url.match(SHITARABA_REGEX);
         var datUrl = `http://jbbs.shitaraba.net/bbs/rawmode.cgi/${matches[1]}/${matches[2]}/${matches[3]}/` + (this.messages.length + 1) + "-";
         console.log("request dat url : " + datUrl);
-        rp({ url: datUrl, encoding: null, timeout: 8000 })
+        rp({ url: datUrl, encoding: null, timeout: DEFAULT_TIMEOUT })
             .then((htmlString) => {
                 console.log("request result : ok!");
                 var decoding = iconv.decode(htmlString, "EUC-JP")
@@ -30,7 +32,13 @@ export class Shitaraba extends DataSource {
             .catch((err) => {
                 console.log("error...");
                 console.log(err);
-                failed(err);
+                if (!err.statusCode) {
+                    console.log("send request timeout");
+                    failed("タイムアウトしました");
+                    return;
+                }
+                failed("取得に失敗しました");
+                return;
             });
     }
     // 新着レスが有る場合はその数を返す
@@ -51,7 +59,7 @@ export class Shitaraba extends DataSource {
             res.date = r[3];
             res.text = r[4];
             res.title = r[5];
-            res.latest=true;
+            res.latest = true;
             if (res.title) {
                 this.title = res.title;
                 console.log("new thread title : " + res.title);
@@ -74,14 +82,15 @@ export class Shitaraba extends DataSource {
             this.listUrl = `http://jbbs.shitaraba.net/${matches[1]}/${matches[2]}/subject.txt`;
             this.DIR = matches[1];
             this.BBS = matches[2];
-            this.sendUrl = `http://jbbs.shitaraba.net/bbs/write.cgi/${this.DIR}/${this.BBS}/${this.KEY}`;
+            this.KEY = matches[3];
+            this.sendUrl = `http://jbbs.shitaraba.net/bbs/write.cgi/${this.DIR}/${this.BBS}/${this.KEY}/`;
         }
     }
     getLists(success: () => void, failed: (err: any) => void) {
         this.setThreadDetails();
         this.threadLists = [];
         console.log("request list url : " + this.listUrl);
-        rp({ url: this.listUrl, encoding: null, timeout: 8000 })
+        rp({ url: this.listUrl, encoding: null, timeout: DEFAULT_TIMEOUT })
             .then((htmlString) => {
                 console.log("request result : ok!");
                 var decoding = iconv.decode(htmlString, "EUC-JP")
@@ -91,7 +100,12 @@ export class Shitaraba extends DataSource {
             .catch((err) => {
                 console.log("error...");
                 console.log(err);
-                failed(err);
+                if (!err.statusCode) {
+                    console.log("send request timeout");
+                    failed("タイムアウトしました");
+                    return;
+                }
+                failed("取得に失敗しました");
             });
     }
     data2Lists(value: string) {
@@ -111,57 +125,59 @@ export class Shitaraba extends DataSource {
     KEY = "";
     DIR = "";
     sendUrl = "";
-    sendMessage(message: { MESSAGE: string, NAME: string, MAIL: string }, success: () => void, failed: (err: any) => void) {
+
+    urlEncodeUtf8ToEuc = (string) => {
+        string = iconv.encode(string, "EUC=JP")
+        return encoding.urlEncode(string)
+    }
+
+    sendMessage(message: { MESSAGE: string, NAME: string, MAIL: string }, success: (result: string) => void, failed: (err: any) => void) {
         this.setThreadDetails();
         console.log("send url : " + this.sendUrl);
-        // message.NAME = iconv.decode(new Buffer(message.NAME, "UTF-8"), "EUC-JP").toString();
-        // message.MESSAGE = iconv.decode(new Buffer(message.MESSAGE, "UTF-8"), "EUC-JP").toString();
-        // message.MAIL = iconv.decode(new Buffer(message.MAIL, "UTF-8"), "EUC-JP").toString();
+        let form = 'BBS=' + this.urlEncodeUtf8ToEuc(this.BBS) +
+            '&KEY=' + this.urlEncodeUtf8ToEuc(this.KEY) +
+            '&DIR=' + this.urlEncodeUtf8ToEuc(this.DIR) +
+            '&MESSAGE=' + this.urlEncodeUtf8ToEuc(message.MESSAGE) +
+            '&MAIL=' + this.urlEncodeUtf8ToEuc(message.MAIL) +
+            '&NAME=' + this.urlEncodeUtf8ToEuc(message.NAME);
         const option = {
-            url: this.sendUrl, encoding: null, timeout: 8000,
-            // form: {
-            //     DIR: this.DIR, BBS: this.BBS, KEY: this.KEY,
-            //     NAME: message.NAME, MAIL: message.MAIL, MESSAGE: message.MESSAGE
-            // },
-            form: {
-                DIR: this.DIR, BBS: this.BBS, KEY: this.KEY,
-                NAME: "", MAIL: "", MESSAGE: "message"
-            }
+            url: this.sendUrl, encoding: null, timeout: DEFAULT_TIMEOUT,
+            headers: {
+                referer: "http://jbbs.shitaraba.net/bbs/read.cgi/netgame/12802/1481207144/"
+            },
+            form: form
         };
 
-        // let form = "NAME="+ 
         rp.post(option)
             .then((htmlString) => {
                 console.log("send result : ok!");
                 var decoding = iconv.decode(htmlString, "EUC-JP")
-                // <b>\n(.+)\n.+\n.+\n(.+)\n.*<\/b>
-                let errorPattern = new RegExp(/<b>\n(.+)\n.+\n.+\n(.+)\n.*<\/b>/, "ig")
-                //ERROR!! 
-                let match = decoding.match(errorPattern);
-                if (match) {
-                    failed(`${match[2]}`);
-                }
-                success();
+                let pattern = new RegExp(/<title>(.+)<\/title>/, "ig");
+                let match = pattern.exec(decoding);
+                success(match[1]);
             })
             .catch((err) => {
                 console.log("error...");
-                console.log(err);
-                failed(err);
+                if (!err.statusCode) {
+                    console.log("send request timeout");
+                    failed("タイムアウトしました");
+                    return;
+                }
+                console.log(err.statusCode);
+                let pattern = new RegExp(/(\{.+\})/, "ig");
+                let match = err.message.match(pattern);
+                let data = JSON.parse(match).data;
+                let buffer = new Buffer(data);
+                let decoding = iconv.decode(buffer, "EUC-JP")
+                pattern = new RegExp(/[ ]+(.+)\n[ ]+<br>\n.+<br>\n[ ]+(.+)/, "ig");
+                match = pattern.exec(decoding);
+                failed(match[1] + ":" + match[2]);
             });
     }
 
     static isValidURL(url: string): boolean {
         return SHITARABA_REGEX.test(url);
     }
-}
-
-export class Send {
-    BBS = "";
-    KEY = "";
-    DIR = "";
-    NAME = "";
-    MAIL = "";
-    MESSAGE = "";
 }
 
 export default Shitaraba;

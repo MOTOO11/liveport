@@ -33,7 +33,8 @@
 */
 
 #snackbar {
-    left: 75%;
+    right: 0;
+    z-index: 999;
 }
 
 #loading {
@@ -98,10 +99,34 @@ body {
     position: fixed;
     display: block;
     right: 0;
-    top: 100px;
+    top: 80px;
     width: 6em;
     margin-right: 20px;
     z-index: 900;
+}
+
+.fixed-commentbar {
+    position: fixed;
+    display: block;
+    right: 0;
+    bottom: 10px;
+    width: 300px;
+    margin-right: 20px;
+    z-index: 800;
+    padding: 10px;
+    background-color:floralwhite;
+    .toolbar {
+        display: inline-block;
+        input,
+        button,
+        label {
+            width: 20%;
+            margin: 5px;
+        }
+    }
+    textarea {
+        width: 100%;
+    }
 }
 
 .mdl-button--default {

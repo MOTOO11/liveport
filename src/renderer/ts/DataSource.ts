@@ -62,7 +62,7 @@ export abstract class DataSource {
         });
     }
 
-    abstract sendMessage(message:any,success: () => void, failed: (err: any) => void);
+    abstract sendMessage(message:any,success: (result:string) => void, failed: (err: any) => void);
     abstract getLists(success: () => void, failed: (err: any) => void);
 
     save() {

@@ -182,7 +182,7 @@ export default class Application extends Vue {
         if (!this.validate()) {
             return;
         }
-        this.showList = false;
+        this.showListView = false;
         this.loadUrlSource(false);
 
         this.thread.request(
@@ -247,10 +247,10 @@ export default class Application extends Vue {
     }
 
     flipShowListMode() {
-        if (!this.showList) this.getLists();
-        this.showList = !this.showList;
+        if (!this.showListView) this.getLists();
+        this.showListView = !this.showListView;
     }
-    showList = false;
+    showListView = false;
 
     setUrlFromShowList(url: string) {
         this.url = url;
@@ -259,20 +259,27 @@ export default class Application extends Vue {
     }
 
     sendMessage() {
-        console.log("send");
-        if (!this.MESSAGE) return;
+        console.log("start send request");
+        if (!this.comment.MESSAGE) return;
         const message = {
-            NAME: this.NAME, MAIL: this.MAIL, MESSAGE: this.MESSAGE
+            NAME: this.comment.NAME, MAIL: this.comment.MAIL, MESSAGE: this.comment.MESSAGE
         }
-        this.thread.sendMessage(message, () => {
-            this.MESSAGE = "";
+        this.thread.sendMessage(message, (result: string) => {
+            this.snackbar({ message: result });
+            this.comment.MESSAGE = "";
         }, (err) => {
             this.snackbar({ message: err });
         });
     }
-    MAIL = "";
-    NAME = "";
-    MESSAGE = "";
+    showCommentView = false;
+    flipCommentMode() {
+        this.showCommentView = !this.showCommentView;
+    }
+    comment = {
+        MAIL: "",
+        NAME: "",
+        MESSAGE: ""
+    }
 
     replace(msg: string) {
         var utl = StringUtil.urlToLink(msg);
@@ -365,7 +372,7 @@ export default class Application extends Vue {
             + this.playingNotificationSound
             + this.reload + this.provideTimeLimit + this.pManager.reading
             + this.path + this.pManager.voice
-            + this.NAME + this.MAIL;
+            + this.comment.NAME + this.comment.MAIL;
     }
 
     loadSettings() {
@@ -382,8 +389,8 @@ export default class Application extends Vue {
                     this.loadUrlSource();
                 this.setTitleWithTimer();
             };
-            this.NAME = settings.NAME;
-            this.MAIL = settings.MAIL;
+            this.comment.NAME = settings.NAME;
+            this.comment.MAIL = settings.MAIL;
             this.playingNotificationSound = Boolean(settings.playingNotificationSound);
             this.autoScroll = Boolean(settings.autoScroll);
             this.pManager.vParam.volume = Number(settings.volume);
@@ -427,8 +434,8 @@ export default class Application extends Vue {
             voice: this.pManager.voice,
             playingNotificationSound: this.playingNotificationSound,
             dummyText: this.dummyText,
-            MAIL: this.MAIL,
-            NAME: this.NAME
+            MAIL: this.comment.MAIL,
+            NAME: this.comment.NAME
         }));
     };
 

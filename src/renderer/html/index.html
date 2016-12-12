@@ -112,13 +112,14 @@
             <!-- display -->
             <main class="mdl-layout__content" v-bind:style="CSS.body">
                 <div class="viewer__showThread">
-                    <div v-show="!showList">
+                    <div v-show="!showListView">
                         <dl v-for="item in thread.messages" v-bind:style="CSS.res">
-                            <dt v-bind:style="CSS.header" :id="'MESSAGE-'+item.num" :key="item.num"><span v-bind:class="[item.latest ? 'num--new':'']" v-bind:style="CSS.num">{{item.num}}</span>:<span v-html="item.name" v-bind:style="CSS.name"></span><span v-bind:style="CSS.mail">[{{item.mail}}]</span> <span v-bind:style="CSS.date">{{item.date}}</span> <span v-bind:style="CSS.id">ID:{{item.id}}</span></dt>
+                            <dt v-bind:style="CSS.header" :id="'MESSAGE-'+item.num" :key="item.num"><span v-bind:class="[item.latest ? 'num--new':'']" v-bind:style="CSS.num">{{item.num}}</span>:
+                                <span v-html="item.name" v-bind:style="CSS.name"></span><span v-bind:style="CSS.mail">[{{item.mail}}]</span>                                <span v-bind:style="CSS.date">{{item.date}}</span> <span v-bind:style="CSS.id">ID:{{item.id}}</span></dt>
                             <dd v-html="replace(item.text)" v-bind:style="CSS.message" class="aa" :key="item.num"></dd>
                         </dl>
                     </div>
-                    <div v-show="showList">
+                    <div v-show="showListView">
                         <div v-for="item in thread.threadLists">
                             <a v-bind:href="item.url" class="aa" v-on:click.prevent="setUrlFromShowList(item.url)">{{item.title}}</a>
                         </div>
@@ -164,10 +165,6 @@
             <div class="mdl-tooltip mdl-tooltip--left mdl-tooltip--larg" data-mdl-for="latest">
                 最新まで移動
             </div>
-
-            <button class="mdl-button mdl-js-button" disabled>
-                         
-            </button>
             <button v-on:click="cnangeAutoScroll()" id="autoScrollOn" v-show="!autoScroll" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent mdl-js-ripple-effect">
                   <i class="material-icons">arrow_drop_down</i>
             </button>
@@ -180,6 +177,10 @@
             <div class="mdl-tooltip mdl-tooltip--left mdl-tooltip--larg" data-mdl-for="autoScrollOff">
                 オートスクロールOFF
             </div>
+
+            <button class="mdl-button mdl-js-button" disabled>
+                         
+            </button>
             <button v-on:click="showDummyTextWindow()" id="dummyTextButton" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent mdl-js-ripple-effect">
                  <i class="material-icons">message</i>
             </button>
@@ -187,14 +188,32 @@
                 字幕用テキストを設定
             </div>
             <button v-on:click="flipShowListMode()" id="showList" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent mdl-js-ripple-effect">
-                 <i v-show="!showList" class="material-icons">view_list</i>
-                 <i v-show="showList"  class="material-icons">arrow_back</i>
+                 <i v-show="!showListView" class="material-icons">view_list</i>
+                 <i v-show="showListView"  class="material-icons">arrow_back</i>
             </button>
             <div class="mdl-tooltip mdl-tooltip--left mdl-tooltip--larg" data-mdl-for="showList">
-                {{showList?"戻る":"一覧"}}
+                {{showListView?"戻る":"一覧"}}
+            </div>
+            <button v-on:click="flipCommentMode()" id="commentButton" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent mdl-js-ripple-effect">
+                 <i v-show="!showCommentView" class="material-icons">send</i>
+                 <i v-show="showCommentView"  class="material-icons">close</i>
+            </button>
+            <div class="mdl-tooltip mdl-tooltip--left mdl-tooltip--larg" data-mdl-for="commentButton">
+                {{showCommentView?"閉じる":"表示"}}
             </div>
         </div>
         <!-- fixed right menu -->
+        <!-- fiexed comment bar -->
+        <div v-show="showCommentView">
+            <div class="fixed-commentbar">
+                <textarea id="post" autocomplete="off" rows="3" v-model="comment.MESSAGE"></textarea>
+                <div class="toolbar">
+                    <label>名前:</label><input type="text" value="name" v-model="comment.NAME"><label>mail:</label><input type="text" v-model="comment.MAIL"><button v-on:click="sendMessage()">送信</button>
+                </div>
+            </div>
+        </div>
+        <!-- fiexed comment bar -->
+        <!-- footer -->
         <!-- snack bar -->
         <div id="snackbar" class="mdl-js-snackbar mdl-snackbar">
             <div class="mdl-snackbar__text"></div>
