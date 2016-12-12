@@ -15,6 +15,7 @@ import { remote } from "electron";
 const ApplicatonName = require("../../../package.json").name
 const VERSION = require("../../../package.json").version
 import * as $ from "jquery"
+import * as fs from "fs";
 const SETTINGS = "settings";
 
 @Component({})
@@ -166,9 +167,21 @@ export default class Application extends Vue {
             this.snackbar(warn);
             return false;
         }
+        if (
+            (/.*\vrx.exe$/.test(this.path) && (this.pManager.voice === VOICE.SOFTALK)) ||
+            (/.*\SofTalk.exe$/.test(this.path) && (this.pManager.voice === VOICE.TAMIYASU))
+            ){
+            let warn = {
+                message: "WARN : 読み上げソフトの指定を間違っている可能性があります"
+            }
+            this.snackbar(warn);
+        }
 
         if (!this.isValidURL()) {
-            Logger.log("invalid url", "not supported url.");
+            let warn = {
+                message: "ERROR : 対応していないURLです"
+            }
+            this.snackbar(warn);
             return false;
         }
         return true;
@@ -358,11 +371,6 @@ export default class Application extends Vue {
         });
     }
 
-    existsSofTalkPath() {
-        if (this.path == "")
-            this.findSofTalkPathDialog();
-    }
-
     get settings() {
         return this.url + this.dummyText + this.autoScroll
             + this.pManager.vParam.volume
@@ -441,8 +449,7 @@ export default class Application extends Vue {
 
     @Watch("settings")
     onSettingsChange(newValue: number, oldValue: number) {
-        this.saveSettings()
-        var settings = JSON.parse(localStorage.getItem(SETTINGS));
+        this.saveSettings();
     }
 
     version = VERSION;
@@ -473,10 +480,29 @@ export default class Application extends Vue {
 
     playingNotificationSound: boolean = false;
     notificationSound(callback: () => void) {
+        var path = "";
+        let audioDirPath = "./build/assets/audio/";
+        fs.readdir(audioDirPath, (err, files) => {
+            if (err) { }
+            var fileList = [];
+            files.filter((file) => {
+                return fs.statSync(audioDirPath + file).isFile() && /.*\.mp3$/.test(file); //絞り込み
+            }).forEach((file) => {
+                fileList.push(file);
+            });
+            if (fileList.length > 0) {
+                console.log("1 : " + fileList[0])
+                path = fileList[Math.floor(Math.random() * fileList.length)];
+            }
+            if (!path) {
+                callback();
+                return;
+            }
+            let audio = new Audio("../../assets/audio/" + path);
+            audio.onended = callback;
+            audio.play();
+        });
         let defaultNotificationSound = "../../assets/audio/notification.mp3";
-        let audio = new Audio(defaultNotificationSound);
-        audio.onended = callback;
-        audio.play();
     }
 
     clearDataSource() {
