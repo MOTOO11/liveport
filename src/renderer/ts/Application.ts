@@ -100,7 +100,7 @@ export default class Application extends Vue {
         if (!this.processing) return;
         this.provideTimerLimitCountDown = this.provideTimeLimit;
         let provide = () => {
-            if(!this.processing)return;
+            if (!this.processing) return;
             let target = this.thread.messages[this.thread.bookmark];
             let tmpLetter = LETTER.split("$1");
             let letter = tmpLetter.length > 1 ?
@@ -171,7 +171,7 @@ export default class Application extends Vue {
         if (
             (/.*\vrx.exe$/.test(this.path) && (this.pManager.voice === VOICE.SOFTALK)) ||
             (/.*\SofTalk.exe$/.test(this.path) && (this.pManager.voice === VOICE.TAMIYASU))
-            ){
+        ) {
             let warn = {
                 message: "WARN : 読み上げソフトの指定を間違っている可能性があります"
             }
@@ -275,6 +275,9 @@ export default class Application extends Vue {
     sendMessage() {
         console.log("start send request");
         if (!this.comment.MESSAGE) return;
+        if (this.url != this.thread.url) {
+            this.loadUrlSource();
+        }
         const message = {
             NAME: this.comment.NAME, MAIL: this.comment.MAIL, MESSAGE: this.comment.MESSAGE
         }

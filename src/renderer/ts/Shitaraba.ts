@@ -76,6 +76,11 @@ export class Shitaraba extends DataSource {
         return resArray.length;
     }
     listUrl = "";
+    constructor(url: string) {
+        super(url);
+        if (Shitaraba.isValidURL(url))
+            this.setThreadDetails();
+    }
     setThreadDetails() {
         if (!this.listUrl && !this.sendUrl) {
             var matches = this.url.match(SHITARABA_REGEX);

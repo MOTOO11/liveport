@@ -208,7 +208,7 @@
             <div class="fixed-commentbar">
                 <textarea id="post" autocomplete="off" rows="3" v-model="comment.MESSAGE"></textarea>
                 <div class="toolbar">
-                    <label>名前:</label><input type="text" value="name" v-model="comment.NAME"><label>mail:</label><input type="text" v-model="comment.MAIL"><button v-on:click="sendMessage()">送信</button>
+                    <label>名前:</label><input type="text" value="name" v-model="comment.NAME"><label>mail:</label><input type="text" v-model="comment.MAIL"><button v-on:click="sendMessage()" v-bind:disabled="!validUrl">送信</button>
                 </div>
             </div>
         </div>
