@@ -100,6 +100,7 @@ export default class Application extends Vue {
         if (!this.processing) return;
         this.provideTimerLimitCountDown = this.provideTimeLimit;
         let provide = () => {
+            if(!this.processing)return;
             let target = this.thread.messages[this.thread.bookmark];
             let tmpLetter = LETTER.split("$1");
             let letter = tmpLetter.length > 1 ?
