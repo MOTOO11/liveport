@@ -160,7 +160,7 @@ export default class Application extends Vue {
     }
 
     validate(): boolean {
-        if (this.usePath() && this.path === "" && this.pManager.reading && this.processing === true) {
+        if (this.usingPath() && this.path === "" && this.pManager.reading && this.processing === true) {
             let warn = {
                 message: "ERROR : pathが設定されていません。"
             }
@@ -187,7 +187,7 @@ export default class Application extends Vue {
         return true;
     }
 
-    usePath(): boolean {
+    usingPath(): boolean {
         return this.pManager.voice === VOICE.SOFTALK || this.pManager.voice === VOICE.TAMIYASU;
     }
     // refresh
