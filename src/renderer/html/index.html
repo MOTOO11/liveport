@@ -22,7 +22,7 @@
                 <div class="mdl-layout__header-row">
                     <span class="mdl-layout-title">
                         <div class="mdl-textfield mdl-js-textfield mdl-textfield--url">
-                            <input type="text" v-on:keyup.enter="requestOnce" class="mdl-textfield__input" v-model="url" v-bind:disabled="processing" id="url" />
+                            <input type="text" v-on:keyup.enter="requestOnce(false)" class="mdl-textfield__input" v-model="url" v-bind:disabled="processing" id="url" />
                             <label class="mdl-textfield__label" for="url">URL.....</label>
                         </div>
                     </span>
@@ -115,7 +115,12 @@
                     <div v-show="!showListView">
                         <dl v-for="item in thread.messages" v-bind:style="CSS.res">
                             <dt v-bind:style="CSS.header" :id="'MESSAGE-'+item.num" :key="item.num"><span v-bind:class="[item.latest ? 'num--new':'']" v-bind:style="CSS.num">{{item.num}}</span>:
-                                <span v-html="item.name" v-bind:style="CSS.name"></span><span v-bind:style="CSS.mail">[{{item.mail}}]</span>                                <span v-bind:style="CSS.date">{{item.date}}</span> <span v-bind:style="CSS.id">ID:{{item.id}}</span></dt>
+                                <span v-html="item.name" v-bind:style="CSS.name"></span>
+                                <span v-bind:style="CSS.mail">
+                                        <img v-bind:src="item.mail" class="mail--icon" v-if="isMailImg(item.mail)">
+                                        <span v-else>[{{item.mail}}]</span>
+                                </span>
+                                <span v-bind:style="CSS.date">{{item.date}}</span> <span v-bind:style="CSS.id" v-show="item.id">ID:{{item.id}}</span></dt>
                             <dd v-html="replace(item.text)" v-bind:style="CSS.message" class="aa" :key="item.num"></dd>
                         </dl>
                     </div>
@@ -141,13 +146,19 @@
         </div>
         <!-- fixed right menu -->
         <div class="fixed-menubar__right">
+            <button id="open" v-bind:disabled="!validUrl" v-on:click="openLink()" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent mdl-js-ripple-effect">
+                <i class="material-icons">open_in_browser</i>
+            </button>
+            <div class="mdl-tooltip mdl-tooltip--left mdl-tooltip--larg" data-mdl-for="open">
+                外部ブラウザで開く
+            </div>
             <button id="bookmark" class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored mdl-button--default">
                 {{thread.bookmark}}
                 </button>
             <div class="mdl-tooltip mdl-tooltip--left mdl-tooltip--larg" data-mdl-for="bookmark">
                 表示中の番号
             </div>
-            <button v-on:click="start()" id="start" v-bind:disabled="!validUrl" v-show="!processing" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent mdl-js-ripple-effect">
+            <button v-on:click="start()" id="start" v-bind:disabled="enabledControlls" v-show="!processing" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent mdl-js-ripple-effect">
                 <i class="material-icons">play_arrow</i>
             </button>
             <div class="mdl-tooltip mdl-tooltip--left mdl-tooltip--larg" data-mdl-for="start">
@@ -159,7 +170,7 @@
             <div class="mdl-tooltip mdl-tooltip--left mdl-tooltip--larg" data-mdl-for="stop">
                 停止
             </div>
-            <button v-on:click="latest()" id="latest" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent mdl-js-ripple-effect">
+            <button v-on:click="latest()" v-bind:disabled="enabledControlls" id="latest" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent mdl-js-ripple-effect">
                   <i class="material-icons">last_page</i>
             </button>
             <div class="mdl-tooltip mdl-tooltip--left mdl-tooltip--larg" data-mdl-for="latest">
@@ -177,7 +188,6 @@
             <div class="mdl-tooltip mdl-tooltip--left mdl-tooltip--larg" data-mdl-for="autoScrollOff">
                 オートスクロールOFF
             </div>
-
             <button class="mdl-button mdl-js-button" disabled>
                          
             </button>
@@ -194,12 +204,12 @@
             <div class="mdl-tooltip mdl-tooltip--left mdl-tooltip--larg" data-mdl-for="showList">
                 {{showListView?"戻る":"一覧"}}
             </div>
-            <button v-on:click="flipCommentMode()" id="commentButton" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent mdl-js-ripple-effect">
+            <button v-on:click="flipCommentMode()" id="commentButton" v-bind:disabled="enabledControlls" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent mdl-js-ripple-effect">
                  <i v-show="!showCommentView" class="material-icons">send</i>
                  <i v-show="showCommentView"  class="material-icons">close</i>
             </button>
             <div class="mdl-tooltip mdl-tooltip--left mdl-tooltip--larg" data-mdl-for="commentButton">
-                {{showCommentView?"閉じる":"表示"}}
+                {{showCommentView?"閉じる":"コメントフォーム表示"}}
             </div>
         </div>
         <!-- fixed right menu -->

@@ -99,7 +99,7 @@ export class Shitaraba extends DataSource {
             .then((htmlString) => {
                 console.log("request result : ok!");
                 var decoding = iconv.decode(htmlString, "EUC-JP")
-                let NewArrivals = this.data2Lists(decoding);
+                this.data2Lists(decoding);
                 success();
             })
             .catch((err) => {

@@ -59,8 +59,7 @@ export default class Application extends Vue {
             (err: any) => {
                 Logger.log("request failed", err);
                 let warn = {
-                    message: "ERROR : " + err,
-                    timeout: 6000
+                    message: "ERROR : " + err
                 }
                 this.snackbar(warn);
                 this.setRequestTimer();
@@ -192,22 +191,23 @@ export default class Application extends Vue {
         return this.pManager.voice === VOICE.SOFTALK || this.pManager.voice === VOICE.TAMIYASU;
     }
     // refresh
-    requestOnce() {
+    requestOnce(cache: boolean = false) {
         if (!this.validate()) {
             return;
         }
         this.showListView = false;
-        this.loadUrlSource(false);
-
+        this.loadUrlSource(cache);
+        if (cache) this.initScroll();
+        this.snackbar({ message: "読み込みを開始しました" });
         this.thread.request(
             (newArrival: number) => {
+                this.snackbar({ message: "読み込みに成功しました" });
                 Logger.log("request success", newArrival.toString());
             },
             (err: any) => {
                 Logger.log("request failed", err);
                 let warn = {
-                    message: "ERROR : " + err,
-                    timeout: 6000
+                    message: "ERROR : " + err
                 }
                 this.snackbar(warn);
             }
@@ -252,24 +252,29 @@ export default class Application extends Vue {
         });
     }
     getLists() {
+        this.showCommentView = false;
         this.snackbar({ message: "一覧の読み込みを開始", timeout: 1000 });
         this.thread.getLists(() => {
             this.snackbar({ message: "一覧の読み込みに成功", timeout: 1000 });
         }, (err) => {
-            this.snackbar({ message: err, timeout: 6000 });
+            this.snackbar({ message: err });
         });
     }
 
     flipShowListMode() {
         if (!this.showListView) this.getLists();
         this.showListView = !this.showListView;
+        if (!this.showListView) this.initScroll();
     }
     showListView = false;
 
     setUrlFromShowList(url: string) {
         this.url = url;
-        this.loadUrlSource();
-        this.requestOnce();
+        this.requestOnce(true);
+    }
+
+    get enabledControlls() {
+        return !this.validUrl// || this.showListView;
     }
 
     sendMessage() {
@@ -329,11 +334,14 @@ export default class Application extends Vue {
     autoScroll: boolean = false; cnangeAutoScroll() {
         this.autoScroll = !this.autoScroll;
     }
-    scrollTo(value: number, duration?: number) {
-        $('.mdl-layout__content').animate({
-            scrollTop:
-            $('#MESSAGE-' + value).get(0).offsetTop
-        }, duration ? duration : 1000);
+    scrollTo(value: number, duration: number = 1000) {
+        setTimeout(() => {
+            if (this.showListView) return;
+            $('.mdl-layout__content').animate({
+                scrollTop:
+                $('#MESSAGE-' + value).get(0).offsetTop
+            }, duration);
+        }, 5);
     }
 
     @Watch('thread.title')
@@ -341,15 +349,30 @@ export default class Application extends Vue {
         this.setTitleWithTimer();
     }
 
-    @Watch('provideTimerLimitCountDown')
+    get timers() {
+        return this.provideTimerLimitCountDown + this.reloadTimerCountDown;
+    }
+
+    @Watch('timers')
     onTimerChange(newValue: number, oldValue: number) {
         this.setTitleWithTimer();
     }
 
     setTitleWithTimer() {
-        let value = `reload(${this.reloadTimerCountDown}/${this.reload}) voice(${this.provideTimerLimitCountDown}/${this.provideTimeLimit})`
-        this.setTitle(value + " - " + this.thread.title);
+        this.setTitle(this.formattedTimes() + " - " + this.thread.title);
     }
+
+    formattedTimes() {
+        let rtcd = this.zeroPadding(this.reloadTimerCountDown);
+        let rd = this.zeroPadding(this.reload);
+        let ptcd = this.zeroPadding(this.provideTimerLimitCountDown);
+        let pd = this.zeroPadding(this.provideTimeLimit);
+        return `reload(${rtcd}/${rd}) voice(${ptcd}/${pd})`
+    }
+    zeroPadding(number: number, length: number = 2) {
+        return (Array(length).join('0') + number).slice(-length);
+    }
+
 
     @Watch('pManager.reading')
     onrChange(newValue: number, oldValue: number) {
@@ -418,6 +441,7 @@ export default class Application extends Vue {
             this.dummyTextTemp = this.dummyText = settings.dummyText;
             this.pManager.voice = Number(settings.voice);
             this.pManager.selectVoice(this.pManager.voice, this.path);
+            this.setTitleWithTimer();
             Logger.log("load settings", items);
         } catch (e) {
             console.log("invalid settings error.");
@@ -427,9 +451,13 @@ export default class Application extends Vue {
     }
 
     mounted() {
-        if (this.thread.bookmark != 0)
-            this.scrollTo(this.thread.bookmark);
+        this.initScroll();
     };
+
+    initScroll() {
+        if (this.thread.bookmark != 0)
+            this.scrollTo(this.thread.bookmark, 0);
+    }
 
     saveSettings() {
         localStorage.setItem(SETTINGS, JSON.stringify({
@@ -484,21 +512,34 @@ export default class Application extends Vue {
 
     playingNotificationSound: boolean = false;
     notificationSound(callback: () => void) {
+        const devPath = "./build/assets/audio/";
+        const prodPath = "./resources/app/build/assets/audio/";
         var path = "";
-        let audioDirPath = "./build/assets/audio/";
+        let audioDirPath = process.env.NODE_ENV === "production" ? fs.existsSync(prodPath) ? prodPath : devPath : devPath;
+
         fs.readdir(audioDirPath, (err, files) => {
-            if (err) { }
-            var fileList = [];
-            files.filter((file) => {
-                return fs.statSync(audioDirPath + file).isFile() && /.*\.mp3$/.test(file); //絞り込み
-            }).forEach((file) => {
-                fileList.push(file);
-            });
-            if (fileList.length > 0) {
-                console.log("1 : " + fileList[0])
-                path = fileList[Math.floor(Math.random() * fileList.length)];
+            if (err) {
+                console.log(err);
+                callback();
+                return;
             }
-            if (!path) {
+            try {
+                var fileList = [];
+                files.filter((file) => {
+                    console.log(file)
+                    return fs.statSync(audioDirPath + file).isFile() && /.*\.mp3$/.test(file); //絞り込み
+                }).forEach((file) => {
+                    fileList.push(file);
+                });
+                if (fileList.length > 0) {
+                    console.log("audio file : " + fileList[0])
+                    path = fileList[Math.floor(Math.random() * fileList.length)];
+                }
+                if (!path) {
+                    callback();
+                    return;
+                }
+            } catch (e) {
                 callback();
                 return;
             }
@@ -506,7 +547,6 @@ export default class Application extends Vue {
             audio.onended = callback;
             audio.play();
         });
-        let defaultNotificationSound = "../../assets/audio/notification.mp3";
     }
 
     clearDataSource() {
@@ -516,6 +556,15 @@ export default class Application extends Vue {
         }
         this.snackbar({ message: "キャッシュを消去しました" });
         this.thread = new Shitaraba("dummyThread");
+        this.url = "";
+    }
+
+    isMailImg(value: string) {
+        return /\.png$/.test(value);
+    }
+
+    openLink() {
+        window.open(this.thread.url, '_blank');
     }
 
     CSS = {

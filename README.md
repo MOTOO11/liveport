@@ -1,29 +1,36 @@
 ## liveport  - live broadcast support tool.
 したらば掲示板・CaveTubeのコメントを、ブラウザ上に表示・読み上げ  
 ### [download](https://github.com/odangosan/liveport/releases)
+### 概要
+したらば掲示板・CaveTubeのコメントを、読み上げます。  
+OBS Studioを使用している場合、字幕をOBS Studio内で表示することが出来ます。
 ### 使い方
 * liveport.exeを起動
 * OBS Studioの設定
-* ソース/BrowserSourceを追加
-* ダイアログに以下を入力
-  * URL : http://localhost:3000
-  * CSS :  
+  * ソース/BrowserSourceを追加
+  * ダイアログに以下を入力
+    * URL : http://localhost:3000
+    * CSS :  
   body {  
     background-color: rgba(0, 0, 0, 0);  
     overflow: hidden;  
     color:white;  
     }
-  * CSSはカスタマイズ可能
-  * font-sizeは設定不可(config.jsonで設定)
-  * background-color: rgba(0, 0, 0, 0); 背景透過（必須）
-  * overflow: hidden; 長い文章を途中で省略する（必須）
-  * color:white; 文字の色（変更可能）
+    * CSSはカスタマイズ可能
+    * font-sizeは設定不可(config.jsonで設定)
+    * background-color: rgba(0, 0, 0, 0); 背景透過（必須）
+    * overflow: hidden; 長い文章を途中で省略する（必須）
+    * color:white; 文字の色（変更可能）
+    * [縁取り文字サンプル](https://gist.github.com/odangosan/ca0136457358747a7bd8dae1bcd39f49)
 * タイトルバーにURLを入力後、**[▶]読み込み開始**ボタンを押す
-* 詳細な設定は[resources/app/config.json]
-  * NGワード・読み替え・表示装飾など
 
-* データは以下に保存
+#### 詳細設定
+* [resources/app/config.json]を編集すると設定を変更できます
+  * NGワード・読み替え・表示装飾など
+* 着信音は[resources/app/build/assets/audio]フォルダ内のmp3ファイルがランダムに使用されます
+* データは以下に保存されます
   * C:\Users\%USERNAME%\AppData\Roaming\liveport\
+  * アンインストールする際にはこのフォルダも削除してください
 
 ### 対応しているURL
  * したらば[http://jbbs.shitaraba.net/bbs/read.cgi/[ジャンル]/[掲示板ID]/[スレッドID]/]
