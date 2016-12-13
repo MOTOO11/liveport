@@ -148,7 +148,7 @@ export class Shitaraba extends DataSource {
         const option = {
             url: this.sendUrl, encoding: null, timeout: DEFAULT_TIMEOUT,
             headers: {
-                referer: "http://jbbs.shitaraba.net/bbs/read.cgi/netgame/12802/1481207144/"
+                referer: this.url
             },
             form: form
         };
