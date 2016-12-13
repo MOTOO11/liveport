@@ -2,8 +2,8 @@
 import * as rp from "request-promise";
 import Message from "./Message";
 import { DataSource, ThreadList } from "./DataSource";
-const CAVETUBE_REGEX_LIVE = new RegExp(/https:\/\/www\.cavelis\.net\/live\/(.+)/);
-const CAVETUBE_REGEX_VIEW = new RegExp(/https:\/\/www\.cavelis\.net\/view\/(.+)/);
+const CAVETUBE_REGEX_LIVE = new RegExp(/^https:\/\/www\.cavelis\.net\/live\/(.+)/);
+const CAVETUBE_REGEX_VIEW = new RegExp(/^https:\/\/www\.cavelis\.net\/view\/(.+)/);
 const listUrl = "http://rss.cavelis.net/index_live.xml";
 const DK = "46CBA895366C49938CDEC4308E0DFE6B";
 

@@ -195,6 +195,12 @@ export default class Application extends Vue {
         if (!this.validate()) {
             return;
         }
+        if (Shitaraba.isValidBBSURL(this.url)) {
+            this.thread = new Shitaraba(this.url);
+            this.showListView = true;
+            this.getLists();
+            return;
+        }
         this.showListView = false;
         this.loadUrlSource(cache);
         if (cache) this.initScroll();
@@ -341,7 +347,7 @@ export default class Application extends Vue {
                 scrollTop:
                 $('#MESSAGE-' + value).get(0).offsetTop
             }, duration);
-        }, 5);
+        }, 10);
     }
 
     @Watch('thread.title')
@@ -490,6 +496,9 @@ export default class Application extends Vue {
         if (!this.url) {
             Logger.log("invalid url", "no input.");
             return false;
+        }
+        if (Shitaraba.isValidBBSURL(this.url)) {
+            return true;
         }
         return Shitaraba.isValidURL(this.url) || CaveTube.isValidURL(this.url);
     }

@@ -4,19 +4,16 @@ import * as  iconv from "iconv-lite";
 import Message from "./Message";
 import * as encoding from "encoding-japanese";
 import { DataSource, ThreadList } from "./DataSource";
-const SHITARABA_REGEX = new RegExp(/http:\/\/jbbs.shitaraba.net\/bbs\/read.cgi\/(\w+)\/(\d+)\/(\d+)\/.*/);
+const SHITARABA_REGEX = new RegExp(/^http:\/\/jbbs.shitaraba.net\/bbs\/read.cgi\/(\w+)\/(\d+)\/(\d+)\/$/);
+const SHITARABA_BBS_REGEX = new RegExp(/^http:\/\/jbbs.shitaraba.net\/(\w+)\/(\d+)\/$/);
 const RES_SPLITTER = new RegExp(/<>/g);
 const NEWLINE_SPLITTER = new RegExp(/\n/g);
 const DEFAULT_TIMEOUT = 10000;
 
 export class Shitaraba extends DataSource {
     request(success: (number) => void, failed: (err: any) => void) {
-        if (!this.url) {
-            failed("url is not set");
-            return;
-        }
-        if (!Shitaraba.isValidURL(this.url)) {
-            failed("not shitaraba url");
+        if (!this.validate().valid) {
+            failed(this.validate().text);
             return;
         }
         var matches = this.url.match(SHITARABA_REGEX);
@@ -75,22 +72,7 @@ export class Shitaraba extends DataSource {
         this.save();
         return resArray.length;
     }
-    listUrl = "";
-    constructor(url: string) {
-        super(url);
-        if (Shitaraba.isValidURL(url))
-            this.setThreadDetails();
-    }
-    setThreadDetails() {
-        if (!this.listUrl && !this.sendUrl) {
-            var matches = this.url.match(SHITARABA_REGEX);
-            this.listUrl = `http://jbbs.shitaraba.net/${matches[1]}/${matches[2]}/subject.txt`;
-            this.DIR = matches[1];
-            this.BBS = matches[2];
-            this.KEY = matches[3];
-            this.sendUrl = `http://jbbs.shitaraba.net/bbs/write.cgi/${this.DIR}/${this.BBS}/${this.KEY}/`;
-        }
-    }
+
     getLists(success: () => void, failed: (err: any) => void) {
         this.setThreadDetails();
         this.threadLists = [];
@@ -126,17 +108,17 @@ export class Shitaraba extends DataSource {
         }
     }
 
-    BBS = "";
-    KEY = "";
-    DIR = "";
-    sendUrl = "";
-
     urlEncodeUtf8ToEuc = (string) => {
         string = iconv.encode(string, "EUC=JP")
         return encoding.urlEncode(string)
     }
 
     sendMessage(message: { MESSAGE: string, NAME: string, MAIL: string }, success: (result: string) => void, failed: (err: any) => void) {
+        if (!this.validate().valid) {
+            failed(this.validate().text);
+            return;
+        }
+
         this.setThreadDetails();
         console.log("send url : " + this.sendUrl);
         let form = 'BBS=' + this.urlEncodeUtf8ToEuc(this.BBS) +
@@ -179,9 +161,51 @@ export class Shitaraba extends DataSource {
                 failed(match[1] + ":" + match[2]);
             });
     }
+    validate(): { valid: boolean, text: string } {
+        if (!this.url) {
+            return { valid: false, text: "URLが設定されていません" };
+        }
+        if (Shitaraba.isValidBBSURL(this.url)) {
+            return { valid: false, text: "掲示板のURLが選択されていません" };
+        }
+        if (!Shitaraba.isValidURL(this.url)) {
+            return { valid: false, text: "掲示板のURLが選択されていません" };
+        }
+        return { valid: true, text: "" };
+    }
 
+    BBS = "";
+    KEY = "";
+    DIR = "";
+    sendUrl = "";
+    listUrl = "";
+
+    setThreadDetails() {
+        if (!this.listUrl && !this.sendUrl) {
+            var matches = this.url.match(SHITARABA_REGEX);
+            this.listUrl = `http://jbbs.shitaraba.net/${matches[1]}/${matches[2]}/subject.txt`;
+            this.DIR = matches[1];
+            this.BBS = matches[2];
+            this.KEY = matches[3];
+            this.sendUrl = `http://jbbs.shitaraba.net/bbs/write.cgi/${this.DIR}/${this.BBS}/${this.KEY}/`;
+        }
+    }
+    constructor(url: string) {
+        super(url);
+        if (Shitaraba.isValidURL(url)) {
+            this.setThreadDetails();
+        } else if (Shitaraba.isValidBBSURL(url)) {
+            var matches = this.url.match(SHITARABA_BBS_REGEX);
+            this.listUrl = `http://jbbs.shitaraba.net/${matches[1]}/${matches[2]}/subject.txt`;
+            this.DIR = matches[1];
+            this.BBS = matches[2];
+        }
+    }
     static isValidURL(url: string): boolean {
         return SHITARABA_REGEX.test(url);
+    }
+    static isValidBBSURL(url: string): boolean {
+        return SHITARABA_BBS_REGEX.test(url);
     }
 }
 
