@@ -53,36 +53,6 @@
     cursor: pointer;
 }
 
-
-/*
-body {
-    width: 100%;
-    overflow-x: hidden;
-}
-*/
-
-.viewer__showThread {
-    .aa {
-        font-family: "ＭＳ Ｐゴシック", "MS PGothic", "Mona", "mona-gothic-jisx0208.1990-0", sans-serif;
-        font-size: 16px;
-        line-height: 18px;
-        text-align: left;
-        margin-left: 0;
-        margin-right: auto;
-        color: rgb(20, 20, 20);
-    }
-    .num {
-        &--new {
-            font-weight: bolder;
-            text-decoration: underline;
-        }
-    }
-    .mail--icon {
-        width: 16px;
-        height: 16px;
-    }
-}
-
 .mdl-textfield {
     width: 300px;
 }
@@ -112,10 +82,11 @@ body {
 .fixed-commentbar {
     position: fixed;
     display: block;
-    right: 0;
+    left: 0;
     bottom: 10px;
     width: 300px;
-    margin-right: 20px;
+    height:80px;
+    margin-left: 10px;
     z-index: 800;
     padding: 10px;
     background-color: floralwhite;
@@ -132,6 +103,32 @@ body {
         width: 100%;
     }
 }
+
+.viewer__showThread {
+    .commentbar--margin {
+        margin-bottom: 120px;
+    }
+    .aa {
+        font-family: "ＭＳ Ｐゴシック", "MS PGothic", "Mona", "mona-gothic-jisx0208.1990-0", sans-serif;
+        font-size: 16px;
+        line-height: 18px;
+        text-align: left;
+        margin-left: 0;
+        margin-right: auto;
+        color: rgb(20, 20, 20);
+    }
+    .num {
+        &--new {
+            font-weight: bolder;
+            text-decoration: underline;
+        }
+    }
+    .mail--icon {
+        width: 16px;
+        height: 16px;
+    }
+}
+
 
 .mdl-button--default {
     cursor: default;

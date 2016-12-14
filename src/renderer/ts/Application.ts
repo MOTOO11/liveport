@@ -6,7 +6,6 @@ import { Shitaraba } from "./Shitaraba";
 import { CaveTube } from "./CaveTube";
 import { VOICE, VoiceParameter } from "./Voice"
 import StringUtil from "./StringUtil";
-import Logger from "./Logger";
 import ProvideManager from "./ProvideManager";
 const CONFIG = require("../../../config.json");
 const LETTER: string = CONFIG.letter;
@@ -27,11 +26,8 @@ export default class Application extends Vue {
     thread: DataSource;
     constructor() {
         super();
-        Logger.log("start", "hello application.");
-        this.pManager = new ProvideManager();
-        this.thread = new Shitaraba("dummyThread");
-        this.setTitleWithTimer();
-        this.loadSettings();
+        console.log("start", "hello application.");
+        this.init();
     }
 
     // dat取得
@@ -40,31 +36,25 @@ export default class Application extends Vue {
     reloadTimerID: number;
     // dat取得カウントダウン
     reloadTimerCountDown: number = this.reload;
-    @Watch("reload")
-    onChangeRTimeLimit() {
-        this.reloadTimerCountDown = this.reload;
-    }
     newArrival = 0;
     startThreadRequest() {
         if (!this.processing) return;
         this.reloadTimerCountDown = this.reload;
         this.thread.request(
             (newArrival: number) => {
-                Logger.log("request success", newArrival.toString());
+                console.log("request success", newArrival.toString());
                 this.newArrival = newArrival;
-                // if (newArrival > 0)
-                // this.snackbar({ message: "新着レス：" + newArrival });
                 this.setRequestTimer();
             },
             (err: any) => {
-                Logger.log("request failed", err);
+                console.log("request failed", err);
                 let warn = {
                     message: "ERROR : " + err
                 }
                 this.snackbar(warn);
                 this.setRequestTimer();
             }
-        );
+        )
     }
 
     stopThreadRequest() {
@@ -83,10 +73,6 @@ export default class Application extends Vue {
         }
     }
 
-    @Watch("provideTimeLimit")
-    onChangePTimeLimit() {
-        this.provideTimerLimitCountDown = this.provideTimeLimit;
-    }
     // 読み上げ時間数上限
     provideTimeLimit: number = 10;
     // 表示タイマーID
@@ -95,7 +81,6 @@ export default class Application extends Vue {
     provideTimerLimitCountDown: number = this.provideTimeLimit;
 
     startProvide() {
-        clearTimeout(this.provideTimerID);
         if (!this.processing) return;
         this.provideTimerLimitCountDown = this.provideTimeLimit;
         let provide = () => {
@@ -119,8 +104,6 @@ export default class Application extends Vue {
         this.setProvideTimer();
 
     }
-
-
 
     stopProvide() {
         clearTimeout(this.provideTimerID);
@@ -148,6 +131,12 @@ export default class Application extends Vue {
             this.processing = false;
             return;
         }
+        if (this.isValidBBSUrl()) {
+            this.showLists();
+            this.processing = false;
+            return;
+        }
+
         if (this.thread) {
             if (this.url != this.thread.url) {
                 this.loadUrlSource();
@@ -192,13 +181,11 @@ export default class Application extends Vue {
     }
     // refresh
     requestOnce(cache: boolean = false) {
-        if (!this.validate()) {
+        if (this.isValidBBSUrl()) {
+            this.showLists();
             return;
         }
-        if (Shitaraba.isValidBBSURL(this.url)) {
-            this.thread = new Shitaraba(this.url);
-            this.showListView = true;
-            this.getLists();
+        if (!this.isvalidThreadUrl()) {
             return;
         }
         this.showListView = false;
@@ -208,10 +195,10 @@ export default class Application extends Vue {
         this.thread.request(
             (newArrival: number) => {
                 this.snackbar({ message: "読み込みに成功しました" });
-                Logger.log("request success", newArrival.toString());
+                console.log("request success", newArrival.toString());
             },
             (err: any) => {
-                Logger.log("request failed", err);
+                console.log("request failed", err);
                 let warn = {
                     message: "ERROR : " + err
                 }
@@ -226,61 +213,36 @@ export default class Application extends Vue {
         this.stopProvide();
     }
 
-    latest() {
-        this.thread.latest();;
-        this.scrollTo(this.thread.bookmark);
-    }
-
-    setTitle(name: string) {
-        remote.getCurrentWindow().setTitle(name + " - " + ApplicatonName);
-    }
-
-    // 表示するものがない時
-    dummyText: string = "";
-
-    provideDummyText() {
-        this.pManager.dummyText(this.dummyText);
-    }
-
-    dummyTextTemp: string = "";
-
-    insertDummyText() {
-        this.dummyText = this.dummyTextTemp;
-        if (!this.processing)
-            this.pManager.dummyText(this.dummyText);
-    }
-
-    showDummyTextWindow() {
-        var dialog: any = document.querySelector("#subtitling");
-        dialog.showModal();
-        dialog.querySelector('.close').addEventListener('click', () => {
-            dialog.close();
-        });
-    }
-    getLists() {
+    showLists() {
+        this.showListView = true;
         this.showCommentView = false;
-        this.snackbar({ message: "一覧の読み込みを開始", timeout: 1000 });
+        if (!this.isValidURL()) {
+            this.snackbar({ message: "URLが正しくありません" });
+        }
+        if (this.isValidBBSUrl()) {
+            this.thread = new Shitaraba(this.url);
+        }
+        this.snackbar({ message: "一覧の読み込みを開始" });
         this.thread.getLists(() => {
-            this.snackbar({ message: "一覧の読み込みに成功", timeout: 1000 });
+            this.snackbar({ message: "一覧の読み込みに成功" });
         }, (err) => {
             this.snackbar({ message: err });
         });
     }
 
     flipShowListMode() {
-        if (!this.showListView) this.getLists();
-        this.showListView = !this.showListView;
-        if (!this.showListView) this.initScroll();
+        if (this.showListView) {
+            this.showListView = false;
+            this.initScroll();
+        } else {
+            this.showLists();
+        }
     }
     showListView = false;
 
     setUrlFromShowList(url: string) {
         this.url = url;
         this.requestOnce(true);
-    }
-
-    get enabledControlls() {
-        return !this.validUrl// || this.showListView;
     }
 
     sendMessage() {
@@ -299,10 +261,15 @@ export default class Application extends Vue {
             this.snackbar({ message: err });
         });
     }
+
     showCommentView = false;
     flipCommentMode() {
         this.showCommentView = !this.showCommentView;
+        if (this.showCommentView) {
+            this.initScroll();
+        }
     }
+
     comment = {
         MAIL: "",
         NAME: "",
@@ -314,22 +281,57 @@ export default class Application extends Vue {
         return StringUtil.anchorToInnerLink(utl);
     }
 
-    // computed
+    get enabledControlls() {
+        return !this.isValidURL();
+    }
+
+    get validThreadControlls() {
+        return !this.isvalidThreadUrl() || this.showListView;
+    }
+
+    get validThreadUrl() {
+        return this.isvalidThreadUrl();
+    }
+
+    get validBbsUrl() {
+        return this.isValidBBSUrl();
+    }
+
     get validUrl() {
         return this.isValidURL();
     }
 
-    snackbar(data: { message: string, timeout?: number } = { message: "info", timeout: 3000 }) {
+    latest() {
+        this.thread.latest();
+        this.scrollTo(this.thread.bookmark);
+    }
+
+    setTitle(name: string) {
+        remote.getCurrentWindow().setTitle(name + " - " + ApplicatonName);
+    }
+
+    dummyText: string = "";
+    provideDummyText() {
+        this.pManager.dummyText(this.dummyText);
+    }
+
+    dummyTextTemp: string = "";
+    insertDummyText() {
+        this.dummyText = this.dummyTextTemp;
+        if (!this.processing)
+            this.pManager.dummyText(this.dummyText);
+    }
+
+    showDummyTextWindow() {
+        var dialog: any = document.querySelector("#subtitling");
+        dialog.showModal();
+        dialog.querySelector('.close').addEventListener('click', () => {
+            dialog.close();
+        });
+    }
+
+    snackbar(data: { message: string, timeout?: number } = { message: "info", timeout: 1000 }) {
         var snackbarContainer: any = document.querySelector('#snackbar');
-        // var handler = function (event) {
-        //     Logger.log("snackbar", "");
-        // };
-        // var data = {
-        //     message: 'Button color changed.',
-        //     timeout: 0,
-        //     actionHandler: handler,
-        //     actionText: 'Undo'
-        // };
         snackbarContainer.MaterialSnackbar.showSnackbar(data);
     }
 
@@ -337,17 +339,20 @@ export default class Application extends Vue {
         this.pManager.provide(letter, body, this.pManager.reading, null, this.provideTimeLimit);
     }
 
-    autoScroll: boolean = false; cnangeAutoScroll() {
+    autoScroll: boolean = false;
+    flipAutoScroll() {
         this.autoScroll = !this.autoScroll;
     }
+
     scrollTo(value: number, duration: number = 1000) {
+        if (value < 1) return;
         setTimeout(() => {
             if (this.showListView) return;
             $('.mdl-layout__content').animate({
                 scrollTop:
                 $('#MESSAGE-' + value).get(0).offsetTop
             }, duration);
-        }, 10);
+        }, 5);
     }
 
     @Watch('thread.title')
@@ -355,11 +360,7 @@ export default class Application extends Vue {
         this.setTitleWithTimer();
     }
 
-    get timers() {
-        return this.provideTimerLimitCountDown + this.reloadTimerCountDown;
-    }
-
-    @Watch('timers')
+    @Watch("provideTimerLimitCountDown")
     onTimerChange(newValue: number, oldValue: number) {
         this.setTitleWithTimer();
     }
@@ -377,12 +378,6 @@ export default class Application extends Vue {
     }
     zeroPadding(number: number, length: number = 2) {
         return (Array(length).join('0') + number).slice(-length);
-    }
-
-
-    @Watch('pManager.reading')
-    onrChange(newValue: number, oldValue: number) {
-        Logger.log("pManager.reading", this.pManager.reading)
     }
 
     path: string = "";
@@ -404,6 +399,46 @@ export default class Application extends Vue {
         });
     }
 
+    initScroll() {
+        if (this.thread.bookmark != 0)
+            this.scrollTo(this.thread.bookmark, 0);
+    }
+
+    isValidURL(): boolean {
+        if (!this.url) {
+            console.log("invalid url", "no input.");
+            return false;
+        }
+        if (this.isValidBBSUrl()) {
+            return true;
+        }
+        return this.isvalidThreadUrl();
+    }
+
+    isValidBBSUrl() {
+        return Shitaraba.isValidBBSURL(this.url);
+    }
+
+    isvalidThreadUrl(): boolean {
+        return Shitaraba.isValidURL(this.url) || CaveTube.isValidURL(this.url);
+    }
+
+    // allocate
+    loadUrlSource(load: boolean = true) {
+        if (Shitaraba.isValidURL(this.url)) {
+            this.thread = new Shitaraba(this.url);
+            if (load) {
+                this.thread.load();
+            }
+        }
+        if (CaveTube.isValidURL(this.url)) {
+            this.thread = new CaveTube(this.url);
+            if (load) {
+                this.thread.load();
+            }
+        }
+    }
+
     get settings() {
         return this.url + this.dummyText + this.autoScroll
             + this.pManager.vParam.volume
@@ -414,55 +449,6 @@ export default class Application extends Vue {
             + this.reload + this.provideTimeLimit + this.pManager.reading
             + this.path + this.pManager.voice
             + this.comment.NAME + this.comment.MAIL;
-    }
-
-    loadSettings() {
-        let items = localStorage.getItem(SETTINGS);
-        var settings = JSON.parse(items);
-        if (!settings) {
-            this.pManager.selectVoice(this.pManager.voice);
-            return;
-        }
-        try {
-            this.url = settings.url;
-            if (this.url) {
-                if (this.isValidURL())
-                    this.loadUrlSource();
-                this.setTitleWithTimer();
-            };
-            this.comment.NAME = settings.NAME;
-            this.comment.MAIL = settings.MAIL;
-            this.playingNotificationSound = Boolean(settings.playingNotificationSound);
-            this.autoScroll = Boolean(settings.autoScroll);
-            this.pManager.vParam.volume = Number(settings.volume);
-            this.pManager.vParam.rate = Number(settings.rate);
-            this.pManager.vParam.pitch = Number(settings.pitch);
-            this.pManager.vParam.use = Boolean(settings.use);
-            this.reload = Number(settings.reload);
-            this.reloadTimerCountDown = this.reload;
-            this.provideTimeLimit = Number(settings.provideTimeLimit);
-            this.provideTimerLimitCountDown = this.provideTimeLimit;
-            this.pManager.reading = Boolean(settings.reading);
-            this.path = settings.path;
-            this.dummyTextTemp = this.dummyText = settings.dummyText;
-            this.pManager.voice = Number(settings.voice);
-            this.pManager.selectVoice(this.pManager.voice, this.path);
-            this.setTitleWithTimer();
-            Logger.log("load settings", items);
-        } catch (e) {
-            console.log("invalid settings error.");
-            localStorage.removeItem(SETTINGS);
-            this.loadSettings();
-        }
-    }
-
-    mounted() {
-        this.initScroll();
-    };
-
-    initScroll() {
-        if (this.thread.bookmark != 0)
-            this.scrollTo(this.thread.bookmark, 0);
     }
 
     saveSettings() {
@@ -492,32 +478,53 @@ export default class Application extends Vue {
 
     version = VERSION;
 
-    isValidURL(): boolean {
-        if (!this.url) {
-            Logger.log("invalid url", "no input.");
-            return false;
+    init() {
+        this.pManager = new ProvideManager();
+        this.thread = new Shitaraba("dummyThread");
+        this.setTitleWithTimer();
+        let items = localStorage.getItem(SETTINGS);
+        var settings = JSON.parse(items);
+        if (!settings) {
+            this.pManager.selectVoice(this.pManager.voice);
+            return;
         }
-        if (Shitaraba.isValidBBSURL(this.url)) {
-            return true;
+        try {
+            this.url = settings.url;
+            if (this.url) {
+                if (this.isvalidThreadUrl())
+                    this.loadUrlSource();
+                this.setTitleWithTimer();
+            };
+            this.comment.NAME = settings.NAME;
+            this.comment.MAIL = settings.MAIL;
+            this.playingNotificationSound = Boolean(settings.playingNotificationSound);
+            this.autoScroll = Boolean(settings.autoScroll);
+            this.pManager.vParam.volume = Number(settings.volume);
+            this.pManager.vParam.rate = Number(settings.rate);
+            this.pManager.vParam.pitch = Number(settings.pitch);
+            this.pManager.vParam.use = Boolean(settings.use);
+            this.reload = Number(settings.reload);
+            this.reloadTimerCountDown = this.reload;
+            this.provideTimeLimit = Number(settings.provideTimeLimit);
+            this.provideTimerLimitCountDown = this.provideTimeLimit;
+            this.pManager.reading = Boolean(settings.reading);
+            this.path = settings.path;
+            this.dummyTextTemp = this.dummyText = settings.dummyText;
+            this.pManager.voice = Number(settings.voice);
+            this.pManager.selectVoice(this.pManager.voice, this.path);
+            this.setTitleWithTimer();
+            console.log("load settings", items);
+        } catch (e) {
+            console.log("invalid settings error.");
+            localStorage.removeItem(SETTINGS);
+            this.init();
         }
-        return Shitaraba.isValidURL(this.url) || CaveTube.isValidURL(this.url);
     }
 
-    // allocate
-    loadUrlSource(load: boolean = true) {
-        if (Shitaraba.isValidURL(this.url)) {
-            this.thread = new Shitaraba(this.url);
-            if (load) {
-                this.thread.load();
-            }
-        }
-        if (CaveTube.isValidURL(this.url)) {
-            this.thread = new CaveTube(this.url);
-            if (load) {
-                this.thread.load();
-            }
-        }
-    }
+    mounted() {
+        this.initScroll();
+    };
+
 
     playingNotificationSound: boolean = false;
     notificationSound(callback: () => void) {

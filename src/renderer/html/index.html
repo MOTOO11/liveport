@@ -112,7 +112,7 @@
             <!-- display -->
             <main class="mdl-layout__content" v-bind:style="CSS.body">
                 <div class="viewer__showThread">
-                    <div v-show="!showListView">
+                    <div v-show="!showListView" v-bind:class="{'commentbar--margin':showCommentView}">
                         <dl v-for="item in thread.messages" v-bind:style="CSS.res">
                             <dt v-bind:style="CSS.header" :id="'MESSAGE-'+item.num" :key="item.num"><span v-bind:class="[item.latest ? 'num--new':'']" v-bind:style="CSS.num">{{item.num}}</span>:
                                 <span v-html="item.name" v-bind:style="CSS.name"></span>
@@ -147,7 +147,7 @@
             <div class="mdl-tooltip mdl-tooltip--left mdl-tooltip--larg" data-mdl-for="bookmark">
                 表示中の番号
             </div>
-            <button v-on:click="start()" id="start" v-bind:disabled="enabledControlls" v-show="!processing" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent mdl-js-ripple-effect">
+            <button v-on:click="start()" id="start" v-bind:disabled="!validUrl" v-show="!processing" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent mdl-js-ripple-effect">
                 <i class="material-icons">play_arrow</i>
             </button>
             <div class="mdl-tooltip mdl-tooltip--left mdl-tooltip--larg" data-mdl-for="start">
@@ -159,19 +159,19 @@
             <div class="mdl-tooltip mdl-tooltip--left mdl-tooltip--larg" data-mdl-for="stop">
                 停止
             </div>
-            <button v-on:click="latest()" v-bind:disabled="enabledControlls" id="latest" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent mdl-js-ripple-effect">
+            <button v-on:click="latest()" v-bind:disabled="!validUrl" id="latest" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent mdl-js-ripple-effect">
                   <i class="material-icons">last_page</i>
             </button>
             <div class="mdl-tooltip mdl-tooltip--left mdl-tooltip--larg" data-mdl-for="latest">
                 最新まで移動
             </div>
-            <button v-on:click="cnangeAutoScroll()" id="autoScrollOn" v-show="!autoScroll" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent mdl-js-ripple-effect">
+            <button v-on:click="flipAutoScroll()" id="autoScrollOn" v-show="!autoScroll" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent mdl-js-ripple-effect">
                   <i class="material-icons">arrow_drop_down</i>
             </button>
             <div class="mdl-tooltip mdl-tooltip--left mdl-tooltip--larg" data-mdl-for="autoScrollOn">
                 オートスクロールON
             </div>
-            <button v-on:click="cnangeAutoScroll()" id="autoScrollOff" v-show="autoScroll" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent mdl-js-ripple-effect">
+            <button v-on:click="flipAutoScroll()" id="autoScrollOff" v-show="autoScroll" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent mdl-js-ripple-effect">
                   <i class="material-icons">arrow_drop_down_circle</i>
             </button>
             <div class="mdl-tooltip mdl-tooltip--left mdl-tooltip--larg" data-mdl-for="autoScrollOff">
@@ -193,7 +193,7 @@
             <div class="mdl-tooltip mdl-tooltip--left mdl-tooltip--larg" data-mdl-for="showList">
                 {{showListView?"戻る":"一覧"}}
             </div>
-            <button v-on:click="flipCommentMode()" id="commentButton" v-bind:disabled="enabledControlls" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent mdl-js-ripple-effect">
+            <button v-on:click="flipCommentMode()" id="commentButton" v-bind:disabled="validThreadControlls" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent mdl-js-ripple-effect">
                  <i v-show="!showCommentView" class="material-icons">send</i>
                  <i v-show="showCommentView"  class="material-icons">close</i>
             </button>
@@ -212,7 +212,6 @@
             </div>
         </div>
         <!-- fiexed comment bar -->
-        <!-- footer -->
         <!-- snack bar -->
         <div id="snackbar" class="mdl-js-snackbar mdl-snackbar">
             <div class="mdl-snackbar__text"></div>

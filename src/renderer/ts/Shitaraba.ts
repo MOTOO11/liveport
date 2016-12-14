@@ -12,8 +12,8 @@ const DEFAULT_TIMEOUT = 10000;
 
 export class Shitaraba extends DataSource {
     request(success: (number) => void, failed: (err: any) => void) {
-        if (!this.validate().valid) {
-            failed(this.validate().text);
+        if (!this.validateThread().valid) {
+            failed(this.validateThread().text);
             return;
         }
         var matches = this.url.match(SHITARABA_REGEX);
@@ -34,18 +34,13 @@ export class Shitaraba extends DataSource {
                     failed("タイムアウトしました");
                     return;
                 }
-                failed("取得に失敗しました");
+                failed(`${err.statusCode} : 取得に失敗しました`);
                 return;
             });
     }
-    // 新着レスが有る場合はその数を返す
+
     data2json(data: string): number {
         var line = data.split(NEWLINE_SPLITTER);
-        /* 
-            末尾に改行コードがついているので、
-            line.lengthは取得したレス+1となっている。
-            そのため-1
-        */
         var resArray: Message[] = [];
         for (var i = 0; i < line.length - 1; i++) {
             var r = line[i].split(RES_SPLITTER);
@@ -74,7 +69,10 @@ export class Shitaraba extends DataSource {
     }
 
     getLists(success: () => void, failed: (err: any) => void) {
-        this.setThreadDetails();
+        if (!this.validateBbs().valid) {
+            failed(this.validateBbs().text);
+            return;
+        }
         this.threadLists = [];
         console.log("request list url : " + this.listUrl);
         rp({ url: this.listUrl, encoding: null, timeout: DEFAULT_TIMEOUT })
@@ -92,7 +90,7 @@ export class Shitaraba extends DataSource {
                     failed("タイムアウトしました");
                     return;
                 }
-                failed("取得に失敗しました");
+                failed(`${err.statusCode} : 取得に失敗しました`);
             });
     }
     data2Lists(value: string) {
@@ -114,12 +112,10 @@ export class Shitaraba extends DataSource {
     }
 
     sendMessage(message: { MESSAGE: string, NAME: string, MAIL: string }, success: (result: string) => void, failed: (err: any) => void) {
-        if (!this.validate().valid) {
-            failed(this.validate().text);
+        if (!this.validateThread().valid) {
+            failed(this.validateThread().text);
             return;
         }
-
-        this.setThreadDetails();
         console.log("send url : " + this.sendUrl);
         let form = 'BBS=' + this.urlEncodeUtf8ToEuc(this.BBS) +
             '&KEY=' + this.urlEncodeUtf8ToEuc(this.KEY) +
@@ -161,7 +157,22 @@ export class Shitaraba extends DataSource {
                 failed(match[1] + ":" + match[2]);
             });
     }
-    validate(): { valid: boolean, text: string } {
+
+    validateBbs(): { valid: boolean, text: string } {
+        if (!this.url) {
+            return { valid: false, text: "URLが設定されていません" };
+        }
+
+        if (Shitaraba.isValidURL(this.url)) {
+            return { valid: true, text: "" };
+        }
+        if (!Shitaraba.isValidBBSURL(this.url)) {
+            return { valid: false, text: "BBSのURLではありません" };
+        }
+        return { valid: true, text: "" };
+    }
+
+    validateThread(): { valid: boolean, text: string } {
         if (!this.url) {
             return { valid: false, text: "URLが設定されていません" };
         }
@@ -174,22 +185,6 @@ export class Shitaraba extends DataSource {
         return { valid: true, text: "" };
     }
 
-    BBS = "";
-    KEY = "";
-    DIR = "";
-    sendUrl = "";
-    listUrl = "";
-
-    setThreadDetails() {
-        if (!this.listUrl && !this.sendUrl) {
-            var matches = this.url.match(SHITARABA_REGEX);
-            this.listUrl = `http://jbbs.shitaraba.net/${matches[1]}/${matches[2]}/subject.txt`;
-            this.DIR = matches[1];
-            this.BBS = matches[2];
-            this.KEY = matches[3];
-            this.sendUrl = `http://jbbs.shitaraba.net/bbs/write.cgi/${this.DIR}/${this.BBS}/${this.KEY}/`;
-        }
-    }
     constructor(url: string) {
         super(url);
         if (Shitaraba.isValidURL(url)) {
@@ -199,6 +194,24 @@ export class Shitaraba extends DataSource {
             this.listUrl = `http://jbbs.shitaraba.net/${matches[1]}/${matches[2]}/subject.txt`;
             this.DIR = matches[1];
             this.BBS = matches[2];
+        }
+    }
+
+    BBS = "";
+    KEY = "";
+    DIR = "";
+    sendUrl = "";
+    listUrl = "";
+
+    setThreadDetails() {
+        if (!this.listUrl && !this.sendUrl) {
+            var matches = this.url.match(SHITARABA_REGEX);
+            console.log(this.url);
+            this.listUrl = `http://jbbs.shitaraba.net/${matches[1]}/${matches[2]}/subject.txt`;
+            this.DIR = matches[1];
+            this.BBS = matches[2];
+            this.KEY = matches[3];
+            this.sendUrl = `http://jbbs.shitaraba.net/bbs/write.cgi/${this.DIR}/${this.BBS}/${this.KEY}/`;
         }
     }
     static isValidURL(url: string): boolean {
