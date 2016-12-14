@@ -9,9 +9,16 @@ const port = require("../config.json").port;
 const info_path = "./bounds.json";
 process.env.NODE_ENV = "production";
 
+let argv = [];
+var ipcMain = require('electron').ipcMain;
+ipcMain.on('argv', (event) => {
+    event.returnValue = argv;
+});
+
 class Main {
     mainWindow: Electron.BrowserWindow = null;
     constructor(public app: Electron.App) {
+        argv = process.argv;
         this.app.on('ready', this.onReady);
         this.app.on("window-all-closed", () => {
             if (process.platform !== 'darwin') {

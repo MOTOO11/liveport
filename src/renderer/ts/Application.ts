@@ -16,6 +16,7 @@ const VERSION = require("../../../package.json").version
 import * as $ from "jquery"
 import * as fs from "fs";
 const SETTINGS = "settings";
+const {ipcRenderer} = require('electron')
 
 @Component({})
 export default class Application extends Vue {
@@ -490,10 +491,15 @@ export default class Application extends Vue {
         }
         try {
             this.url = settings.url;
+            let argvUrl = this.getArgvUrl();
+            if (argvUrl) this.url = this.getArgvUrl();
             if (this.url) {
-                if (this.isvalidThreadUrl())
+                if (this.isvalidThreadUrl()) {
                     this.loadUrlSource();
-                this.setTitleWithTimer();
+                    if (argvUrl)
+                        this.requestOnce();
+                    this.setTitleWithTimer();
+                }
             };
             this.comment.NAME = settings.NAME;
             this.comment.MAIL = settings.MAIL;
@@ -525,6 +531,12 @@ export default class Application extends Vue {
         this.initScroll();
     };
 
+    getArgvUrl(): string {
+        let argv: string[] = ipcRenderer.sendSync('argv');
+        console.log("argv : " + argv);
+        let argvUrl = argv.length > 1 ? argv[1] : "";
+        return argvUrl;
+    }
 
     playingNotificationSound: boolean = false;
     notificationSound(callback: () => void) {
