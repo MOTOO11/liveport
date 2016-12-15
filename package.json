@@ -1,6 +1,6 @@
 {
     "name": "liveport",
-    "version": "1.6.0",
+    "version": "1.6.1",
     "description": "livestream support tool",
     "main": "build/main.js",
     "scripts": {
