@@ -32,7 +32,7 @@ export default class Application extends Vue {
     }
 
     // dat取得
-    reload: number = 7;
+    reload: number = 10;
     // dat取得タイマーId
     reloadTimerID: number;
     // dat取得カウントダウン
