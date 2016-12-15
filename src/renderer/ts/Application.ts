@@ -45,6 +45,7 @@ export default class Application extends Vue {
             (newArrival: number) => {
                 console.log("request success", newArrival.toString());
                 this.newArrival = newArrival;
+                this.setTitleWithTimer();
                 this.setRequestTimer();
             },
             (err: any) => {
@@ -103,7 +104,6 @@ export default class Application extends Vue {
             this.haltProvide();
         }
         this.setProvideTimer();
-
     }
 
     stopProvide() {
@@ -116,6 +116,7 @@ export default class Application extends Vue {
     }
     setProvideTimer() {
         if (!this.processing) return;
+        this.setTitleWithTimer();
         if (this.provideTimerLimitCountDown < 0) {
             this.startProvide();
         } else {
@@ -132,6 +133,7 @@ export default class Application extends Vue {
             this.processing = false;
             return;
         }
+        
         if (this.isValidBBSUrl()) {
             this.showLists();
             this.processing = false;
@@ -146,6 +148,7 @@ export default class Application extends Vue {
             this.loadUrlSource();
         }
         this.startThreadRequest();
+        this.pManager.selectVoice(this.path);
         this.startProvide();
     }
 
@@ -180,8 +183,8 @@ export default class Application extends Vue {
     usingPath(): boolean {
         return this.pManager.voice === VOICE.SOFTALK || this.pManager.voice === VOICE.TAMIYASU;
     }
-    // refresh
-    requestOnce(cache: boolean = false) {
+
+    requestOnce(load: boolean = false) {
         if (this.isValidBBSUrl()) {
             this.showLists();
             return;
@@ -190,12 +193,13 @@ export default class Application extends Vue {
             return;
         }
         this.showListView = false;
-        this.loadUrlSource(cache);
-        if (cache) this.initScroll();
+        this.loadUrlSource(load);
+        if (load) this.initScroll();
         this.snackbar({ message: "読み込みを開始しました" });
         this.thread.request(
             (newArrival: number) => {
                 this.snackbar({ message: "読み込みに成功しました" });
+                this.setTitleWithTimer();
                 console.log("request success", newArrival.toString());
             },
             (err: any) => {
@@ -282,20 +286,8 @@ export default class Application extends Vue {
         return StringUtil.anchorToInnerLink(utl);
     }
 
-    get enabledControlls() {
-        return !this.isValidURL();
-    }
-
     get validThreadControlls() {
         return !this.isvalidThreadUrl() || this.showListView;
-    }
-
-    get validThreadUrl() {
-        return this.isvalidThreadUrl();
-    }
-
-    get validBbsUrl() {
-        return this.isValidBBSUrl();
     }
 
     get validUrl() {
@@ -356,16 +348,6 @@ export default class Application extends Vue {
         }, 5);
     }
 
-    @Watch('thread.title')
-    onTitleChange(newValue: number, oldValue: number) {
-        this.setTitleWithTimer();
-    }
-
-    @Watch("provideTimerLimitCountDown")
-    onTimerChange(newValue: number, oldValue: number) {
-        this.setTitleWithTimer();
-    }
-
     setTitleWithTimer() {
         this.setTitle(this.formattedTimes() + " - " + this.thread.title);
     }
@@ -382,10 +364,6 @@ export default class Application extends Vue {
     }
 
     path: string = "";
-    @Watch("pManager.voice")
-    onVoiceChange(newValue: number, oldValue: number) {
-        this.pManager.selectVoice(newValue, this.path);
-    }
 
     findSofTalkPathDialog() {
         remote.dialog.showOpenDialog(remote.getCurrentWindow(), {
@@ -395,7 +373,6 @@ export default class Application extends Vue {
         }, (paths: string[]) => {
             if (paths) {
                 this.path = paths[0];
-                this.pManager.selectVoice(VOICE.SOFTALK, this.path);
             }
         });
     }
@@ -486,7 +463,7 @@ export default class Application extends Vue {
         let items = localStorage.getItem(SETTINGS);
         var settings = JSON.parse(items);
         if (!settings) {
-            this.pManager.selectVoice(this.pManager.voice);
+            this.pManager.selectVoice();
             return;
         }
         try {
@@ -517,7 +494,7 @@ export default class Application extends Vue {
             this.path = settings.path;
             this.dummyTextTemp = this.dummyText = settings.dummyText;
             this.pManager.voice = Number(settings.voice);
-            this.pManager.selectVoice(this.pManager.voice, this.path);
+            this.pManager.selectVoice(this.path);
             this.setTitleWithTimer();
             console.log("load settings", items);
         } catch (e) {
@@ -532,6 +509,7 @@ export default class Application extends Vue {
     };
 
     getArgvUrl(): string {
+        if (process.env.NODE_ENV != "production") return "";
         let argv: string[] = ipcRenderer.sendSync('argv');
         console.log("argv : " + argv);
         let argvUrl = argv.length > 1 ? argv[1] : "";

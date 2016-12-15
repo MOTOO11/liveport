@@ -29,7 +29,7 @@ export default class ProvideManager {
         if (this.containsNg(body)) {
             const ng = () => {
                 if (reading) {
-                    this.speak(letter + "\n" + CONFIG.SystemDictionary.NG.reading, callback,timeLimit);
+                    this.speak(letter + "\n" + CONFIG.SystemDictionary.NG.reading, callback, timeLimit);
                 }
                 this.socket.emit(MODE.MESSAGE, letter + "\r\n" + CONFIG.SystemDictionary.NG.reading);
             }
@@ -45,7 +45,7 @@ export default class ProvideManager {
         let brReplace = StringUtil.replaceBr2NewLine(anchorReplace);
         const aa = () => {
             if (reading)
-                this.speak(letter + "\n" + SystemDictionary.AA.reading, callback,timeLimit);
+                this.speak(letter + "\n" + SystemDictionary.AA.reading, callback, timeLimit);
             this.socket.emit(MODE.AA, letter + "\r\n" + brReplace);
         }
 
@@ -66,7 +66,7 @@ export default class ProvideManager {
                 let urlReplace = StringUtil.urlToReadable(brReplace);
                 let userDictionary = StringUtil.applyUserDictionary(urlReplace);
                 let ZENHANReplace = StringUtil.replaceHANKAKUtoZENKAKU(userDictionary);
-                this.speak(letter + "\n" + ZENHANReplace, callback,timeLimit);
+                this.speak(letter + "\n" + ZENHANReplace, callback, timeLimit);
             }
             this.socket.emit(MODE.MESSAGE, letter + "\r\n" + brReplace);
         }
@@ -80,7 +80,7 @@ export default class ProvideManager {
     speak(body: string, callback?: () => any, timeLimit?: number) {
         let text = body;
         if (this.voice === VOICE.TAMIYASU) {
-            text = Tamiyasu.calcStringSize(body,timeLimit);
+            text = Tamiyasu.calcStringSize(body, timeLimit);
         }
         this.speaker.speak(text, this.vParam, callback);
     }
@@ -96,13 +96,13 @@ export default class ProvideManager {
         return StringUtil.isAA(value, count);
     }
 
-    selectVoice(value: number, path?: string) {
-        Logger.log("select speaker", value.toString());
-        if (value === VOICE.WSA) {
+    selectVoice(path?: string) {
+        Logger.log("select speaker", this.voice.toString());
+        if (this.voice === VOICE.WSA) {
             this.speaker = new WebspeechApi();
-        } else if (value === VOICE.SOFTALK) {
+        } else if (this.voice === VOICE.SOFTALK) {
             this.speaker = new SofTalk(path);
-        } else if (value === VOICE.TAMIYASU) {
+        } else if (this.voice === VOICE.TAMIYASU) {
             this.speaker = new Tamiyasu(path);
         }
     }
