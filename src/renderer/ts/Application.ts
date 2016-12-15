@@ -45,13 +45,13 @@ export default class Application extends Vue {
             (newArrival: number) => {
                 console.log("request success", newArrival.toString());
                 this.newArrival = newArrival;
-                this.setTitleWithTimer();
                 this.setRequestTimer();
             },
             (err: any) => {
                 console.log("request failed", err);
                 let warn = {
-                    message: "ERROR : " + err
+                    message: "ERROR : " + err,
+                    timeout: 1500
                 }
                 this.snackbar(warn);
                 this.setRequestTimer();
@@ -116,7 +116,6 @@ export default class Application extends Vue {
     }
     setProvideTimer() {
         if (!this.processing) return;
-        this.setTitleWithTimer();
         if (this.provideTimerLimitCountDown < 0) {
             this.startProvide();
         } else {
@@ -133,7 +132,7 @@ export default class Application extends Vue {
             this.processing = false;
             return;
         }
-        
+
         if (this.isValidBBSUrl()) {
             this.showLists();
             this.processing = false;
@@ -155,7 +154,7 @@ export default class Application extends Vue {
     validate(): boolean {
         if (this.usingPath() && this.path === "" && this.pManager.reading && this.processing === true) {
             let warn = {
-                message: "ERROR : pathが設定されていません。"
+                message: "ERROR : pathが設定されていません。", timeout: 1500
             }
             this.snackbar(warn);
             return false;
@@ -165,14 +164,14 @@ export default class Application extends Vue {
             (/.*\SofTalk.exe$/.test(this.path) && (this.pManager.voice === VOICE.TAMIYASU))
         ) {
             let warn = {
-                message: "WARN : 読み上げソフトの指定を間違っている可能性があります"
+                message: "WARN : 読み上げソフトの指定を間違っている可能性があります", timeout: 1000
             }
             this.snackbar(warn);
         }
 
         if (!this.isValidURL()) {
             let warn = {
-                message: "ERROR : 対応していないURLです"
+                message: "ERROR : 対応していないURLです", timeout: 1500
             }
             this.snackbar(warn);
             return false;
@@ -199,13 +198,12 @@ export default class Application extends Vue {
         this.thread.request(
             (newArrival: number) => {
                 this.snackbar({ message: "読み込みに成功しました" });
-                this.setTitleWithTimer();
                 console.log("request success", newArrival.toString());
             },
             (err: any) => {
                 console.log("request failed", err);
                 let warn = {
-                    message: "ERROR : " + err
+                    message: "ERROR : " + err, timeout: 1500
                 }
                 this.snackbar(warn);
             }
@@ -231,7 +229,7 @@ export default class Application extends Vue {
         this.thread.getLists(() => {
             this.snackbar({ message: "一覧の読み込みに成功" });
         }, (err) => {
-            this.snackbar({ message: err });
+            this.snackbar({ message: err, timeout: 1500 });
         });
     }
 
@@ -299,10 +297,6 @@ export default class Application extends Vue {
         this.scrollTo(this.thread.bookmark);
     }
 
-    setTitle(name: string) {
-        remote.getCurrentWindow().setTitle(name + " - " + ApplicatonName);
-    }
-
     dummyText: string = "";
     provideDummyText() {
         this.pManager.dummyText(this.dummyText);
@@ -323,8 +317,9 @@ export default class Application extends Vue {
         });
     }
 
-    snackbar(data: { message: string, timeout?: number } = { message: "info", timeout: 1000 }) {
+    snackbar(data: { message: string, timeout?: number } = { message: "info", timeout: 750 }) {
         var snackbarContainer: any = document.querySelector('#snackbar');
+        if (!data.timeout) data.timeout = 750;
         snackbarContainer.MaterialSnackbar.showSnackbar(data);
     }
 
@@ -348,16 +343,12 @@ export default class Application extends Vue {
         }, 5);
     }
 
-    setTitleWithTimer() {
-        this.setTitle(this.formattedTimes() + " - " + this.thread.title);
-    }
-
-    formattedTimes() {
+    get formattedTimes() {
         let rtcd = this.zeroPadding(this.reloadTimerCountDown);
         let rd = this.zeroPadding(this.reload);
         let ptcd = this.zeroPadding(this.provideTimerLimitCountDown);
         let pd = this.zeroPadding(this.provideTimeLimit);
-        return `reload(${rtcd}/${rd}) voice(${ptcd}/${pd})`
+        return `reload:[${rtcd}/${rd}] voice:[${ptcd}/${pd}]`
     }
     zeroPadding(number: number, length: number = 2) {
         return (Array(length).join('0') + number).slice(-length);
@@ -457,9 +448,9 @@ export default class Application extends Vue {
     version = VERSION;
 
     init() {
+        remote.getCurrentWindow().setTitle(ApplicatonName);
         this.pManager = new ProvideManager();
         this.thread = new Shitaraba("dummyThread");
-        this.setTitleWithTimer();
         let items = localStorage.getItem(SETTINGS);
         var settings = JSON.parse(items);
         if (!settings) {
@@ -475,7 +466,6 @@ export default class Application extends Vue {
                     this.loadUrlSource();
                     if (argvUrl)
                         this.requestOnce();
-                    this.setTitleWithTimer();
                 }
             };
             this.comment.NAME = settings.NAME;
@@ -495,7 +485,6 @@ export default class Application extends Vue {
             this.dummyTextTemp = this.dummyText = settings.dummyText;
             this.pManager.voice = Number(settings.voice);
             this.pManager.selectVoice(this.path);
-            this.setTitleWithTimer();
             console.log("load settings", items);
         } catch (e) {
             console.log("invalid settings error.");

@@ -114,7 +114,7 @@
                 <div class="viewer__showThread">
                     <div v-show="!showListView" v-bind:class="{'commentbar--margin':showCommentView}">
                         <dl v-for="item in thread.messages" v-bind:style="CSS.res">
-                            <dt v-bind:style="CSS.header" :id="'MESSAGE-'+item.num" :key="item.num"><span v-bind:class="[item.latest ? 'num--new':'']" v-bind:style="CSS.num">{{item.num}}</span>:
+                            <dt class="message__header" v-bind:style="CSS.header" :id="'MESSAGE-'+item.num" :key="item.num"><span v-bind:class="[item.latest ? 'num--new':'']" v-bind:style="CSS.num">{{item.num}}</span>:
                                 <span v-html="item.name" v-bind:style="CSS.name"></span>
                                 <span v-bind:style="CSS.mail">
                                         <img v-bind:src="item.mail" class="mail--icon" v-if="isMailImg(item.mail)">
@@ -212,6 +212,11 @@
             </div>
         </div>
         <!-- fiexed comment bar -->
+        <!-- fiexed status bar -->
+        <div class="fixed-statusbar">
+            <span>{{formattedTimes}} - <b>{{thread.title}}</b></span>
+        </div>
+        <!-- fiexed status bar -->
         <!-- snack bar -->
         <div id="snackbar" class="mdl-js-snackbar mdl-snackbar">
             <div class="mdl-snackbar__text"></div>

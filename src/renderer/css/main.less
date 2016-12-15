@@ -74,7 +74,7 @@
     display: block;
     right: 0;
     top: 80px;
-    width: 6em;
+    width: 70px;
     margin-right: 20px;
     z-index: 900;
 }
@@ -83,9 +83,9 @@
     position: fixed;
     display: block;
     left: 0;
-    bottom: 10px;
+    bottom: 25px;
     width: 300px;
-    height:80px;
+    height: 80px;
     margin-left: 10px;
     z-index: 800;
     padding: 10px;
@@ -104,10 +104,30 @@
     }
 }
 
+.fixed-statusbar {
+    position: fixed;
+    display: block;
+    left: 0;
+    overflow: hidden;
+    bottom: 0;
+    height: 18px;
+    margin-right: 20px;
+    z-index: 800;
+    padding: 0 5px 0 5px;
+    display: inline-block;
+    background-color: lightgray;
+    font-size: 12px;
+}
+
 .viewer__showThread {
     .commentbar--margin {
-        margin-bottom: 120px;
+        margin-bottom: 130px;
     }
+    .message__header{
+        word-wrap: break-word;
+    }
+    margin-bottom: 20px;
+    margin-right: 80px;
     .aa {
         font-family: "ＭＳ Ｐゴシック", "MS PGothic", "Mona", "mona-gothic-jisx0208.1990-0", sans-serif;
         font-size: 16px;
@@ -128,7 +148,6 @@
         height: 16px;
     }
 }
-
 
 .mdl-button--default {
     cursor: default;
