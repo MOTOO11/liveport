@@ -27,7 +27,7 @@ export default class Application extends Vue {
     thread: DataSource;
     constructor() {
         super();
-        console.log("start", "hello application.");
+        console.log("hello application.");
         this.init();
     }
 
@@ -146,9 +146,15 @@ export default class Application extends Vue {
         } else {
             this.loadUrlSource();
         }
+        if (this.autoScroll)
+            this.latest();
         this.startThreadRequest();
         this.pManager.selectVoice(this.path);
         this.startProvide();
+    }
+
+    handle(e) {
+        console.log(e)
     }
 
     validate(): boolean {
@@ -184,6 +190,7 @@ export default class Application extends Vue {
     }
 
     requestOnce(load: boolean = false) {
+        this.stop();
         if (this.isValidBBSUrl()) {
             this.showLists();
             return;
@@ -218,7 +225,6 @@ export default class Application extends Vue {
 
     showLists() {
         this.showListView = true;
-        this.showCommentView = false;
         if (!this.isValidURL()) {
             this.snackbar({ message: "URLが正しくありません" });
         }
@@ -250,6 +256,7 @@ export default class Application extends Vue {
 
     sendMessage() {
         console.log("start send request");
+        this.snackbar({ message: "書き込み開始" });
         if (!this.comment.MESSAGE) return;
         if (this.url != this.thread.url) {
             this.loadUrlSource();
@@ -389,12 +396,13 @@ export default class Application extends Vue {
     }
 
     isvalidThreadUrl(): boolean {
-        return Shitaraba.isValidURL(this.url) || CaveTube.isValidURL(this.url);
+        return Shitaraba.isValidThreadURL(this.url) || CaveTube.isValidURL(this.url);
     }
 
     // allocate
     loadUrlSource(load: boolean = true) {
-        if (Shitaraba.isValidURL(this.url)) {
+        if (Shitaraba.isValidThreadURL(this.url)) {
+            this.url = Shitaraba.getFormattingShitarabaUrl(this.url);
             this.thread = new Shitaraba(this.url);
             if (load) {
                 this.thread.load();
@@ -410,6 +418,7 @@ export default class Application extends Vue {
 
     get settings() {
         return this.url + this.dummyText + this.autoScroll
+            + this.showCommentView
             + this.pManager.vParam.volume
             + this.pManager.vParam.rate
             + this.pManager.vParam.pitch
@@ -424,6 +433,7 @@ export default class Application extends Vue {
         localStorage.setItem(SETTINGS, JSON.stringify({
             url: this.url,
             autoScroll: this.autoScroll,
+            showCommentView: this.showCommentView,
             volume: this.pManager.vParam.volume,
             rate: this.pManager.vParam.rate,
             pitch: this.pManager.vParam.pitch,
@@ -468,6 +478,7 @@ export default class Application extends Vue {
                         this.requestOnce();
                 }
             };
+            this.showCommentView = settings.showCommentView;
             this.comment.NAME = settings.NAME;
             this.comment.MAIL = settings.MAIL;
             this.playingNotificationSound = Boolean(settings.playingNotificationSound);

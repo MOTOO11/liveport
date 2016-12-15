@@ -4,8 +4,8 @@ import * as  iconv from "iconv-lite";
 import Message from "./Message";
 import * as encoding from "encoding-japanese";
 import { DataSource, ThreadList } from "./DataSource";
-const SHITARABA_REGEX = new RegExp(/^http:\/\/jbbs.shitaraba.net\/bbs\/read.cgi\/(\w+)\/(\d+)\/(\d+)\/$/);
-const SHITARABA_BBS_REGEX = new RegExp(/^http:\/\/jbbs.shitaraba.net\/(\w+)\/(\d+)\/$/);
+const SHITARABA_REGEX = new RegExp(/^http:\/\/jbbs.shitaraba.net\/bbs\/read.cgi\/(\w+)\/(\d+)\/(\d+)\//);
+const SHITARABA_BBS_REGEX = new RegExp(/^http:\/\/jbbs.shitaraba.net\/(\w+)\/(\d+)\//);
 const RES_SPLITTER = new RegExp(/<>/g);
 const NEWLINE_SPLITTER = new RegExp(/\n/g);
 const DEFAULT_TIMEOUT = 10000;
@@ -163,7 +163,7 @@ export class Shitaraba extends DataSource {
             return { valid: false, text: "URLが設定されていません" };
         }
 
-        if (Shitaraba.isValidURL(this.url)) {
+        if (Shitaraba.isValidThreadURL(this.url)) {
             return { valid: true, text: "" };
         }
         if (!Shitaraba.isValidBBSURL(this.url)) {
@@ -179,7 +179,7 @@ export class Shitaraba extends DataSource {
         if (Shitaraba.isValidBBSURL(this.url)) {
             return { valid: false, text: "掲示板のURLが選択されていません" };
         }
-        if (!Shitaraba.isValidURL(this.url)) {
+        if (!Shitaraba.isValidThreadURL(this.url)) {
             return { valid: false, text: "掲示板のURLが選択されていません" };
         }
         return { valid: true, text: "" };
@@ -187,7 +187,7 @@ export class Shitaraba extends DataSource {
 
     constructor(url: string) {
         super(url);
-        if (Shitaraba.isValidURL(url)) {
+        if (Shitaraba.isValidThreadURL(url)) {
             this.setThreadDetails();
         } else if (Shitaraba.isValidBBSURL(url)) {
             var matches = this.url.match(SHITARABA_BBS_REGEX);
@@ -214,12 +214,21 @@ export class Shitaraba extends DataSource {
             this.sendUrl = `http://jbbs.shitaraba.net/bbs/write.cgi/${this.DIR}/${this.BBS}/${this.KEY}/`;
         }
     }
-    static isValidURL(url: string): boolean {
+    static isValidThreadURL(url: string): boolean {
         return SHITARABA_REGEX.test(url);
     }
     static isValidBBSURL(url: string): boolean {
         return SHITARABA_BBS_REGEX.test(url);
     }
+    static getFormattingShitarabaUrl(url: string): string {
+        let result = "";
+        console.log("formatting url before : " + url);
+        if (Shitaraba.isValidThreadURL(url)) {
+            var matches = url.match(SHITARABA_REGEX);
+            result = `http://jbbs.shitaraba.net/bbs/read.cgi/${matches[1]}/${matches[2]}/${matches[3]}/`;
+        }
+        console.log("formatting url after : " + result);
+        return result;
+    }
 }
-
 export default Shitaraba;

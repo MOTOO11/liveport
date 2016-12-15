@@ -20,12 +20,10 @@
             <!-- header -->
             <header class="mdl-layout__header">
                 <div class="mdl-layout__header-row">
-                    <span class="mdl-layout-title">
-                        <div class="mdl-textfield mdl-js-textfield mdl-textfield--url">
-                            <input type="text" v-on:keyup.enter="requestOnce(false)" class="mdl-textfield__input" v-model="url" v-bind:disabled="processing" id="url" />
-                            <label class="mdl-textfield__label" for="url">URL.....</label>
-                        </div>
-                    </span>
+                    <div class="mdl-textfield mdl-js-textfield mdl-textfield--url">
+                        <input type="text" v-on:keyup.enter="requestOnce(false)" class="mdl-textfield__input" v-model="url" id="url" />
+                        <label class="mdl-textfield__label" for="url">URL.....</label>
+                    </div>
                     <!--<div class="mdl-layout-spacer"></div>-->
                 </div>
             </header>
@@ -203,9 +201,9 @@
         </div>
         <!-- fixed right menu -->
         <!-- fiexed comment bar -->
-        <div v-show="showCommentView">
+        <div v-show="showCommentView&&!showListView">
             <div class="fixed-commentbar">
-                <textarea id="post" autocomplete="off" rows="3" v-model="comment.MESSAGE"></textarea>
+                <textarea v-on:keydown.shift.enter.prevent="sendMessage()" id="post" autocomplete="off" rows="3" v-model="comment.MESSAGE"></textarea>
                 <div class="toolbar">
                     <label>名前:</label><input type="text" value="name" v-model="comment.NAME"><label>mail:</label><input type="text" v-model="comment.MAIL"><button v-on:click="sendMessage()" v-bind:disabled="!validUrl">送信</button>
                 </div>
