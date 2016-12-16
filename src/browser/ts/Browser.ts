@@ -39,9 +39,6 @@ export default class Browser extends Vue {
         })[0], "UTF-8") * ratio;
         var height = value.split("\n").length * 1.2;
         var size = 100 / (Math.max(maxWidth, height));
-        // console.log("width:%s", maxWidth);
-        // console.log("height:%s", height);
-        // console.log("size:%s", size);
         return size;
     }
     setFontSize(size: number) {
