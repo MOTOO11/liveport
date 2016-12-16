@@ -10,13 +10,13 @@ import ProvideManager from "./ProvideManager";
 const CONFIG = require("../../../config.json");
 const LETTER: string = CONFIG.letter;
 const CustomCss = CONFIG.CustomCss;
-import { remote } from "electron";
+import { remote, ipcRenderer } from "electron";
 const ApplicatonName = require("../../../package.json").name
 const VERSION = require("../../../package.json").version
+const port: number = CONFIG.port
 import * as $ from "jquery"
 import * as fs from "fs";
 const SETTINGS = "settings";
-const {ipcRenderer} = require('electron')
 
 @Component({})
 export default class Application extends Vue {
@@ -355,7 +355,7 @@ export default class Application extends Vue {
         let rd = this.zeroPadding(this.reload);
         let ptcd = this.zeroPadding(this.provideTimerLimitCountDown);
         let pd = this.zeroPadding(this.provideTimeLimit);
-        return `reload:[${rtcd}/${rd}] voice:[${ptcd}/${pd}]`
+        return `reload:[${rtcd}/${rd}] next:[${ptcd}/${pd}]`
     }
     zeroPadding(number: number, length: number = 2) {
         return (Array(length).join('0') + number).slice(-length);
@@ -461,6 +461,7 @@ export default class Application extends Vue {
         remote.getCurrentWindow().setTitle(ApplicatonName);
         this.pManager = new ProvideManager();
         this.thread = new Shitaraba("dummyThread");
+        this.port = port;
         let items = localStorage.getItem(SETTINGS);
         var settings = JSON.parse(items);
         if (!settings) {
@@ -502,6 +503,39 @@ export default class Application extends Vue {
             localStorage.removeItem(SETTINGS);
             this.init();
         }
+
+        ipcRenderer.on("start", (event, arg) => {
+            let port = arg;
+            this.pManager.connectIOServer(port);
+            setTimeout(() => {
+                this.snackbar({ message: "サーバーが起動しました", timeout: 1000 });
+            }, 3000);
+        })
+        ipcRenderer.on("failed", (event, arg) => {
+            this.snackbar({ message: "サーバーの起動に失敗しました。既に起動しているかポートが使用されています。", timeout: 1000 });
+            this.broadcaster = false;
+        })
+        ipcRenderer.on("stop", (event, arg) => {
+            setTimeout(() => {
+                this.snackbar({ message: "サーバーを停止しました", timeout: 1000 });
+            }, 3000);
+        })
+    }
+
+    port = 3000;
+    broadcaster = false;
+    flipServerMode() {
+        if (this.broadcaster) {
+            console.log("server will stop")
+            this.snackbar({ message: "サーバーを停止します", timeout: 750 });
+            this.pManager.disconnectIOClient();
+            ipcRenderer.send("stop-server");
+        } else {
+            console.log("server will start")
+            this.snackbar({ message: "サーバーを起動します[" + this.port + "]", timeout: 750 });
+            ipcRenderer.send("start-server", this.port);
+        }
+        this.broadcaster = !this.broadcaster;
     }
 
     mounted() {
