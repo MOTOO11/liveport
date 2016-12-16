@@ -9,7 +9,7 @@ export class VoiceParameter {
     volume: number = 100;
     rate: number = 10;
     pitch: number = 50;
-    use: boolean = true;
+    use: boolean = false;
     constructor(volume: number = 100, rate: number = 10, pitch: number = 50) {
         this.volume = volume;
         this.rate = rate;
