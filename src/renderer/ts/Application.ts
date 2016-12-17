@@ -167,8 +167,9 @@ export default class Application extends Vue {
             return false;
         }
         if (
-            (/.*\vrx.exe$/.test(this.path) && (this.pManager.voice === VOICE.SOFTALK)) ||
-            (/.*\SofTalk.exe$/.test(this.path) && (this.pManager.voice === VOICE.TAMIYASU))
+            (/.*\vrx.exe$/.test(this.path) && (this.pManager.voice != VOICE.TAMIYASU)) ||
+            (/.*\SofTalk.exe$/.test(this.path) && (this.pManager.voice != VOICE.SOFTALK)) ||
+            (/.*\RemoteTalk.exe$/.test(this.path) && (this.pManager.voice != VOICE.BOUYOMI))
         ) {
             let warn = {
                 message: "WARN : 読み上げソフトの指定を間違っている可能性があります", timeout: 1000
@@ -187,7 +188,7 @@ export default class Application extends Vue {
     }
 
     usingPath(): boolean {
-        return this.pManager.voice === VOICE.SOFTALK || this.pManager.voice === VOICE.TAMIYASU;
+        return this.pManager.voice === VOICE.SOFTALK || this.pManager.voice === VOICE.TAMIYASU || this.pManager.voice === VOICE.BOUYOMI;
     }
 
     requestOnce(load: boolean = false) {
@@ -349,6 +350,7 @@ export default class Application extends Vue {
     }
 
     test(letter: string, body: string) {
+        this.pManager.selectVoice(this.path);
         this.pManager.provide(letter, body, this.pManager.reading, null, this.provideTimeLimit);
     }
 

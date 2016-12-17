@@ -1,6 +1,7 @@
 import SofTalk from "./SofTalk"
 import WebspeechApi from "./WebspeechApi"
 import Tamiyasu from "./Tamiyasu"
+import Bouyomi from "./Bouyomi"
 import { VOICE, VoiceParameter } from "./Voice"
 import * as io from "socket.io-client";
 import StringUtil from "./StringUtil";
@@ -118,6 +119,8 @@ export default class ProvideManager {
             this.speaker = new SofTalk(path);
         } else if (this.voice === VOICE.TAMIYASU) {
             this.speaker = new Tamiyasu(path);
+        } else if (this.voice === VOICE.BOUYOMI) {
+            this.speaker = new Bouyomi(path);
         }
     }
 

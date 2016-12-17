@@ -61,9 +61,13 @@
                             <input type="radio" id="option-3" class="mdl-radio__button"  v-model="pManager.voice"  v-bind:value="3" v-bind:disabled="processing">
                             <span class="mdl-radio__label">民安talk</span>
                         </label>
+                    <label class="mdl-radio mdl-js-radio mdl-js-ripple-effect" for="option-4">
+                            <input type="radio" id="option-4" class="mdl-radio__button"  v-model="pManager.voice"  v-bind:value="4" v-bind:disabled="processing">
+                            <span class="mdl-radio__label">棒読みちゃん</span>
+                        </label>
                     </span>
                     <span class="mdl-navigation__link">
-                        <label><i class="material-icons">find_in_page</i> softalk/vrxのパス</label>                        
+                        <label><i class="material-icons">find_in_page</i> softalk/vrx/RemoteTalkのパス</label>                        
                         <div class="mdl-textfield mdl-js-textfield">
                             <input class="mdl-textfield__input"  v-on:click="findSofTalkPathDialog()" id="path" autocomplete="off" v-model="path" v-bind:disabled="processing">
                         </div>

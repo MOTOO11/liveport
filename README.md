@@ -47,6 +47,8 @@ OBS Studioを使用している場合、字幕をOBS Studio内で表示するこ
  * sofTalkを使う場合は[Softalk/vrsのパス]でSofTalk.exeを選択する
  * 民安Talkを使う場合は[Softalk/vrsのパス]でvrx.exeを選択する
    * ※民安Talkを使う場合、読み上げ時間制限の設定値により民安Talkに送られる文章が途中で省略される場合があります
+ * 棒読みちゃんを使う場合は棒読みちゃん.exeを先に起動しておく
+   * パスには同梱の[RemoteTalk/RemoteTalk.exe]を選択する
 
 * ver 1.0.0
   * 初版
