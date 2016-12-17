@@ -44,6 +44,11 @@ export abstract class DataSource {
         this.bookmark = data.bookmark;
         this.url = data.url;
         this.title = data.title;
+        try {
+            this.parentTitle = data.parentTitle;
+        } catch (e) {
+            this.parentTitle = "";
+        }
         var resdata = [];
         for (var i in data.messages) {
             var decode = Message.decodeFromJson(JSON.stringify(data.messages[i]));
@@ -82,8 +87,12 @@ export abstract class DataSource {
     static clearDataSource(url: string) {
         localStorage.removeItem(url);
     }
-    static clearAllDataSource(url: string) {
-        localStorage.clear();
+    static clearAllDataSource() {
+        for (var a in localStorage) {
+            if (a.startsWith("http"))
+                DataSource.clearDataSource(a);
+        }
+
     }
 }
 

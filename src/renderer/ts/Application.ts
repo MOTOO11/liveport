@@ -640,10 +640,7 @@ export default class Application extends Vue {
     }
 
     clearDataSource() {
-        for (var a in localStorage) {
-            if (a.startsWith("http"))
-                DataSource.clearDataSource(a);
-        }
+        DataSource.clearAllDataSource();
         this.snackbar({ message: "キャッシュを消去しました" });
         this.thread = new Shitaraba("dummyThread");
         this.url = "";
