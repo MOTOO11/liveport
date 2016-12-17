@@ -462,23 +462,30 @@ export default class Application extends Vue {
         this.pManager = new ProvideManager();
         this.thread = new Shitaraba("dummyThread");
         this.port = port;
+        let argv = this.getArgv();
+        console.log(argv);
+        if (argv.url) this.url = argv.url;
+        if (argv.server) {
+            this.startServer();
+            this.server = true;
+            remote.getCurrentWindow().setTitle(ApplicatonName + " - broadcast mode");
+        }
+
         let items = localStorage.getItem(SETTINGS);
         var settings = JSON.parse(items);
         if (!settings) {
             this.pManager.selectVoice();
+            this.saveSettings();
             return;
         }
         try {
             this.url = settings.url;
-            let argvUrl = this.getArgvUrl();
-            if (argvUrl) this.url = this.getArgvUrl();
+            if (argv.url) this.url = argv.url;
             if (this.url) {
                 if (this.isvalidThreadUrl()) {
                     this.loadUrlSource();
-                    if (argvUrl)
-                        this.requestOnce();
                 }
-            };
+            }
             this.showCommentView = settings.showCommentView;
             this.comment.NAME = settings.NAME;
             this.comment.MAIL = settings.MAIL;
@@ -497,57 +504,78 @@ export default class Application extends Vue {
             this.dummyTextTemp = this.dummyText = settings.dummyText;
             this.pManager.voice = Number(settings.voice);
             this.pManager.selectVoice(this.path);
-            console.log("load settings", items);
+            console.log("done load settings", items);
         } catch (e) {
-            console.log("invalid settings error.");
+            console.log("error:invalid settings.");
+            console.log(e);
             localStorage.removeItem(SETTINGS);
+            if (argv.server) this.stopServer();
             this.init();
+            return;
         }
 
         ipcRenderer.on("start", (event, arg) => {
-            let port = arg;
-            this.pManager.connectIOServer(port);
             setTimeout(() => {
-                this.snackbar({ message: "サーバーが起動しました", timeout: 1000 });
+                let port = arg;
+                this.pManager.connectIOServer(port);
+                console.log("サーバーが起動しました")
             }, 3000);
         })
         ipcRenderer.on("failed", (event, arg) => {
-            this.snackbar({ message: "サーバーの起動に失敗しました。既に起動しているかポートが使用されています。", timeout: 1000 });
-            this.broadcaster = false;
+            console.log("サーバーの起動に失敗しました。既に起動しているかポートが使用されています。")
+            this.server = false;
         })
         ipcRenderer.on("stop", (event, arg) => {
             setTimeout(() => {
-                this.snackbar({ message: "サーバーを停止しました", timeout: 1000 });
+                console.log("サーバーを停止しました");
             }, 3000);
         })
     }
 
     port = 3000;
-    broadcaster = false;
+    server = false;
     flipServerMode() {
-        if (this.broadcaster) {
-            console.log("server will stop")
-            this.snackbar({ message: "サーバーを停止します", timeout: 750 });
-            this.pManager.disconnectIOClient();
-            ipcRenderer.send("stop-server");
+        if (process.env.NODE_ENV === "production") return;
+        if (this.server) {
+            this.stopServer();
         } else {
-            console.log("server will start")
-            this.snackbar({ message: "サーバーを起動します[" + this.port + "]", timeout: 750 });
-            ipcRenderer.send("start-server", this.port);
+            this.startServer();
         }
-        this.broadcaster = !this.broadcaster;
+    }
+
+    startServer() {
+        console.log("サーバーを起動します[" + this.port + "]");
+        ipcRenderer.send("start-server", this.port);
+        this.server = true;
+    }
+
+    stopServer() {
+        console.log("サーバーを停止します");
+        this.pManager.disconnectIOClient();
+        ipcRenderer.send("stop-server");
+        this.server = false;
     }
 
     mounted() {
         this.initScroll();
     };
 
-    getArgvUrl(): string {
-        if (process.env.NODE_ENV != "production") return "";
-        let argv: string[] = ipcRenderer.sendSync('argv');
+    getArgv(): { url: string, server: boolean } {
+        let result = { url: "", server: false };
+        let argv: string[] = [];
+        if (process.env.NODE_ENV != "production") {
+            argv = ["server"];
+        } else
+            argv = ipcRenderer.sendSync('argv');
         console.log("argv : " + argv);
-        let argvUrl = argv.length > 1 ? argv[1] : "";
-        return argvUrl;
+        argv.forEach(element => {
+            if (/^http:\/\/.+/.test(element)) {
+                result.url = element;
+            } else if (element === "server") {
+                result.server = true;
+            }
+        });
+        return result;
     }
 
     playingNotificationSound: boolean = false;

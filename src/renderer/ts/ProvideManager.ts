@@ -18,12 +18,26 @@ const MODE = {
 }
 export default class ProvideManager {
     speaking: boolean = false;
-    socket = io.connect("http://localhost:" + port);
     speaker: Speaker;
     vParam: VoiceParameter = new VoiceParameter();
     voice: number = VOICE.WSA;
     reading: boolean = true;
+    socket: SocketIOClient.Socket;
+    port: number = 3000;
+
     constructor() { }
+
+    connectIOServer(port: number = this.port) {
+        console.log("connect server")
+        this.port = port;
+        this.socket = io.connect("http://localhost:" + this.port, { 'forceNew': true });
+        this.socket.emit("hello");
+    }
+    disconnectIOClient() { }
+    emit(event: string, value: string) {
+        if (this.socket)
+            this.socket.emit(event, value);
+    }
 
     provide(letter: string, body: string, reading: boolean = true, callback?: () => any, timeLimit?: number) {
         if (this.containsNg(body)) {
@@ -31,7 +45,7 @@ export default class ProvideManager {
                 if (reading) {
                     this.speak(letter + "\n" + CONFIG.SystemDictionary.NG.reading, callback, timeLimit);
                 }
-                this.socket.emit(MODE.MESSAGE, letter + "\r\n" + CONFIG.SystemDictionary.NG.reading);
+                this.emit(MODE.MESSAGE, letter + "\r\n" + CONFIG.SystemDictionary.NG.reading);
             }
             if (this.speaker.speaking()) {
                 this.cancel(ng);
@@ -46,7 +60,7 @@ export default class ProvideManager {
         const aa = () => {
             if (reading)
                 this.speak(letter + "\n" + SystemDictionary.AA.reading, callback, timeLimit);
-            this.socket.emit(MODE.AA, letter + "\r\n" + brReplace);
+            this.emit(MODE.AA, letter + "\r\n" + brReplace);
         }
 
         if (this.isAA(brReplace, CONFIG.textLineLimit)) {
@@ -68,7 +82,7 @@ export default class ProvideManager {
                 let ZENHANReplace = StringUtil.replaceHANKAKUtoZENKAKU(userDictionary);
                 this.speak(letter + "\n" + ZENHANReplace, callback, timeLimit);
             }
-            this.socket.emit(MODE.MESSAGE, letter + "\r\n" + brReplace);
+            this.emit(MODE.MESSAGE, letter + "\r\n" + brReplace);
         }
         if (this.speaker.speaking()) {
             this.cancel(messenger);
@@ -89,7 +103,7 @@ export default class ProvideManager {
     }
 
     dummyText(body: string) {
-        this.socket.emit(MODE.AA, body);
+        this.emit(MODE.AA, body);
     }
 
     isAA(value: string, count?: number): boolean {

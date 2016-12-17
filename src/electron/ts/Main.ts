@@ -1,11 +1,10 @@
 const electron = require('electron');
 const fs = require('fs');
-import { shell } from 'electron';
+import { shell, ipcMain } from 'electron';
 const path = require('path')
 import * as url from "url";
 const BrowserWindow: typeof Electron.BrowserWindow = electron.BrowserWindow;
 const app: Electron.App = electron.app;
-const port = require("../config.json").port;
 const info_path = "./bounds.json";
 class Main {
     mainWindow: Electron.BrowserWindow = null;
@@ -58,26 +57,32 @@ class Main {
     }
 }
 
-var express = require("express");
-var Express = express();
-var http = require('http').Server(Express);
-var socketio = require('socket.io')(http);
-Express.get('/', function (req, res) {
-    res.sendFile(__dirname + '/browser/html/browser.html');
-});
-Express.use("/js", express.static(__dirname + '/browser/js'));
-socketio.on('connection', function (socket) {
-    socket.on('message', function (msg) {
-        socketio.emit('message', msg);
-    });
-    socket.on('aa', function (msg) {
-        socketio.emit('aa', msg);
-    });
+import { Server } from "./Server";
+let server: Server;
+
+ipcMain.on('start-server', (event, arg) => {
+    console.log("main : server start on : " + arg);
+    try {
+        let port = arg;
+        if (!server)
+            server = new Server(port);
+        if (server.start())
+            event.sender.send("start", port);
+        else {
+            event.sender.send("failed");
+        }
+    } catch (e) {
+        console.log(e);
+        event.sender.send("failed");
+    }
 });
 
-http.listen(port, function () {
-    console.log('listening on *:%s', port);
-});
+ipcMain.on("stop-server", (event, arg) => {
+    server.stop();
+    console.log("main : server stop");
+    event.sender.send("stop")
+})
+
 const myapp = new Main(app);
 
 const client = require('electron-connect').client;

@@ -36,24 +36,23 @@ gulp.task('wp:r', () => {
 
 
 gulp.task('ts:compile', () => {
-    return gulp.src("./src/electron/ts/Main.ts")
+    return gulp.src(["./src/electron/ts/Main.ts", "./src/electron/ts/Server.ts"])
         .pipe(ts({
             target: 'ES5',
             removeComments: true
         }))
         .js
-        .pipe(rename("main.js"))
+        // .pipe(rename("main.js"))
         .pipe(gulp.dest(config.dist));
 });
 
 gulp.task('ts:compile:prod', () => {
-    return gulp.src("./src/electron/ts/Main.prod.ts")
-        .pipe(ts({
+    return gulp.src(["./src/electron/ts/Main.prod.ts", "./src/electron/ts/Server.ts"]).pipe(ts({
             target: 'ES5',
             removeComments: true
         }))
         .js
-        .pipe(rename("main.js"))
+        // .pipe(rename("main.js"))
         .pipe(gulp.dest(config.dist));
 });
 
@@ -79,7 +78,7 @@ gulp.task('serve', () => {
     // Start browser process
     electron.start(callback);
     // electron main process
-    gulp.watch("./src/electron/ts/Main.ts", ["ts:compile"]);
+    gulp.watch(["./src/electron/ts/Main.ts", "./src/electron/ts/Server.ts"], ["ts:compile"]);
     gulp.watch(config.dist + "main.js", () => {
         console.log("restart.");
         electron.restart(callback);
