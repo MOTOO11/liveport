@@ -74,13 +74,14 @@
     z-index: 900;
 }
 
+@commentbarHeight: 110px;
 .fixed-commentbar {
     position: fixed;
     display: block;
     left: 0;
     bottom: 25px;
-    width: 300px;
-    height: 80px;
+    width: 310px;
+    height: @commentbarHeight;
     margin-left: 10px;
     z-index: 4;
     padding: 10px;
@@ -95,7 +96,9 @@
         }
     }
     textarea {
-        width: 100%;
+        width: 99%;
+        height: @commentbarHeight - 40;
+        resize: none;
     }
 }
 
@@ -116,7 +119,7 @@
 
 .viewer__showThread {
     .commentbar--margin {
-        margin-bottom: 130px;
+        margin-bottom: @commentbarHeight+50;
     }
     .message__header{
         word-wrap: break-word;
