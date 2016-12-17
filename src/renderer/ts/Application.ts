@@ -568,7 +568,7 @@ export default class Application extends Vue {
         let result = { url: "", server: false };
         let argv: string[] = [];
         if (process.env.NODE_ENV != "production") {
-            argv = ["server", ""];
+            // argv = ["server", ""];
         } else
             argv = ipcRenderer.sendSync('argv');
         console.log("argv : " + argv);
