@@ -479,13 +479,6 @@ export default class Application extends Vue {
             return;
         }
         try {
-            this.url = settings.url;
-            if (argv.url) this.url = argv.url;
-            if (this.url) {
-                if (this.isvalidThreadUrl()) {
-                    this.loadUrlSource();
-                }
-            }
             this.showCommentView = settings.showCommentView;
             this.comment.NAME = settings.NAME;
             this.comment.MAIL = settings.MAIL;
@@ -504,6 +497,16 @@ export default class Application extends Vue {
             this.dummyTextTemp = this.dummyText = settings.dummyText;
             this.pManager.voice = Number(settings.voice);
             this.pManager.selectVoice(this.path);
+
+            this.url = settings.url;
+            if (argv.url) { this.url = argv.url; }
+            if (this.url) {
+                if (this.isvalidThreadUrl()) {
+                    if (argv.url) this.requestOnce(true)
+                    else this.loadUrlSource();
+                }
+            }
+
             console.log("done load settings", items);
         } catch (e) {
             console.log("error:invalid settings.");
@@ -513,6 +516,7 @@ export default class Application extends Vue {
             this.init();
             return;
         }
+
 
         ipcRenderer.on("start", (event, arg) => {
             setTimeout(() => {
@@ -564,7 +568,7 @@ export default class Application extends Vue {
         let result = { url: "", server: false };
         let argv: string[] = [];
         if (process.env.NODE_ENV != "production") {
-            argv = ["server"];
+            argv = ["server", ""];
         } else
             argv = ipcRenderer.sendSync('argv');
         console.log("argv : " + argv);
