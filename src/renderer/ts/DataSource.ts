@@ -4,6 +4,7 @@ export abstract class DataSource {
     url: string = "";
     bookmark: number = 0;
     title: string = "";
+    parentTitle: string = "";
     threadLists: ThreadList[] = [];
     constructor(url: string) {
         this.url = url;
@@ -11,6 +12,7 @@ export abstract class DataSource {
 
     abstract request(success: (number) => void, failed: (err: any) => void);
     abstract data2json(data: string): number;
+    abstract getSetting(success: () => void, failed: (err: any) => void);
 
     allNum() {
         return this.messages.length;
@@ -62,7 +64,7 @@ export abstract class DataSource {
         });
     }
 
-    abstract sendMessage(message:any,success: (result:string) => void, failed: (err: any) => void);
+    abstract sendMessage(message: any, success: (result: string) => void, failed: (err: any) => void);
     abstract getLists(success: () => void, failed: (err: any) => void);
 
     save() {

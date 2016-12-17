@@ -68,7 +68,7 @@ export class CaveTube extends DataSource {
                 var res = new Message();
                 res.num = comments[i].comment_num;
                 res.name = comments[i].name;
-                res.mail = comments[i].user_icon?"http:" + comments[i].user_icon:"";
+                res.mail = comments[i].user_icon ? "http:" + comments[i].user_icon : "";
                 res.date = this.calcDatatime(comments[i].time);
                 res.text = comments[i].message;
                 res.id = "";
@@ -139,6 +139,11 @@ export class CaveTube extends DataSource {
         console.log(dom);
     }
     sendMessage(message: any, success: (result: string) => void, failed: (err: any) => void) {
+        failed("未実装です");
+    }
+
+
+    getSetting(success: () => void, failed: (err: any) => void) {
         failed("未実装です");
     }
 

@@ -7,6 +7,7 @@ import { DataSource, ThreadList } from "./DataSource";
 const SHITARABA_REGEX = new RegExp(/^http:\/\/jbbs.shitaraba.net\/bbs\/read.cgi\/(\w+)\/(\d+)\/(\d+)\//);
 const SHITARABA_BBS_REGEX = new RegExp(/^http:\/\/jbbs.shitaraba.net\/(\w+)\/(\d+)\//);
 const RES_SPLITTER = new RegExp(/<>/g);
+const BBS_TITLE = new RegExp(/BBS_TITLE=(.+)/);
 const NEWLINE_SPLITTER = new RegExp(/\n/g);
 const DEFAULT_TIMEOUT = 10000;
 
@@ -158,6 +159,40 @@ export class Shitaraba extends DataSource {
             });
     }
 
+    getSetting(success: () => void, failed: (err: any) => void) {
+        if (!this.validateBbs().valid) {
+            failed(this.validateBbs().text);
+            return;
+        }
+        console.log("request setting url : " + this.settingUrl);
+        rp({ url: this.settingUrl, encoding: null, timeout: DEFAULT_TIMEOUT })
+            .then((htmlString) => {
+                console.log("request result : ok!");
+                let decoding = iconv.decode(htmlString, "EUC-JP")
+                console.log("result : "+decoding);
+                let matches = decoding.match(BBS_TITLE);
+                if (matches.length > 0) {
+                    this.parentTitle = matches[1];
+                    console.log("bbs title : "+matches[1]);
+                    this.save();
+                    success();
+                } else {
+                    failed("BBSタイトルの取得に失敗しました");
+                }
+
+            })
+            .catch((err) => {
+                console.log("error...");
+                console.log(err);
+                if (!err.statusCode) {
+                    console.log("send request timeout");
+                    failed("タイムアウトしました");
+                    return;
+                }
+                failed(`${err.statusCode} : BBSタイトルの取得に失敗しました`);
+            });
+    }
+
     validateBbs(): { valid: boolean, text: string } {
         if (!this.url) {
             return { valid: false, text: "URLが設定されていません" };
@@ -188,12 +223,11 @@ export class Shitaraba extends DataSource {
     constructor(url: string) {
         super(url);
         if (Shitaraba.isValidThreadURL(url)) {
-            this.setThreadDetails();
+            var matches = this.url.match(SHITARABA_REGEX);
+            this.setThreadDetails(matches[1], matches[2], matches[3]);
         } else if (Shitaraba.isValidBBSURL(url)) {
             var matches = this.url.match(SHITARABA_BBS_REGEX);
-            this.listUrl = `http://jbbs.shitaraba.net/${matches[1]}/${matches[2]}/subject.txt`;
-            this.DIR = matches[1];
-            this.BBS = matches[2];
+            this.setThreadDetails(matches[1], matches[2]);
         }
     }
 
@@ -202,16 +236,19 @@ export class Shitaraba extends DataSource {
     DIR = "";
     sendUrl = "";
     listUrl = "";
+    settingUrl = "";
 
-    setThreadDetails() {
+    setThreadDetails(DIR: string, BBS: string, KEY?: string) {
         if (!this.listUrl && !this.sendUrl) {
-            var matches = this.url.match(SHITARABA_REGEX);
             console.log(this.url);
-            this.listUrl = `http://jbbs.shitaraba.net/${matches[1]}/${matches[2]}/subject.txt`;
-            this.DIR = matches[1];
-            this.BBS = matches[2];
-            this.KEY = matches[3];
-            this.sendUrl = `http://jbbs.shitaraba.net/bbs/write.cgi/${this.DIR}/${this.BBS}/${this.KEY}/`;
+            this.listUrl = `http://jbbs.shitaraba.net/${DIR}/${BBS}/subject.txt`;
+            this.DIR = DIR;
+            this.BBS = BBS;
+            this.settingUrl = `http://jbbs.shitaraba.net/bbs/api/setting.cgi/${this.DIR}/${this.BBS}/`;
+            if (KEY) {
+                this.KEY = KEY;
+                this.sendUrl = `http://jbbs.shitaraba.net/bbs/write.cgi/${this.DIR}/${this.BBS}/${this.KEY}/`;
+            }
         }
     }
     static isValidThreadURL(url: string): boolean {

@@ -41,6 +41,7 @@ export default class Application extends Vue {
     startThreadRequest() {
         if (!this.processing) return;
         this.reloadTimerCountDown = this.reload;
+        this.getBbsTitle();
         this.thread.request(
             (newArrival: number) => {
                 console.log("request success", newArrival.toString());
@@ -202,6 +203,7 @@ export default class Application extends Vue {
         this.loadUrlSource(load);
         if (load) this.initScroll();
         this.snackbar({ message: "読み込みを開始しました" });
+        this.getBbsTitle();
         this.thread.request(
             (newArrival: number) => {
                 this.snackbar({ message: "読み込みに成功しました" });
@@ -213,6 +215,22 @@ export default class Application extends Vue {
                     message: "ERROR : " + err, timeout: 1500
                 }
                 this.snackbar(warn);
+            }
+        );
+    }
+
+    getBbsTitle() {
+        if (this.thread.parentTitle) return;
+        this.thread.getSetting(
+            () => {
+                // this.snackbar({ message: "BBSタイトルの読み込みに成功しました" });
+            },
+            (err: any) => {
+                console.log("request failed", err);
+                let warn = {
+                    message: "ERROR : " + err, timeout: 1500
+                }
+                // this.snackbar(warn);
             }
         );
     }
@@ -503,7 +521,7 @@ export default class Application extends Vue {
             if (argv.url) { this.url = argv.url; }
             if (this.url) {
                 if (this.isvalidThreadUrl()) {
-                   this.loadUrlSource();
+                    this.loadUrlSource();
                 }
             }
 
