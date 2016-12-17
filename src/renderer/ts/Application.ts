@@ -465,6 +465,7 @@ export default class Application extends Vue {
         let argv = this.getArgv();
         console.log(argv);
         if (argv.url) this.url = argv.url;
+
         if (argv.server) {
             this.startServer();
             this.server = true;
@@ -502,8 +503,7 @@ export default class Application extends Vue {
             if (argv.url) { this.url = argv.url; }
             if (this.url) {
                 if (this.isvalidThreadUrl()) {
-                    if (argv.url) this.requestOnce(true)
-                    else this.loadUrlSource();
+                   this.loadUrlSource();
                 }
             }
 
