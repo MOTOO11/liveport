@@ -5,7 +5,12 @@
 したらば掲示板・CaveTubeのコメントを、読み上げます。  
 OBS Studioを使用している場合、字幕をOBS Studio内で表示することが出来ます。
 ### 使い方
+#### スレッドビューワーとして使う場合
 * liveport.exeを起動
+* またはliveport.exe [URL] として起動
+#### OSB Studioで使う場合
+* liveport.exe [server] 引数をつけて起動
+ * 2つ以上[server]として立ち上げるとエラーが発生します
 * OBS Studioの設定
   * ソース/BrowserSourceを追加
   * ダイアログに以下を入力
