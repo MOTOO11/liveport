@@ -35,26 +35,35 @@ gulp.task('wp:r', () => {
 });
 
 
-gulp.task('ts:compile', () => {
-    return gulp.src(["./src/electron/ts/Main.ts", "./src/electron/ts/Server.ts"])
+gulp.task('ts:compile', ["ts:compile:server"], () => {
+    return gulp.src(["./src/electron/ts/Main.ts"])
         .pipe(ts({
             target: 'ES5',
             removeComments: true
         }))
         .js
-        // .pipe(rename("main.js"))
+        .pipe(rename("main.js"))
         .pipe(gulp.dest(config.dist));
 });
-
-gulp.task('ts:compile:prod', () => {
-    return gulp.src(["./src/electron/ts/Main.prod.ts", "./src/electron/ts/Server.ts"]).pipe(ts({
+gulp.task('ts:compile:server', () => {
+    return gulp.src(["./src/electron/ts/Server.ts"]).pipe(ts({
             target: 'ES5',
             removeComments: true
         }))
         .js
-        // .pipe(rename("main.js"))
         .pipe(gulp.dest(config.dist));
 });
+
+gulp.task('ts:compile:prod', ["ts:compile:server"], () => {
+    return gulp.src(["./src/electron/ts/Main.prod.ts"]).pipe(ts({
+            target: 'ES5',
+            removeComments: true
+        }))
+        .js
+        .pipe(rename("main.js"))
+        .pipe(gulp.dest(config.dist));
+});
+
 
 gulp.task("html:useref", () => {
     return gulp.src(config.dist + "**/*.html")
