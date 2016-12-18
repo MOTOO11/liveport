@@ -112,7 +112,7 @@ export default class ProvideManager {
     }
 
     selectVoice(path?: string) {
-        Logger.log("select speaker", this.voice.toString());
+        Logger.log("select speaker", VOICE[this.voice.toString()]);
         if (this.voice === VOICE.WSA) {
             this.speaker = new WebspeechApi();
         } else if (this.voice === VOICE.SOFTALK) {

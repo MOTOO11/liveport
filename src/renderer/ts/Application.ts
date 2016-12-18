@@ -223,15 +223,10 @@ export default class Application extends Vue {
     getBbsTitle() {
         if (this.thread.parentTitle) return;
         this.thread.getSetting(
-            () => {
-                // this.snackbar({ message: "BBSタイトルの読み込みに成功しました" });
-            },
+            () => { },
             (err: any) => {
                 console.log("request failed", err);
-                let warn = {
-                    message: "ERROR : " + err, timeout: 1500
-                }
-                // this.snackbar(warn);
+                this.thread.parentTitle = "メインタイトルの取得に失敗しました"
             }
         );
     }
