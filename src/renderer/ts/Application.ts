@@ -359,6 +359,22 @@ export default class Application extends Vue {
         this.autoScroll = !this.autoScroll;
     }
 
+    get titles() {
+        return this.thread.title + this.thread.parentTitle;
+    }
+
+    @Watch("titles")
+    onTitlesChange(newValue: number, oldValue: number) {
+        this.setTitle();
+    }
+    setTitle(title: string = ApplicatonName) {
+        if (this.server)
+            title += " - broadcast mode";
+        if (this.thread.title && this.thread.parentTitle)
+            title += " " + this.thread.title + "@" + this.thread.parentTitle;
+        remote.getCurrentWindow().setTitle(title);
+    }
+
     scrollTo(value: number, duration: number = 1000) {
         if (value < 1) return;
         setTimeout(() => {
@@ -478,7 +494,6 @@ export default class Application extends Vue {
     version = VERSION;
 
     init() {
-        remote.getCurrentWindow().setTitle(ApplicatonName);
         this.pManager = new ProvideManager();
         this.thread = new Shitaraba("dummyThread");
         this.port = port;
@@ -489,7 +504,6 @@ export default class Application extends Vue {
         if (argv.server) {
             this.startServer();
             this.server = true;
-            remote.getCurrentWindow().setTitle(ApplicatonName + " - broadcast mode");
         }
 
         let items = localStorage.getItem(SETTINGS);
@@ -537,7 +551,6 @@ export default class Application extends Vue {
             return;
         }
 
-
         ipcRenderer.on("start", (event, arg) => {
             setTimeout(() => {
                 let port = arg;
@@ -581,6 +594,7 @@ export default class Application extends Vue {
     }
 
     mounted() {
+        this.setTitle();
         this.initScroll();
     };
 
