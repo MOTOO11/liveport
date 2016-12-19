@@ -17,6 +17,9 @@ export class Server {
         this.express.get('/', (req, res) => {
             res.sendFile(__dirname + '/browser/html/browser.html');
         });
+        this.express.get('/config.json', (req, res) => {
+            res.sendFile(__dirname + '/config.json');
+        });
         this.express.use("/js", Express.static(__dirname + '/browser/js'));
         this.socketio.on('connection', (socket) => {
             socket.on('message', (msg) => {

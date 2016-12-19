@@ -30,7 +30,8 @@ OBS Studioを使用している場合、字幕をOBS Studio内で表示するこ
 * タイトルバーにURLを入力後、**[▶]読み込み開始**ボタンを押す
 
 #### 詳細設定
-* [resources/app/config.json]を編集すると設定を変更できます
+* [resources/app/build/config.json]を編集すると設定を変更できます
+  * 初回起動時に作成されます
   * NGワード・読み替え・表示装飾など
 * 着信音は[resources/app/build/assets/audio]フォルダ内のmp3ファイルがランダムに使用されます
 * データは以下に保存されます

@@ -7,13 +7,13 @@ import { CaveTube } from "./CaveTube";
 import { VOICE, VoiceParameter } from "./Voice"
 import StringUtil from "./StringUtil";
 import ProvideManager from "./ProvideManager";
-const CONFIG = require("../../../config.json");
-const LETTER: string = CONFIG.letter;
-const CustomCss = CONFIG.CustomCss;
+import { configure } from "./Configure"
+const LETTER: string = configure.letter;
+const CustomCss = configure.CustomCss;
 import { remote, ipcRenderer } from "electron";
 const ApplicatonName = require("../../../package.json").name
 const VERSION = require("../../../package.json").version
-const port: number = CONFIG.port
+const port: number = configure.port
 import * as $ from "jquery"
 import * as fs from "fs";
 const SETTINGS = "settings";

@@ -2,7 +2,6 @@
 import * as Vue from "Vue";
 import { Component } from "vue-typed"
 import * as io from "socket.io-client";
-const config = require("../../../config.json");
 const MODE = {
     MESSAGE: "message",
     AA: "aa"
@@ -11,20 +10,31 @@ const MODE = {
 export default class Browser extends Vue {
     mode: string = MODE.MESSAGE;
     body: string = "字幕表示テスト";
-    fontSize: string = config.textFontSize;
+    fontSize: string = "";
+    config: any;
     constructor() {
         super();
     }
+
+    mounted() {
+        this.getConfig();
+    }
+
+    getConfig() {
+        $.getJSON("/config.json", (data, textStatus, jqXHR) => {
+            console.log("success : get config.json");
+            console.log(data);
+            this.config = data;
+        });
+    }
     onMessage(message: string) {
-        if (message.split("\n").length > config.textLineLimit) {
+        if (message.split("\n").length > this.config.textLineLimit) {
             this.onAa(message);
             return;
         };
         this.mode = MODE.MESSAGE;
         this.body = message;
-        this.fontSize = config.textFontSize;
-
-
+        this.fontSize = this.config.textFontSize;
     }
     onAa(aa: string) {
         this.mode = MODE.AA;

@@ -1,8 +1,8 @@
 const BR = /<br>/gi;
-const CONFIG = require("../../../config.json");
-const SystemDictionary = CONFIG.SystemDictionary;
-const UserDictionary: [{ pattern: string, reading: string }] = CONFIG.UserDictionary;
-const NgDictionary: string[] = CONFIG.NgDictionary;
+import { configure } from "./Configure"
+const SystemDictionary = configure.SystemDictionary;
+const UserDictionary: [{ pattern: string, reading: string }] = configure.UserDictionary;
+const NgDictionary: string[] = configure.NgDictionary;
 class StringUtil {
 
     static replaceBr2NewLine(str: string, nl?: string) {
