@@ -106,6 +106,21 @@
                         </div>
                     </span>
                     <span class="mdl-navigation__link">
+                        <label><i class="material-icons">keyboard</i> 送信キー:Enter+</label><br>
+                        <label class="mdl-radio mdl-js-radio mdl-js-ripple-effect" for="sendKey-1">
+                            <input type="radio" id="sendKey-1" class="mdl-radio__button"  v-model="sendKey"  v-bind:value="1" >
+                            <span class="mdl-radio__label">ctrl</span>
+                    </label>
+                    <label class="mdl-radio mdl-js-radio mdl-js-ripple-effect" for="sendKey-2">
+                            <input type="radio" id="sendKey-2" class="mdl-radio__button"  v-model="sendKey"  v-bind:value="2">
+                            <span class="mdl-radio__label">shift</span>
+                        </label>
+                    <label class="mdl-radio mdl-js-radio mdl-js-ripple-effect" for="sendKey-3">
+                            <input type="radio" id="sendKey-3" class="mdl-radio__button"  v-model="sendKey"  v-bind:value="3" >
+                            <span class="mdl-radio__label">無し</span>
+                        </label>
+                    </span>
+                    <span class="mdl-navigation__link">
                         <label><i v-on:click="clearDataSource()" class="material-icons cursor--hand">info</i> version:{{version}}</label>                  
                     </span>
                 </nav>
@@ -207,7 +222,7 @@
         <!-- fiexed comment bar -->
         <div v-show="showCommentView&&!showListView">
             <div class="fixed-commentbar">
-                <textarea v-on:keydown.shift.enter.prevent="sendMessage()" id="post" autocomplete="off" rows="3" v-model="comment.MESSAGE"></textarea>
+                <textarea v-on:keydown.shift.enter.prevent="sendMessage(2)" v-on:keydown.ctrl.enter.prevent="sendMessage(1)" id="post" autocomplete="off" rows="3" v-model="comment.MESSAGE"></textarea>
                 <div class="toolbar">
                     <label>名前:</label><input type="text" value="name" v-model="comment.NAME"><label>mail:</label><input type="text" v-model="comment.MAIL"><button v-on:click="sendMessage()" v-bind:disabled="!validUrl">送信</button>
                 </div>

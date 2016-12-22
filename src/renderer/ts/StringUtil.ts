@@ -16,9 +16,26 @@ class StringUtil {
 
     static urlToLink(text: string): string {
         var exp = new RegExp(SystemDictionary.URL.pattern, "ig");
+        let matches = text.match(exp);
         return text.replace(exp,
-            "<a href= \"" + ('$1'.lastIndexOf("ttp", 0) === 0 ? "" : "h")
-            + '$1' + "\" target=\"_blank\">$1</a>");
+            "<a href= \"" + "http:$3" + "\" target=\"_blank\">$1</a>");
+    }
+
+    static imageUrlToLinkStrings(text: string): string {
+        var exp = new RegExp(SystemDictionary.ImageExt.pattern, "ig");
+        let matches = text.match(exp);
+        let result = "";
+        if (matches) {
+            matches.forEach(element => {
+                let link = StringUtil.ttpLinkToHttpLink(element);
+                result += `<a href="${link}" target="_blank"><img class="thumbs" src="${link}" /></a>`;
+            });
+        }
+        return (result ? "<br />" : "") + result;
+    }
+
+    static ttpLinkToHttpLink(link: string) {
+        return (link.lastIndexOf('h', 0) === 0 ? "" : "h") + link;
     }
 
     static anchorToPlain(text: string): string {

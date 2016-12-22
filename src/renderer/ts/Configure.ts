@@ -12,9 +12,13 @@ export let configure;
 try {
     console.log("try reading config.json");
     configure = JSON.parse(fs.readFileSync(path, 'utf8'));
+    configure.SystemDictionary.URL.pattern = conf.SystemDictionary.URL.pattern;
+    // configure.SystemDictionary.ImageExt = conf.SystemDictionary.ImageExt;
+    fs.writeFileSync(path, JSON.stringify(configure));
     console.log("success reading config.json");
 }
 catch (e) {
+    console.log(e);
     console.log("can't reading config.son");
     configure = conf;
     try {

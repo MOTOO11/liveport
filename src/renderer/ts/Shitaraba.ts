@@ -169,17 +169,16 @@ export class Shitaraba extends DataSource {
             .then((htmlString) => {
                 console.log("request result : ok!");
                 let decoding = iconv.decode(htmlString, "EUC-JP")
-                console.log("result : "+decoding);
+                console.log("result : " + decoding);
                 let matches = decoding.match(BBS_TITLE);
                 if (matches.length > 0) {
                     this.parentTitle = matches[1];
-                    console.log("bbs title : "+matches[1]);
+                    console.log("bbs title : " + matches[1]);
                     this.save();
                     success();
                 } else {
                     failed("BBSタイトルの取得に失敗しました");
                 }
-
             })
             .catch((err) => {
                 console.log("error...");

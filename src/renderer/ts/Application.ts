@@ -17,6 +17,9 @@ const port: number = configure.port
 import * as $ from "jquery"
 import * as fs from "fs";
 const SETTINGS = "settings";
+enum KEY {
+    CTRL = 1, SHIFT = 2, NONE = 3
+}
 
 @Component({})
 export default class Application extends Vue {
@@ -268,22 +271,25 @@ export default class Application extends Vue {
         this.requestOnce(true);
     }
 
-    sendMessage() {
-        console.log("start send request");
-        this.snackbar({ message: "書き込み開始" });
-        if (!this.comment.MESSAGE) return;
-        if (this.url != this.thread.url) {
-            this.loadUrlSource();
+    sendKey = KEY.SHIFT;
+    sendMessage(sendKey?: number) {
+        if (this.sendKey === sendKey || !sendKey) {
+            console.log("start send request");
+            this.snackbar({ message: "書き込み開始" });
+            if (!this.comment.MESSAGE) return;
+            if (this.url != this.thread.url) {
+                this.loadUrlSource();
+            }
+            const message = {
+                NAME: this.comment.NAME, MAIL: this.comment.MAIL, MESSAGE: this.comment.MESSAGE
+            }
+            this.thread.sendMessage(message, (result: string) => {
+                this.snackbar({ message: result });
+                this.comment.MESSAGE = "";
+            }, (err) => {
+                this.snackbar({ message: err });
+            });
         }
-        const message = {
-            NAME: this.comment.NAME, MAIL: this.comment.MAIL, MESSAGE: this.comment.MESSAGE
-        }
-        this.thread.sendMessage(message, (result: string) => {
-            this.snackbar({ message: result });
-            this.comment.MESSAGE = "";
-        }, (err) => {
-            this.snackbar({ message: err });
-        });
     }
 
     showCommentView = false;
@@ -301,8 +307,12 @@ export default class Application extends Vue {
     }
 
     replace(msg: string) {
-        var utl = StringUtil.urlToLink(msg);
-        return StringUtil.anchorToInnerLink(utl);
+        console.log("re")
+        var replace = StringUtil.urlToLink(msg);
+        replace = StringUtil.anchorToInnerLink(replace);
+        // let images = StringUtil.imageUrlToLinkStrings(msg);
+        // return replace + images;
+        return replace;
     }
 
     get validThreadControlls() {
@@ -341,7 +351,10 @@ export default class Application extends Vue {
     snackbar(data: { message: string, timeout?: number } = { message: "info", timeout: 750 }) {
         var snackbarContainer: any = document.querySelector('#snackbar');
         if (!data.timeout) data.timeout = 750;
-        snackbarContainer.MaterialSnackbar.showSnackbar(data);
+        if (snackbarContainer)
+            snackbarContainer.MaterialSnackbar.showSnackbar(data);
+        else
+            console.log(data.message);
     }
 
     test(letter: string, body: string) {
@@ -457,7 +470,8 @@ export default class Application extends Vue {
             + this.playingNotificationSound
             + this.reload + this.provideTimeLimit + this.pManager.reading
             + this.path + this.pManager.voice
-            + this.comment.NAME + this.comment.MAIL;
+            + this.comment.NAME + this.comment.MAIL
+            + this.sendKey;
     }
 
     saveSettings() {
@@ -477,7 +491,8 @@ export default class Application extends Vue {
             playingNotificationSound: this.playingNotificationSound,
             dummyText: this.dummyText,
             MAIL: this.comment.MAIL,
-            NAME: this.comment.NAME
+            NAME: this.comment.NAME,
+            sendKey: this.sendKey
         }));
     };
 
@@ -487,6 +502,12 @@ export default class Application extends Vue {
     }
 
     version = VERSION;
+
+    getValueOrDefault(value1: any, value2: any) {
+        if (typeof value1 === "undefined")
+            return value2;
+        return value1;
+    }
 
     init() {
         this.pManager = new ProvideManager();
@@ -504,62 +525,57 @@ export default class Application extends Vue {
         let items = localStorage.getItem(SETTINGS);
         var settings = JSON.parse(items);
         if (!settings) {
+            console.log("settings initialize")
             this.pManager.selectVoice();
             this.saveSettings();
             return;
         }
-        try {
-            this.showCommentView = settings.showCommentView;
-            this.comment.NAME = settings.NAME;
-            this.comment.MAIL = settings.MAIL;
-            this.playingNotificationSound = Boolean(settings.playingNotificationSound);
-            this.autoScroll = Boolean(settings.autoScroll);
-            this.pManager.vParam.volume = Number(settings.volume);
-            this.pManager.vParam.rate = Number(settings.rate);
-            this.pManager.vParam.pitch = Number(settings.pitch);
-            this.pManager.vParam.use = Boolean(settings.use);
-            this.reload = Number(settings.reload);
-            this.reloadTimerCountDown = this.reload;
-            this.provideTimeLimit = Number(settings.provideTimeLimit);
-            this.provideTimerLimitCountDown = this.provideTimeLimit;
-            this.pManager.reading = Boolean(settings.reading);
-            this.path = settings.path;
-            this.dummyTextTemp = this.dummyText = settings.dummyText;
-            this.pManager.voice = Number(settings.voice);
-            this.pManager.selectVoice(this.path);
 
-            this.url = settings.url;
-            if (argv.url) { this.url = argv.url; }
-            if (this.url) {
-                if (this.isvalidThreadUrl()) {
-                    this.loadUrlSource();
-                }
+        this.showCommentView = this.getValueOrDefault(settings.showCommentView, this.showCommentView);
+        this.comment.NAME = this.getValueOrDefault(settings.NAME, this.comment.NAME);
+        this.comment.MAIL = this.getValueOrDefault(settings.MAIL, this.comment.MAIL);
+        this.playingNotificationSound = Boolean(this.getValueOrDefault(settings.playingNotificationSound, this.playingNotificationSound));
+        this.autoScroll = Boolean(this.getValueOrDefault(settings.autoScroll, this.autoScroll));
+        this.pManager.vParam.volume = Number(this.getValueOrDefault(settings.volume, this.pManager.vParam.volume));
+        this.pManager.vParam.rate = Number(this.getValueOrDefault(settings.rate, this.pManager.vParam.rate));
+        this.pManager.vParam.pitch = Number(this.getValueOrDefault(settings.pitch, this.pManager.vParam.pitch));
+        this.pManager.vParam.use = Boolean(this.getValueOrDefault(settings.use, this.pManager.vParam.use));
+        this.reload = Number(this.getValueOrDefault(settings.reload, this.reload));
+        this.reloadTimerCountDown = this.reload;
+        this.provideTimeLimit = Number(this.getValueOrDefault(settings.provideTimeLimit, this.provideTimeLimit));
+        this.provideTimerLimitCountDown = this.provideTimeLimit;
+        this.pManager.reading = Boolean(this.getValueOrDefault(settings.reading, this.pManager.reading));
+        this.path = this.getValueOrDefault(settings.path, this.path);
+        this.dummyTextTemp = this.dummyText = this.getValueOrDefault(settings.dummyText, this.dummyText);
+        this.pManager.voice = Number(this.getValueOrDefault(settings.voice, this.pManager.voice));
+        this.pManager.selectVoice(this.path);
+
+        this.url = this.getValueOrDefault(settings.url, this.url);
+        if (argv.url) { this.url = argv.url; }
+        if (this.url) {
+            if (this.isvalidThreadUrl()) {
+                this.requestOnce(true);
             }
-
-            console.log("done load settings", items);
-        } catch (e) {
-            console.log("error:invalid settings.");
-            console.log(e);
-            localStorage.removeItem(SETTINGS);
-            if (argv.server) this.stopServer();
-            this.init();
-            return;
         }
+
+        this.sendKey = this.getValueOrDefault(settings.sendKey, KEY.SHIFT);
+
+        console.log("done load settings", items);
 
         ipcRenderer.on("start", (event, arg) => {
             setTimeout(() => {
                 let port = arg;
                 this.pManager.connectIOServer(port);
-                console.log("サーバーが起動しました")
+                this.snackbar({ message: "サーバーが起動しました" });
             }, 3000);
         })
         ipcRenderer.on("failed", (event, arg) => {
-            console.log("サーバーの起動に失敗しました。既に起動しているかポートが使用されています。")
+            this.snackbar({ message: "サーバーの起動に失敗しました。既に起動しているかポートが使用されています。" })
             this.server = false;
         })
         ipcRenderer.on("stop", (event, arg) => {
             setTimeout(() => {
-                console.log("サーバーを停止しました");
+                this.snackbar({ message: "サーバーを停止しました" });
             }, 3000);
         })
     }
