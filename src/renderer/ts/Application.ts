@@ -306,15 +306,6 @@ export default class Application extends Vue {
         MESSAGE: ""
     }
 
-    replace(msg: string) {
-        console.log("re")
-        var replace = StringUtil.urlToLink(msg);
-        replace = StringUtil.anchorToInnerLink(replace);
-        // let images = StringUtil.imageUrlToLinkStrings(msg);
-        // return replace + images;
-        return replace;
-    }
-
     get validThreadControlls() {
         return !this.isvalidThreadUrl() || this.showListView;
     }
@@ -471,7 +462,8 @@ export default class Application extends Vue {
             + this.reload + this.provideTimeLimit + this.pManager.reading
             + this.path + this.pManager.voice
             + this.comment.NAME + this.comment.MAIL
-            + this.sendKey;
+            + this.sendKey + this.showThumb
+            + this.version;
     }
 
     saveSettings() {
@@ -492,7 +484,9 @@ export default class Application extends Vue {
             dummyText: this.dummyText,
             MAIL: this.comment.MAIL,
             NAME: this.comment.NAME,
-            sendKey: this.sendKey
+            sendKey: this.sendKey,
+            showThumb: this.showThumb,
+            version: this.version
         }));
     };
 
@@ -531,6 +525,11 @@ export default class Application extends Vue {
             return;
         }
 
+        if (typeof settings.version === "undefined" || this.version != settings.version) {
+            this.clearDataSource();
+        }
+        this.version = this.getValueOrDefault(settings.version, this.version);
+
         this.showCommentView = this.getValueOrDefault(settings.showCommentView, this.showCommentView);
         this.comment.NAME = this.getValueOrDefault(settings.NAME, this.comment.NAME);
         this.comment.MAIL = this.getValueOrDefault(settings.MAIL, this.comment.MAIL);
@@ -549,6 +548,7 @@ export default class Application extends Vue {
         this.dummyTextTemp = this.dummyText = this.getValueOrDefault(settings.dummyText, this.dummyText);
         this.pManager.voice = Number(this.getValueOrDefault(settings.voice, this.pManager.voice));
         this.pManager.selectVoice(this.path);
+        this.showThumb = Boolean(this.getValueOrDefault(settings.showThumb, this.showThumb));
 
         this.url = this.getValueOrDefault(settings.url, this.url);
         if (argv.url) { this.url = argv.url; }
@@ -560,6 +560,7 @@ export default class Application extends Vue {
 
         this.sendKey = this.getValueOrDefault(settings.sendKey, KEY.SHIFT);
 
+        this.saveSettings();
         console.log("done load settings", items);
 
         ipcRenderer.on("start", (event, arg) => {
@@ -579,6 +580,8 @@ export default class Application extends Vue {
             }, 3000);
         })
     }
+
+    showThumb = true;
 
     port = 3000;
     server = false;

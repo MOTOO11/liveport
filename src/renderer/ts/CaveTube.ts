@@ -65,14 +65,15 @@ export class CaveTube extends DataSource {
         var resArray: Message[] = [];
         for (var i in comments) {
             if (+i + 1 > this.messages.length) {
-                var res = new Message();
-                res.num = comments[i].comment_num;
-                res.name = comments[i].name;
-                res.mail = comments[i].user_icon ? "http:" + comments[i].user_icon : "";
-                res.date = this.calcDatatime(comments[i].time);
-                res.text = comments[i].message;
-                res.id = "";
-                res.latest = true;
+                let res = new Message();
+                let num = comments[i].comment_num;
+                let name = comments[i].name;
+                let mail = comments[i].user_icon ? "http:" + comments[i].user_icon : "";
+                let date = this.calcDatatime(comments[i].time);
+                let text = comments[i].message;
+                let id = "";
+                let latest = true;
+                res.setParameters(num, name, mail, date, text, "", id, latest)
                 resArray.push(res);
             }
         }

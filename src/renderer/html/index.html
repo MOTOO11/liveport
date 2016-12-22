@@ -120,6 +120,14 @@
                             <span class="mdl-radio__label">無し</span>
                         </label>
                     </span>
+
+                    <span class="mdl-navigation__link">
+                        <label><i class="material-icons">photo</i> サムネイルを表示</label>
+                        <label class="mdl-switch mdl-js-switch mdl-js-ripple-effect" for="showThumb">
+                            <input type="checkbox" id="showThumb" class="mdl-switch__input"  v-model="showThumb">
+                            <span class="mdl-switch__label">{{showThumb?"on":"off"}}</span>
+                    </label>
+                    </span>
                     <span class="mdl-navigation__link">
                         <label><i v-on:click="clearDataSource()" class="material-icons cursor--hand">info</i> version:{{version}}</label>                  
                     </span>
@@ -138,7 +146,7 @@
                                         <span v-else>[{{item.mail}}]</span>
                                 </span>
                                 <span v-bind:style="CSS.date">{{item.date}}</span> <span v-bind:style="CSS.id" v-show="item.id">ID:{{item.id}}</span></dt>
-                            <dd v-html="replace(item.text)" v-bind:style="CSS.message" class="aa" :key="item.num"></dd>
+                            <dd v-html="item.decorateText + (showThumb?item.optionalText:'')" v-bind:style="CSS.message" class="aa" :key="item.num"></dd>
                         </dl>
                     </div>
                     <div v-show="showListView">

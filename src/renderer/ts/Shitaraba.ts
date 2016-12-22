@@ -46,18 +46,19 @@ export class Shitaraba extends DataSource {
         for (var i = 0; i < line.length - 1; i++) {
             var r = line[i].split(RES_SPLITTER);
             var res = new Message();
-            res.num = +r[0];
-            res.name = r[1];
-            res.mail = r[2];
-            res.date = r[3];
-            res.text = r[4];
-            res.title = r[5];
-            res.latest = true;
+            let num = +r[0];
+            let name = r[1];
+            let mail = r[2];
+            let date = r[3];
+            let text = r[4];
+            let title = r[5];
+            let latest = true;
+            let id = r[6];
+            res.setParameters(num, name, mail, date, text, title, id, latest);
             if (res.title) {
                 this.title = res.title;
                 console.log("new thread title : " + res.title);
             }
-            res.id = r[6];
             resArray.push(res);
         }
         this.messages.forEach(element => {
