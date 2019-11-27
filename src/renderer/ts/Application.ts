@@ -4,6 +4,7 @@ import { Component, Watch } from "vue-typed"
 import { DataSource } from "./DataSource";
 import { Shitaraba } from "./Shitaraba";
 import { CaveTube } from "./CaveTube";
+import { Nichan } from "./Nichan";
 import { VOICE, VoiceParameter } from "./Voice"
 import StringUtil from "./StringUtil";
 import ProvideManager from "./ProvideManager";
@@ -246,7 +247,14 @@ export default class Application extends Vue {
             this.snackbar({ message: "URLが正しくありません" });
         }
         if (this.isValidBBSUrl()) {
+            if (Shitaraba.isValidBBSURL(this.url)) {
             this.thread = new Shitaraba(this.url);
+            } else if (Nichan.isValidBBSURL(this.url)) {
+                this.thread = new Nichan(this.url);
+            } else {
+                // 上の２節のどちらかは通るはず。
+                throw new Error("logic error");
+            }
         }
         this.snackbar({ message: "一覧の読み込みを開始" });
         this.thread.getLists(() => {
@@ -427,11 +435,11 @@ export default class Application extends Vue {
     }
 
     isValidBBSUrl() {
-        return Shitaraba.isValidBBSURL(this.url);
+        return Shitaraba.isValidBBSURL(this.url) || Nichan.isValidBBSURL(this.url) ;
     }
 
     isvalidThreadUrl(): boolean {
-        return Shitaraba.isValidThreadURL(this.url) || CaveTube.isValidURL(this.url);
+        return Shitaraba.isValidThreadURL(this.url) || CaveTube.isValidURL(this.url) || Nichan.isValidThreadURL(this.url);
     }
 
     // allocate
@@ -448,6 +456,12 @@ export default class Application extends Vue {
             if (load) {
                 this.thread.load();
             }
+        }
+        if (Nichan.isValidThreadURL(this.url)) {
+            this.thread = new Nichan(this.url);
+            if (load) {
+                this.thread.load();
+    }
         }
     }
 
