@@ -33,6 +33,7 @@
         "src/renderer/ts/Speaker.ts",
         "src/renderer/ts/StringUtil.ts",
         "src/renderer/ts/Shitaraba.ts",
+        "src/renderer/ts/Nichan.ts",
         "src/renderer/ts/CaveTube.ts",
         "src/renderer/ts/Voice.ts",
         "src/renderer/ts/WebSpeechApi.ts"
