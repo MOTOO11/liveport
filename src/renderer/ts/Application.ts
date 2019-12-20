@@ -621,7 +621,7 @@ export default class Application extends Vue {
             argv = ipcRenderer.sendSync('argv');
         console.log("argv : " + argv);
         argv.forEach(element => {
-            if (/^http:\/\/.+/.test(element)) {
+            if (/^https?:\/\/.+/.test(element)) {
                 result.url = element;
             } else if (element === "server") {
                 result.server = true;
