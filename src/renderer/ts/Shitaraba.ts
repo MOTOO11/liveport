@@ -4,6 +4,8 @@ import * as  iconv from "iconv-lite";
 import Message from "./Message";
 import * as encoding from "encoding-japanese";
 import { DataSource, ThreadList } from "./DataSource";
+const ApplicatonName = require("../../../package.json").name
+const VERSION = require("../../../package.json").version
 const SHITARABA_REGEX = new RegExp(/^https?:\/\/jbbs.shitaraba.net\/bbs\/read.cgi\/(\w+)\/(\d+)\/(\d+)\//);
 const SHITARABA_BBS_REGEX = new RegExp(/^https?:\/\/jbbs.shitaraba.net\/(\w+)\/(\d+)\//);
 const RES_SPLITTER = new RegExp(/<>/g);
@@ -128,7 +130,8 @@ export class Shitaraba extends DataSource {
         const option = {
             url: this.sendUrl, encoding: null, timeout: DEFAULT_TIMEOUT,
             headers: {
-                referer: this.url
+                referer: this.url,
+                "User-Agent": `${ApplicatonName}/${VERSION}`
             },
             form: form
         };
